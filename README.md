@@ -1,4 +1,4 @@
-# GitOnDown
+# GoGitDown
 Framework for building apps on GitHub Pages, typically using Markdown, and with a heavy emphasis on extending capabilities through GitHub Gist.
 
 ## What it does
@@ -14,7 +14,7 @@ The framework provides:
 - Various helper functions
 
 ## GitHub not needed
-While this framework is built to work on GitHub Pages, it isn't required. GitOnDown is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
+While this framework is built to work on GitHub Pages, it isn't required. GoGitDown is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
 
 ### Core dependencies
 - jQuery - https://jquery.com/
