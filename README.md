@@ -33,6 +33,7 @@ While this framework is built to work on GitHub Pages, it isn't required. GoGitD
 ## Example CSS Themes
 - [Alexa Cheats](?css=3340cb9dcb273289b51aef3570f5304d) - Port of theme from [Alexa Cheats](https://ugotsta.github.io/alexa-cheats/).
 - [Vintage Western](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
+- [Woodwork](?css=c604615983fc6cdd5ebdbdd053800298) - Elegantly dark wood theme.
 - [Corkboard](?css=ada930f9dae1d0a8d95f41cb7a56d658) - Lively corkboard theme with CSS pins.
 - [Alternating Colors](?css=e774fa60940e2dc452d78e8382798a2c) - Flat but colorful theme.
 - [Spacious](?css=160db22223834d33b08337cebbbba94e) - Spacious with subtle colors.
