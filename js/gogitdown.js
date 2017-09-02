@@ -295,15 +295,9 @@ jQuery(document).ready(function() {
         $('#wrapper ' + heading).each(function() {
             var name = css_name( $(this).text() );
             $(this).wrapInner('<a class="handle" name="' + name + '" href="#' + name + '"/>');
-            $(this).nextUntil(heading).andSelf().wrapAll('<div class="section" id="' + name + '"/>');
+            $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
             $(this).nextUntil(heading).wrapAll('<div class="content"/>');
         });
-        
-        // add relevant classes to section headings
-        $('.section ' + heading).addClass('heading');
-        
-        // add choice class to section li links
-        $('.content a[href*="#"]').addClass('choice');
     }
     
     // to help with incorrectly formatted Markdown (which is very common)
@@ -343,7 +337,7 @@ jQuery(document).ready(function() {
     
     function go_to_hash() {
         var hash = location.hash;
-        var header_hash = '#' + $('.section.header').attr('id');
+        var header_hash = '#'; + $('.section.header').attr('id');
         if( hash && $(hash).length > 0 && hash != header_hash ) {
             // add class so we can know which is selected as current
             // useful in some web apps
@@ -484,8 +478,8 @@ jQuery(document).ready(function() {
         var html = '';
         // iterate section classes and get id name to compose TOC
         for ( var i = 0; i < sections.length; i++ ) {
-            var name = sections[i];
-            html += '<a href="#' + css_name(name) + '" ';
+            var name = css_name( sections[i] );
+            html += '<a href="#' + name + '" ';
             
             var classes = '';
             // add '.current' class if this section is currently selected
@@ -542,13 +536,13 @@ jQuery(document).ready(function() {
         
         // event handler to toggle info panel
         $('#hide').click(function() {
-            $('#info').toggle();
+            $('#info').toggleClass('minimized');
         });
         
         // to help with mobile, show #info when wrapper is clicked outside sections
         $('#wrapper').on('click', function (e) {
             if ( $(e.target).closest(".section").length === 0 ) {
-                $('#info').show();
+                $('#info').removeClass('minimized');
             }
         });
         
@@ -563,7 +557,7 @@ jQuery(document).ready(function() {
         $(document).keyup(function(e) {
             if( e.which == 191 ) {
                 // ? for help
-                $('#info').toggle();
+                $('#info').toggleClass('minimized');
             } else if (e.keyCode === 27) {
                 // Escape
                 $('.selector').hide();
