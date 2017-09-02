@@ -294,7 +294,7 @@ jQuery(document).ready(function() {
         // create sections
         $('#wrapper ' + heading).each(function() {
             var name = css_name( $(this).text() );
-            $(this).wrapInner('<a class="handle" name="' + name + '" href="#' + name + '"/>');
+            $(this).wrapInner('<a class="handle" name="' + name + '"/>');
             $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
             $(this).nextUntil(heading).wrapAll('<div class="content"/>');
         });
@@ -400,7 +400,7 @@ jQuery(document).ready(function() {
         
         var content = '';
         content += '<a id="help-ribbon" href="//github.com' + path
-        content += '#' + app_title + '">?</a>';
+        content += '#' + app_title.toLowerCase() + '">?</a>';
         
         content += '<h1 class="' + css_name(app_title) +  '">' + app_title + '</h1>';
         content += '<div id="command-count">.section total:</div>';
