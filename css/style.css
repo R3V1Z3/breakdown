@@ -89,7 +89,7 @@ kbd:hover {
   z-index: 100;
 }
 
-.info .minimized {
+.info.minimized {
   opacity: 0;
   pointer-events: none;
 }
