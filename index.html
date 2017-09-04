@@ -1,30 +1,41 @@
 <!DOCTYPE html>
-<html lang="en" id="gogitdown">
+<html lang="en" id="gitdown">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
     <script src="//code.jquery.com/jquery-latest.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/7.0.0/markdown-it.min.js"></script>
-    <script src="//ugotsta.github.io/gogitdown/js/sanitizer.js"></script>
+    <script src="js/sanitizer.js"></script>
     
-    <link rel="stylesheet" type="text/css" href="//ugotsta.github.io/gogitdown/css/core.css">
+    <script src="js/gitdown.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/core.css">
 
-    <title>GoGitDown</title>
+    <title>GitDown</title>
 </head>
 
 <body id="custom">
     
-    <!-- Main content -->
+    <!-- Outer wrapper -->
     <div id="wrapper">
     </div>
-    
-    <!-- Info panel -->
-    <div id="info">
-    </div>
-    
-    <script src="//ugotsta.github.io/gogitdown/js/gogitdown.js"></script>
+
+    <script>
+        jQuery(document).ready(function() {
+        
+            // attach the plugin to an element
+            $('#wrapper').gitdown( {'foo': 'bar'} );
+        
+            // call a public method
+            //$('#element').data('pluginName').foo_public_method();
+        
+            // get the value of a property
+            //$('#element').data('pluginName').settings.foo;
+        
+        });
+    </script>
 </body>
 
 </html>

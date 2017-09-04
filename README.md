@@ -1,7 +1,7 @@
-# GoGitDown
-Framework for building apps on GitHub Pages, typically using Markdown, and with a heavy emphasis on extending capabilities through GitHub Gist.
+# GitDown
+Framework for building apps on GitHub Pages using Markdown, and with a heavy emphasis on experimenting through and using GitHub Gist for code hosting.
 
-## What it does
+## What it do
 The framework provides:
 - Markdown rendering function using MarkdownIt
 - Configurable info panel with routine to update it
@@ -14,11 +14,11 @@ The framework provides:
 - Various helper functions
 
 ## GitHub not needed
-While this framework is built to work on GitHub Pages, it isn't required. GoGitDown is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
+While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
 
 ### Core dependencies
-- jQuery - https://jquery.com/
-- Markdownit.js - https://markdown-it.github.io/
+- [jQuery](https://jquery.com/) - used for ajax calls and for simplify_life()
+- [Markdownit.js](https://markdown-it.github.io/) - used to render Markdown
 
 ## Example Gists
 - [Alexa Cheats](?gist=2a06603706fd7c2eb5c93f34ed316354) - Fun commands for Amazon Alexa.

@@ -1,5 +1,5 @@
 @media print {
-  #info {
+  .info {
     display: none;
   }
   #wrapper {
@@ -9,8 +9,18 @@
 
 @page { size:8.5in 11in; margin: 0.25cm }
 
-/* Section */
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
 #wrapper {
+  width: 100%;
+  height: 100%;
+  margin: auto;
+}
+
+.container {
   width: 50%;
   padding: 40px;
   margin: auto;
@@ -20,7 +30,7 @@
 .section {
   display: block;
   margin: auto;
-
+  page-break-inside: avoid;
 }
 
 .section .content {
@@ -62,18 +72,17 @@ kbd:hover {
 
 .minimized {
   opacity: 0;
+  pointer-events: none;
+}
+
+.info * {
+  color: white;
 }
 
 /* Info panel */
-#info * {
-  text-shadow: none;
-  color: #fff;
-}
-
-#info {
+.info {
   background: rgba(0,0,0,0.9);
   position: fixed;
-  float:right;
   top: 0px;
   right: 0px;
   width: 300px;
@@ -81,60 +90,62 @@ kbd:hover {
   box-shadow: -2px 2px 8px rgba(0,0,0,0.45);
   border-radius: 0px 0px 0px 10px;
   padding: 10px;
+  color: #fff;
 }
 
-#info h1 {
+.info h1 {
   margin: 0;
   font-size: 2.3em;
 }
 
-#info h1, #info h3 {
+.info h1, #info h3 {
   text-transform: none;
 }
 
-#info a {
+.info a {
   color: #999;
   text-decoration: none;
 }
 
-#info #toc a:hover,
+.info #toc a:hover,
 #gist-url:hover,
 #css-url:hover,
-#info a:hover,
-#info .selector-toggle:hover {
+.info a:hover,
+.info .selector-toggle:hover {
   color: #fff;
   cursor: pointer;
 }
 
-#info #gist-url,
-#info #css-url {
+.info #gist-url,
+.info #css-url {
   background: rgba(255,255,255,0.15);
   padding-left: 4px;
   padding-right: 4px;
   border-radius: 3px;
 }
 
-#info #hide {
+.info #hide {
   position: absolute;
   text-align: right;
   bottom: 20px;
   right: 20px;
 }
 
-#info form {
+.info form {
   display: inline-block;
   align-items: center;
 }
 
-#command-count code {
+.command-count code {
   background: rgba(255,255,255,0.25);
   padding: 2px 4px;
   border-radius: 3px;
   cursor: pointer;
+  color: white;
 }
 
 /* Table of Contents */
-#info #toc {
+.info #toc {
   max-height: 150px;
   overflow-y: scroll;
   background-color: rgb(255, 255, 255);
@@ -142,14 +153,14 @@ kbd:hover {
   border-radius: 5px;
 }
 
-#info #toc a,
+.info #toc a,
 #gist-url,
 #css-url {
   display: inline;
   cursor: pointer;
 }
 
-#info #toc a {
+.info #toc a {
   display: block;
 }
 
@@ -159,7 +170,7 @@ kbd:hover {
 }
 
 /* Gist and CSS selector */
-#info .selector {
+.info .selector {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -175,23 +186,15 @@ kbd:hover {
   border-left: 1px solid #777;
 }
 
-#info .selector-toggle {
+.info .selector-toggle {
   color: #999;
 }
 
-#info .selector span {
-  color: #999;
-}
-
-#info .selector span:hover {
-  color: #fff;
-}
-
-#info .selector span {
+.info .selector .id {
   margin-left: 6px;
 }
 
-#info .selector input {
+.info .selector input {
   margin-bottom: 6px;
   width: 95%;
   border-radius: 5px;
@@ -202,13 +205,13 @@ kbd:hover {
   outline: 1px solid rgba(0,0,0,0.2);
 }
 
-#info .selector input::-webkit-input-placeholder,
-#info .selector input::-moz-placeholder {
+.info .selector input::-webkit-input-placeholder,
+.info .selector input::-moz-placeholder {
   color: rgba(0,0,0,0.15);
 }
 
 /* Help Ribbon */
-a#help-ribbon {
+#wrapper .info a.help-ribbon {
   position: absolute;
   transform: rotate(45deg);
   font-size: 2.75em;
@@ -224,10 +227,10 @@ a#help-ribbon {
   color: black;
   border: 3px double black;
   text-shadow: 1px 1px 1px white, 2px 2px 4px black, -1px -1px 1px white, -2px -2px 8px black;
-  font-family: serif;
+  font-family: "Times New Roman", serif;
 }
 
-a#help-ribbon::before {
+#wrapper .info a.help-ribbon::before {
   background: white;
   width: 200px;
   height: 30px;
@@ -241,7 +244,7 @@ a#help-ribbon::before {
   mix-blend-mode: soft-light;
 }
 
-a#help-ribbon:hover {
+#wrapper .info a.help-ribbon:hover {
   background: burlywood;
   color: black;
 }
@@ -251,7 +254,7 @@ a#help-ribbon:hover {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-    background: rgba(255, 255, 255, 0.2);
+    background: #333;
 }
 ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.5);
