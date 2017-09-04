@@ -108,16 +108,16 @@ kbd:hover {
 }
 
 .info #toc a:hover,
-#gist-url:hover,
-#css-url:hover,
+.gist-url:hover,
+.css-url:hover,
 .info a:hover,
 .info .selector-toggle:hover {
   color: #fff;
   cursor: pointer;
 }
 
-.info #gist-url,
-.info #css-url {
+.info .gist-url,
+.info .css-url {
   background: rgba(255,255,255,0.15);
   padding-left: 4px;
   padding-right: 4px;
@@ -154,8 +154,8 @@ kbd:hover {
 }
 
 .info #toc a,
-#gist-url,
-#css-url {
+.gist-url,
+.css-url {
   display: inline;
   cursor: pointer;
 }
@@ -188,6 +188,15 @@ kbd:hover {
 
 .info .selector-toggle {
   color: #999;
+  padding: 6px;
+  display: block;
+  margin: 4px;
+}
+
+a.gist-source,
+a.css-source {
+  float: left;
+  padding: 6px 10px;
 }
 
 .info .selector .id {
@@ -211,7 +220,8 @@ kbd:hover {
 }
 
 /* Help Ribbon */
-#wrapper .info a.help-ribbon {
+#wrapper .info a.help-ribbon,
+.info a.help-ribbon {
   position: absolute;
   transform: rotate(45deg);
   font-size: 2.75em;
@@ -227,10 +237,11 @@ kbd:hover {
   color: black;
   border: 3px double black;
   text-shadow: 1px 1px 1px white, 2px 2px 4px black, -1px -1px 1px white, -2px -2px 8px black;
-  font-family: "Times New Roman", serif;
+  font-family: "Times New Roman", serif !important;
 }
 
-#wrapper .info a.help-ribbon::before {
+#wrapper .info a.help-ribbon::before,
+.info a.help-ribbon::before {
   background: white;
   width: 200px;
   height: 30px;
@@ -244,7 +255,8 @@ kbd:hover {
   mix-blend-mode: soft-light;
 }
 
-#wrapper .info a.help-ribbon:hover {
+#wrapper .info a.help-ribbon:hover,
+.info a.help-ribbon:hover {
   background: burlywood;
   color: black;
 }

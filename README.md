@@ -3,6 +3,7 @@ Framework for building apps on GitHub Pages using Markdown, and with a heavy emp
 
 ## What it do
 The framework provides:
+- a base for ready-made projects that can easily be forked on GitHub.
 - Markdown rendering function using MarkdownIt
 - Configurable info panel with routine to update it
 - Section renderer
@@ -21,6 +22,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Markdownit.js](https://markdown-it.github.io/) - used to render Markdown
 
 ## Example Gists
+These examples, when they exist in this README file, will be pulled and shown in a Gist drop-down in the Info panel.
 - [Alexa Cheats](?gist=2a06603706fd7c2eb5c93f34ed316354) - Fun commands for Amazon Alexa.
 - [Screen Cheatsheet](?gist=af918e1618682638aa82) - Helpful commands for Screen.
 - [Regular Expression Cheatsheet](?gist=3893f6ac9447f7ee27fe) - Easy reference for regular expressions.
@@ -31,6 +33,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Vim Cheats](?gist=c002acb756d5cf09b1ad98494a81baa3) - Simple, intuitive cheatsheet for Vim
 
 ## Example CSS Themes
+As with the exmaple Gists, any CSS themes listed here will be pull and shown in a CSS theme drop-down in the Info panel.
 - [Alexa Cheats](?css=3340cb9dcb273289b51aef3570f5304d) - Port of theme from [Alexa Cheats](https://ugotsta.github.io/alexa-cheats/).
 - [Vintage Western](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
 - [Woodwork](?css=c604615983fc6cdd5ebdbdd053800298) - Elegantly dark wood theme.

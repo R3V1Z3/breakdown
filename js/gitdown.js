@@ -44,6 +44,7 @@
         
         var example_gist = {};
         var example_css = {};
+        var link_symbol = '&#11150';
 
         // simplify plugin name with this
         var plugin = this;
@@ -54,7 +55,6 @@
         // element.data('pluginName').settings.propertyName from outside the plugin, 
         // where "element" is the element the plugin is attached to;
         plugin.settings = {};
-
         
         var $element = $(element);
         var eid = '#' + $element.attr('id');
@@ -83,7 +83,7 @@
                     $element.attr( 'id', eid.substr(1) );
                 }
             }
-            eid_container = eid + ' ' + defaults['container'];
+            eid_container = eid + ' .' + defaults['container'];
             
             // call main() based on options
             main();
@@ -296,7 +296,7 @@
             }
             render(data);
             render_sections();
-            $( eid + ' .container' ).css('font-size', defaults['fontsize'] + '%');
+            $( eid_container ).css('font-size', defaults['fontsize'] + '%');
             tag_replace('kbd');
             tag_replace('i');
             tag_replace('<!--');
@@ -321,10 +321,10 @@
                 $( eid + ' .command-count' ).remove();
             }
             if( options['hide_gist_details'] ) {
-                $( eid + ' #gist-details' ).remove();
+                $( eid + ' .gist-details' ).remove();
             }
             if( options['hide_css_details'] ) {
-                $( eid + ' #css-details' ).remove();
+                $( eid + ' .css-details' ).remove();
             }
             if( options['disable_hide'] ) {
                 $( eid + ' .hide' ).remove();
@@ -356,7 +356,7 @@
                     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
                 }
             });
-            $( eid + ' .container' ).html( md.render(content) );
+            $( eid_container ).html( md.render(content) );
         };
         
         var render_sections = function() {
@@ -364,8 +364,8 @@
             // header section
             var header = defaults['header'];
             var heading = defaults['heading'];
-            if ( $( eid + ' .container ' + header ).length ) {
-                $( eid + ' .container ' + header ).each(function() {
+            if ( $( eid_container + ' ' + header ).length ) {
+                $( eid_container + ' ' + header ).each(function() {
                     var name = plugin.css_name( $(this).text() );
                     $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
@@ -373,11 +373,11 @@
                 });
             } else {
                 //no header, so we'll add an empty one
-                $( eid + ' .container' ).prepend('<div class="header"></div>');
+                $( eid_container ).prepend('<div class="header"></div>');
             }
             
             // create sections
-            $( eid + ' .container ' + heading ).each(function() {
+            $( eid_container + ' ' + heading ).each(function() {
                 var name = plugin.css_name( $(this).text() );
                 $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                 $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
@@ -440,11 +440,11 @@
         // custom method to allow for certain tags like <i> and <kbd>
         // extra security measures need to be taken here since we're allowing html
         var tag_replace = function(tag) {
-            var str = $( eid + ' .container' ).html();
+            var str = $( eid_container ).html();
             if( tag === '<!--' ) {
                 var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
                 str = str.replace( r , '<!--$1-->' );
-                $( eid + ' .container' ).html(str);
+                $( eid_container ).html(str);
                 // replace back comments wrapped in code blocks
                 $( eid + ' code' ).contents().each(function(i, val) {
                     if ( this.nodeType === 8 ) {
@@ -458,7 +458,7 @@
                 var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
                 var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
                 str = str.replace(open, '<' + tag + '$1>').replace(close, '</' + tag + '>');
-                $( eid + ' .container' ).html(str);
+                $( eid_container ).html(str);
                 // update fontawesome icons
                 if ( tag === 'i' ){
                     $( eid + ' i' ).attr('class', function(_, classes) {
@@ -489,28 +489,28 @@
             content += '<h1 class="' + plugin.css_name(app_title) +  '">' + app_title + '</h1>';
             content += '<div class="command-count">.section total:</div>';
             content += '</br>';
-            content += '<div id="gist-details">View this file:</br>';
-            content += '<a id="gist-source" href="https://github.com' + path;
-            content += 'master/README.md" target="_blank">↪</a>';
-            content += '<a id="gist-url" class="selector-toggle">README.md ▾</a>';
-            content += '<div id="gist-selector" class="selector">';
-            content += '<input id="gist-input" type="text" placeholder="Gist ID" />';
+            content += '<div class="gist-details">';
+            content += '<a class="gist-source" href="https://github.com' + path;
+            content += 'master/README.md" target="_blank">' + link_symbol + '</a>';
+            content += '<a class="gist-url selector-toggle">README.md ▾</a>';
+            content += '<div class="gist-selector selector" class="selector">';
+            content += '<input class="gist-input" type="text" placeholder="Gist ID" />';
             
-            content += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">↪</a>';
+            content += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
             content += '<a class="id" id="default">Default (README.md)</a><br/>';
             
             // Example Gist list
             content += example_content(example_gist);
             
             content += '</div></div>';
-            content += '<div id="css-details">CSS Theme:<br/>';
-            content += '<a id="css-source" href="https://github.com' + path;
-            content += 'blob/master/css/style.css" target="_blank">↪</a>';
-            content += '<a id="css-url" class="selector-toggle">Default (style.css) ▾</a>';
-            content += '<div id="css-selector" class="selector">';
-            content += '<input id="css-input" type="text" placeholder="Gist ID for CSS theme" />';
+            content += '<div class="css-details">';
+            content += '<a class="css-source" href="https://github.com' + path;
+            content += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
+            content += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
+            content += '<div class="css-selector selector" class="selector">';
+            content += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
             
-            content += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">↪</a>';
+            content += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
             content += '<a class="id" id="default">Default (style.css)</a><br/>';
             
             // Example CSS list
@@ -534,25 +534,25 @@
             var url = '';
             if (defaults['gist'] != 'default') {
                 url = 'https://gist.github.com/' + defaults['gist'];
-                $( eid + ' #gist-url' ).text(defaults['gist_filename'] + ' ▾');
+                $( eid + ' .gist-url' ).text(defaults['gist_filename'] + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
-            $( eid + ' #gist-source' ).attr('href', url);
+            $( eid + ' .gist-source' ).attr('href', url);
             
             if (defaults['css'] != 'default') {
                 url = 'https://gist.github.com/' + defaults['css'];
-                $( eid + ' #css-url' ).text(defaults['css_filename'] + ' ▾');
+                $( eid + ' .css-url' ).text(defaults['css_filename'] + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
-            $( eid + ' #css-source' ).attr('href', url);
+            $( eid + ' .css-source' ).attr('href', url);
         };
         
         // returns comma-delimmeted array of section names
         var section_names = function() {
             var a = [];
-            $( eid + ' .container .section a.handle' ).each(function(){
+            $( eid_container + ' .section a.handle' ).each(function(){
                 a.push( $(this).text() );
             });
             return a;
@@ -585,7 +585,7 @@
         };
         
         var render_count = function(element) {
-            var count = $( eid + ' .container ' + element ).length;
+            var count = $( eid_container + ' ' + element ).length;
             $( eid + ' .command-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
         
@@ -621,16 +621,9 @@
             });
             
             // to help with mobile, show .info when container is clicked outside sections
-            $( eid + ' .container' ).on('click', function (e) {
+            $( eid_container ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
                     $( eid + ' .info' ).removeClass('minimized');
-                }
-            });
-            
-            // close input panel when container is clicked
-            $( eid + ' #input-wrapper' ).on('click', function (e) {
-                if ( $(e.target).closest( eid + ' #input-panel' ).length === 0 ) {
-                    $(this).hide();
                 }
             });
             
@@ -645,14 +638,14 @@
                 }
             });
             
-            $( eid + ' #gist-input' ).keyup(function(e) {
+            $( eid + ' .gist-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
                     params.set( 'gist', $(this).val() );
                     window.location.href = plugin.uri();
                 }
             });
             
-            $( eid + ' #css-input' ).keyup(function(e) {
+            $( eid + ' .css-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
                     params.set( 'css', $(this).val() );
                     window.location.href = plugin.uri();
@@ -661,27 +654,26 @@
             
             // hide selector if it or link not clicked
             $(document).click(function(event) {
-                var id = event.target.id;
-                if ( $( eid + ' #gist-selector' ).is(':visible') ) {
-                    if ( id === 'gist-url' || id === 'gist-selector' || id === 'gist-input' ) {
+                var $t = $(event.target);
+                if ( $( eid + ' .gist-selector' ).is(':visible') ) {
+                    if ( $t.hasClass('gist-url') || $t.hasClass('gist-selector') || $t.hasClass('gist-input') ) {
                     } else {
-                        $( eid + ' #gist-selector' ).hide();
+                        $( eid + ' .gist-selector' ).hide();
                     }
                 }
-                if ( $( eid + ' #css-selector' ).is(':visible') ) {
-                    if ( id === 'css-url' || id === 'css-selector' || id === 'css-input' ) {
+                if ( $( eid + ' .css-selector' ).is(':visible') ) {
+                    if ( $t.hasClass('css-url') || $t.hasClass('css-selector') || $t.hasClass('css-input') ) {
                     } else {
-                        $( eid + ' #css-selector' ).hide();
+                        $( eid + ' .css-selector' ).hide();
                     }
                 }
             });
             
             // Gist and CSS selectors
             $( eid + ' .selector-toggle' ).click(function() {
-                var prefix = '#gist';
-                var id = $(this).attr('id');
-                if ( id === 'css-url' ) {
-                    prefix = '#css';
+                prefix = '.gist';
+                if ( $(this).hasClass('css-url') ) {
+                    prefix = '.css';
                 }
                 $( eid + ' ' + prefix + '-selector' ).toggle();
                 // move focus to text input
@@ -696,10 +688,10 @@
                 
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
-                    if ( prefix === '#gist' ){
-                        params.set( 'gist', $(this).attr("id") );
+                    if ( prefix === '.gist' ){
+                        params.set( 'gist', $(this).attr('id') );
                     } else {
-                        params.set( 'css', $(this).attr("id") );
+                        params.set( 'css', $(this).attr('id') );
                     }
                     window.location.href = plugin.uri();
                 });
@@ -723,7 +715,7 @@
         var example_content = function(examples) {
             var content = '';
             for (var key in examples) {
-                content += '<a href="https://gist.github.com/' + examples[key] + '" target="_blank">↪</a>';
+                content += '<a href="https://gist.github.com/' + examples[key] + '" target="_blank">' + link_symbol + '</a>';
                 content += '<a class="id" id="' + examples[key] + '">' + key + '</a><br/>';
             }
             return content;
