@@ -29,6 +29,7 @@
             header: 'h1',               // element to use for header
             heading: 'h2',              // element to use for sections
             container: 'container',     // class added for container
+            inner: 'inner',             // inner container for styling
             fontsize: '',
             gist: 'default',
             gist_filename: '',
@@ -88,6 +89,7 @@
         var $element = $(element);
         var eid = '#' + $element.attr('id');
         var eid_container;
+        var eid_inner;
 
         // CONSTRUCTOR --------------------------------------------------------
         plugin.init = function() {
@@ -98,7 +100,9 @@
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
 
-            var content = '<div class="' + defaults['container'] + '"></div>';
+            var content = '<div class="' + defaults['container'] + '">';
+            content += '<div class="' + defaults['inner'] + '">';
+            content += '</div>';
             content += '<div class="info"></div>';
             $element.html(content);
             
@@ -113,6 +117,7 @@
                 }
             }
             eid_container = eid + ' .' + defaults['container'];
+            eid_inner = eid_container + ' .' + defaults['inner'];
             
             // call main() based on options
             main();
@@ -329,7 +334,7 @@
             render(data);
             render_sections();
             if ( defaults['fontsize'] != '' ) {
-                $( eid_container ).css('font-size', defaults['fontsize'] + '%');
+                $( eid_inner ).css('font-size', defaults['fontsize'] + '%');
             }
             tag_replace('kbd');
             tag_replace('i');
@@ -390,7 +395,7 @@
                     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
                 }
             });
-            $( eid_container ).html( md.render(content) );
+            $( eid_inner ).html( md.render(content) );
         };
         
         var render_sections = function() {
@@ -398,8 +403,8 @@
             // header section
             var header = defaults['header'];
             var heading = defaults['heading'];
-            if ( $( eid_container + ' ' + header ).length ) {
-                $( eid_container + ' ' + header ).each(function() {
+            if ( $( eid_inner + ' ' + header ).length ) {
+                $( eid_inner + ' ' + header ).each(function() {
                     var name = plugin.css_name( $(this).text() );
                     $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
@@ -407,11 +412,11 @@
                 });
             } else {
                 //no header, so we'll add an empty one
-                $( eid_container ).prepend('<div class="header"></div>');
+                $( eid_inner ).prepend('<div class="header"></div>');
             }
             
             // create sections
-            $( eid_container + ' ' + heading ).each(function() {
+            $( eid_inner + ' ' + heading ).each(function() {
                 var name = plugin.css_name( $(this).text() );
                 $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                 $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
@@ -474,11 +479,11 @@
         // custom method to allow for certain tags like <i> and <kbd>
         // extra security measures need to be taken here since we're allowing html
         var tag_replace = function(tag) {
-            var str = $( eid_container ).html();
+            var str = $( eid_inner ).html();
             if( tag === '<!--' ) {
                 var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
                 str = str.replace( r , '<!--$1-->' );
-                $( eid_container ).html(str);
+                $( eid_inner ).html(str);
                 // replace back comments wrapped in code blocks
                 $( eid + ' code' ).contents().each(function(i, val) {
                     if ( this.nodeType === 8 ) {
@@ -492,7 +497,7 @@
                 var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
                 var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
                 str = str.replace(open, '<' + tag + '$1>').replace(close, '</' + tag + '>');
-                $( eid_container ).html(str);
+                $( eid_inner ).html(str);
                 // update fontawesome icons
                 if ( tag === 'i' ){
                     $( eid + ' i' ).attr('class', function(_, classes) {
@@ -586,7 +591,7 @@
         // returns comma-delimmeted array of section names
         var section_names = function() {
             var a = [];
-            $( eid_container + ' .section a.handle' ).each(function(){
+            $( eid_inner + ' .section a.handle' ).each(function(){
                 a.push( $(this).text() );
             });
             return a;
@@ -620,7 +625,7 @@
         };
         
         var render_count = function(element) {
-            var count = $( eid_container + ' ' + element ).length;
+            var count = $( eid_inner + ' ' + element ).length;
             $( eid + ' .command-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
         
@@ -656,7 +661,7 @@
             });
             
             // to help with mobile, show .info when container is clicked outside sections
-            $( eid_container ).on('click', function (e) {
+            $( eid_inner ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
                     $( eid + ' .info' ).removeClass('minimized');
                 }

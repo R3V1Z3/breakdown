@@ -14,13 +14,13 @@ html, body {
   margin: 0;
 }
 
-#wrapper {
+#wrapper, .container {
   width: 100%;
   height: 100%;
   margin: auto;
 }
 
-.container {
+.inner {
   width: 50%;
   padding: 40px;
   margin: auto;
