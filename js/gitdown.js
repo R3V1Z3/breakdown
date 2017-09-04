@@ -1,15 +1,31 @@
 /* global $, jQuery, location, HtmlWhitelistedSanitizer, URLSearchParams, URL */
 (function($) {
 
-    // here we go!
-    $.gitdown = function(element, opt) {
+    $.gitdown = function(element, options) {
 
-        // default options
+        /*
+            Options are configurable by 3 means:
+            1. plugin instantiation
+            2. options in README <!-- {options: foo=bar...} -->
+            3. URL parameters
+            
+            That also represents order of precedence. Options provided through
+            plugin instantiation code take precedence over those specified by
+            URL parameter.
+            
+            Thus, if you fork the repo on GitHub, you can easily alter the
+            options through at instantiation so that URL parameters are
+            disallowed. Or more easily, you can alter the options by just
+            editing the README.
+        */
+
         var defaults = {
             
-            header: 'h1',   // element to use for header
-            heading: 'h2',  // element to use for sections
-            container: 'container',  // class added for container
+            // defaults for url parameters
+            
+            header: 'h1',               // element to use for header
+            heading: 'h2',              // element to use for sections
+            container: 'container',     // class added for container
             fontsize: 100,
             gist: 'default',
             gist_filename: '',
@@ -17,14 +33,9 @@
             css_filename: '',
             preprocess: false,
             
-            // if your plugin is event-driven, you may provide callback capabilities
-            // for its events. execute these functions before or after events of your 
-            // plugin, so that users may customize those particular events without 
-            // changing the plugin's code
-            onFoo: function() {}
-        };
-        
-        var options = {
+            // defaults unavailable as url parameters
+            
+            title: 'GitDown',
             hide_info: false,
             hide_help_ribbon: false,
             hide_command_count: false,
@@ -49,7 +60,6 @@
         // simplify plugin name with this
         var plugin = this;
 
-        // this will hold the merged default, and user-provided options
         // plugin's properties will be available through this object like:
         // plugin.settings.propertyName from inside the plugin or
         // element.data('pluginName').settings.propertyName from outside the plugin, 
@@ -67,7 +77,7 @@
             
             
             // merge defaults and user-provided options into plugin settings
-            plugin.settings = $.extend({}, defaults, opt);
+            plugin.settings = $.extend({}, defaults, options);
 
             var content = '<div class="' + defaults['container'] + '"></div>';
             content += '<div class="info"></div>';
@@ -301,7 +311,7 @@
             tag_replace('i');
             tag_replace('<!--');
             go_to_hash();
-            render_info('GitDown');
+            render_info( plugin.settings.title );
             
             register_events();
             handle_options();
