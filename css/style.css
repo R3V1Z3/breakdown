@@ -70,16 +70,12 @@ kbd:hover {
 
 /* ------------------------------------------------------------------------ */
 
-.minimized {
-  opacity: 0;
-  pointer-events: none;
-}
+/* Info panel */
 
 .info * {
   color: white;
 }
 
-/* Info panel */
 .info {
   background: rgba(0,0,0,0.9);
   position: fixed;
@@ -90,7 +86,11 @@ kbd:hover {
   box-shadow: -2px 2px 8px rgba(0,0,0,0.45);
   border-radius: 0px 0px 0px 10px;
   padding: 10px;
-  color: #fff;
+}
+
+.info .minimized {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .info h1 {
@@ -98,7 +98,7 @@ kbd:hover {
   font-size: 2.3em;
 }
 
-.info h1, #info h3 {
+.info h1, .info h3 {
   text-transform: none;
 }
 
@@ -107,33 +107,30 @@ kbd:hover {
   text-decoration: none;
 }
 
-.info #toc a:hover,
+.info a:hover,
+.info .toc a:hover,
 .gist-url:hover,
 .css-url:hover,
-.info a:hover,
 .info .selector-toggle:hover {
   color: #fff;
   cursor: pointer;
+  background: rgba(255,255,255,0.15);
 }
 
 .info .gist-url,
 .info .css-url {
-  background: rgba(255,255,255,0.15);
+  background-color: rgba(255, 255, 255, 0.05);
   padding-left: 4px;
   padding-right: 4px;
   border-radius: 3px;
 }
 
-.info #hide {
+.info .hide {
   position: absolute;
   text-align: right;
   bottom: 20px;
   right: 20px;
-}
-
-.info form {
-  display: inline-block;
-  align-items: center;
+  cursor: pointer;
 }
 
 .command-count code {
@@ -145,26 +142,27 @@ kbd:hover {
 }
 
 /* Table of Contents */
-.info #toc {
+.info .toc {
   max-height: 150px;
   overflow-y: scroll;
-  background-color: rgb(255, 255, 255);
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 5px;
 }
 
-.info #toc a,
+.info .toc a,
 .gist-url,
 .css-url {
   display: inline;
   cursor: pointer;
 }
 
-.info #toc a {
+.info .toc a {
   display: block;
+  padding: 6px;
+  border-bottom: 1px solid black;
 }
 
-#toc .hidden {
+.toc .hidden {
   text-decoration: line-through;
   opacity: 0.5;
 }
@@ -191,6 +189,22 @@ kbd:hover {
   padding: 6px;
   display: block;
   margin: 4px;
+}
+
+a.selector-toggle::after {
+  text-align: right;
+  float: right;
+  color: rgba(255,255,255,0.25);
+  font-family: monospace;
+  padding: 2px;
+}
+
+a.gist-url::after {
+  content: "GIST";
+}
+
+a.css-url::after {
+  content: "CSS";
 }
 
 a.gist-source,

@@ -330,7 +330,7 @@
                 $( eid + ' .hide' ).remove();
             }
             if( options['hide_toc'] ) {
-                $( eid + ' #toc' ).remove();
+                $( eid + ' .toc' ).remove();
                 $( eid + ' .info h3' ).remove();
             }
         };
@@ -518,8 +518,8 @@
             
             content += '</div></div>';
             content += '<h3>Table of Contents</h3>';
-            content += '<div id="toc"></div>';
-            content += '<div id="hide"><kbd>?</kbd> - show/hide this panel.</div>';
+            content += '<div class="toc"></div>';
+            content += '<div class="hide"><kbd>?</kbd> - show/hide this panel.</div>';
             $( eid + ' .info' ).html(content);
             
             // update TOC
@@ -581,7 +581,7 @@
                 html += sections[i];
                 html += '</a>';
             }
-            $( eid + ' #toc' ).html( html );
+            $( eid + ' .toc' ).html( html );
         };
         
         var render_count = function(element) {
@@ -616,7 +616,7 @@
             });
             
             // event handler to toggle info panel
-            $( eid + ' #hide' ).click(function() {
+            $( eid + ' .hide' ).click(function() {
                 $( eid + ' .info' ).toggleClass('minimized');
             });
             
@@ -698,7 +698,7 @@
             });
             
             // add click event to toggle items in toc
-            $( eid + ' #toc .toggle' ).click(function() {
+            $( eid + ' .toc .toggle' ).click(function() {
                 var name = $(this).parent().attr('href');
                 // toggle hidden status
                 if( $(this).parent().hasClass('hidden') ) {
