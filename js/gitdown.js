@@ -4,19 +4,22 @@
     $.gitdown = function(element, options) {
 
         /*
-            Options are configurable by 3 means:
+            Options are configurable by 3 means, in the following order:
             1. plugin instantiation
             2. options in README <!-- {options: foo=bar...} -->
             3. URL parameters
             
-            That also represents order of precedence. Options provided through
+            That represents order of precedence. Options provided through
             plugin instantiation code take precedence over those specified by
             URL parameter.
             
             Thus, if you fork the repo on GitHub, you can easily alter the
-            options through at instantiation so that URL parameters are
+            options at instantiation in index.html so that URL parameters are
             disallowed. Or more easily, you can alter the options by just
             editing the README.
+            
+            The goal is to allow flexibility for any level of user from
+            developers to designers or those just looking to have fun.
         */
 
         var defaults = {
@@ -26,7 +29,7 @@
             header: 'h1',               // element to use for header
             heading: 'h2',              // element to use for sections
             container: 'container',     // class added for container
-            fontsize: 100,
+            fontsize: '',
             gist: 'default',
             gist_filename: '',
             css: 'default',
@@ -45,6 +48,22 @@
             disable_hide: false,
             parameters_disallowed: ''
         };
+        
+        // sanitize defaults to be safe
+        for ( var key in defaults ){
+            var val = defaults[key];
+            if ( defaults.hasOwnProperty(key) ) {
+                // only sanitize strings
+                if ( typeof val === 'string' ) {
+                    // ignore filenames
+                    if ( key.indexOf('filename') === -1 ){
+                        // replace non-alphanumerics with underscore
+                        val = val.replace(/[^a-z0-9_\s-]/g, '_');
+                        defaults[key] = val;
+                    }
+                }
+            }
+        }
         
         var TOC = [];
         
@@ -288,12 +307,15 @@
         };
     
         // Update defaults[] with URL parameters
+        // p = defaults
         var extract_parameters = function( p ) {
             for (var key in p) {
                 if ( params.has(key) ) {
-                    // ensure the parameter is allowed
-                    if ( options['parameters_disallowed'].indexOf(key) === -1 ) {
-                        defaults[key] = params.get(key);
+                    if ( plugin.is_nothing( p['parameters_disallowed']) ){
+                        // ensure the parameter is allowed
+                        if ( p['parameters_disallowed'].indexOf(key) === -1 ) {
+                            defaults[key] = params.get(key);
+                        }
                     }
                 }
             }
@@ -306,7 +328,9 @@
             }
             render(data);
             render_sections();
-            $( eid_container ).css('font-size', defaults['fontsize'] + '%');
+            if ( defaults['fontsize'] != '' ) {
+                $( eid_container ).css('font-size', defaults['fontsize'] + '%');
+            }
             tag_replace('kbd');
             tag_replace('i');
             tag_replace('<!--');
@@ -423,7 +447,7 @@
         
         var section_change = function() {
             go_to_hash();
-            update_toc( section_names() );
+            update_toc();
         };
         
         var get_current_section_id = function() {
@@ -533,7 +557,7 @@
             $( eid + ' .info' ).html(content);
             
             // update TOC
-            update_toc( section_names() );
+            update_toc();
             
             // command count
             var c = $( eid + ' .command-count' ).text();
@@ -568,7 +592,8 @@
             return a;
         };
         
-        var update_toc = function(sections) {
+        var update_toc = function() {
+            var sections = section_names();
             var html = '';
             // iterate section classes and get id name to compose TOC
             for ( var i = 0; i < sections.length; i++ ) {
@@ -577,7 +602,7 @@
                 
                 var classes = '';
                 // add '.current' class if this section is currently selected
-                if ( sections[i] === get_current_section_id() ) {
+                if ( plugin.css_name( sections[i] ) === get_current_section_id() ) {
                     classes += "current";
                 }
                 // add '.hidden' class if parent section is hidden
