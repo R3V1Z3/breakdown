@@ -130,6 +130,11 @@
         // element.data('pluginName').publicMethod(arg1, arg2, ... argn) from outside 
         // the plugin, where "element" is the element the plugin is attached to;
         
+        plugin.eid = function(o) {
+            if ( o === 'inner') return eid_inner;
+            return eid_container;
+        };
+        
         // returns true if input variable is null, undefined or ''
         plugin.is_nothing = function(i) {
             if ( i === undefined || i == undefined) {
