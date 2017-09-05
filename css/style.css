@@ -55,6 +55,11 @@ code {
   border-radius: 3px;
 }
 
+pre code,
+pre.hljs {
+  background: none;
+}
+
 kbd {
   background: black;
   color: white;

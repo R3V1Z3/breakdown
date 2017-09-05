@@ -336,6 +336,7 @@
             if ( defaults['fontsize'] != '' ) {
                 $( eid_inner ).css('font-size', defaults['fontsize'] + '%');
             }
+            get_highlight_style();
             tag_replace('kbd');
             tag_replace('i');
             tag_replace('<!--');
@@ -423,6 +424,14 @@
                 $(this).nextUntil(heading).wrapAll('<div class="content"/>');
             });
         };
+        
+        var get_highlight_style = function() {
+            // get highlight.js style if provided
+            var highlight = params.get('highlight');
+            if (!highlight) highlight = 'default';
+            // add style reference to head to load it
+            $('head').append('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/' + highlight.replace(/[^a-zA-Z0-9-_]+/ig, '') + '.min.css">');
+        }
         
         // to help with incorrectly formatted Markdown (which is very common)
         var preprocess = function(data) {
