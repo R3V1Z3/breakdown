@@ -175,6 +175,33 @@
             // found only same char so return -1
             return -1;
         };
+        
+        plugin.update_toc = function() {
+            var sections = section_names();
+            var html = '';
+            // iterate section classes and get id name to compose TOC
+            for ( var i = 0; i < sections.length; i++ ) {
+                var name = plugin.css_name( sections[i] );
+                html += '<a href="#' + name + '" ';
+                
+                var classes = '';
+                // add '.current' class if this section is currently selected
+                if ( plugin.css_name( sections[i] ) === get_current_section_id() ) {
+                    classes += "current";
+                }
+                // add '.hidden' class if parent section is hidden
+                if ( $('#' + name).is(':hidden') ) {
+                    classes += " hidden";
+                }
+                if ( classes != '' ) {
+                    html += 'class="' + classes + '"';
+                }
+                html += '>';
+                html += sections[i];
+                html += '</a>';
+            }
+            $( eid + ' .toc' ).html( html );
+        };
 
         // PRIVATE METHODS -----------------------------------------------------
         var main = function() {
@@ -461,7 +488,7 @@
         
         var section_change = function() {
             go_to_hash();
-            update_toc();
+            plugin.update_toc();
         };
         
         var get_current_section_id = function() {
@@ -571,7 +598,7 @@
             $( eid + ' .info' ).html(content);
             
             // update TOC
-            update_toc();
+            plugin.update_toc();
             
             // command count
             var c = $( eid + ' .command-count' ).text();
@@ -604,33 +631,6 @@
                 a.push( $(this).text() );
             });
             return a;
-        };
-        
-        var update_toc = function() {
-            var sections = section_names();
-            var html = '';
-            // iterate section classes and get id name to compose TOC
-            for ( var i = 0; i < sections.length; i++ ) {
-                var name = plugin.css_name( sections[i] );
-                html += '<a href="#' + name + '" ';
-                
-                var classes = '';
-                // add '.current' class if this section is currently selected
-                if ( plugin.css_name( sections[i] ) === get_current_section_id() ) {
-                    classes += "current";
-                }
-                // add '.hidden' class if parent section is hidden
-                if ( $('#' + name).is(':hidden') ) {
-                    classes += " hidden";
-                }
-                if ( classes != '' ) {
-                    html += 'class="' + classes + '"';
-                }
-                html += '>';
-                html += sections[i];
-                html += '</a>';
-            }
-            $( eid + ' .toc' ).html( html );
         };
         
         var render_count = function(element) {
@@ -756,7 +756,7 @@
                 } else {
                     $(name).hide();
                 }
-                update_toc();
+                plugin.update_toc();
             });
         };
         
