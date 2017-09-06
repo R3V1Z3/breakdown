@@ -499,7 +499,6 @@
         
         var section_change = function() {
             go_to_hash();
-            plugin.update_toc();
         };
         
         var get_current_section_id = function() {

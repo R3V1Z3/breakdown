@@ -168,11 +168,6 @@ kbd:hover {
   border-bottom: 1px solid black;
 }
 
-.toc .hidden {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
 /* Gist and CSS selector */
 .info .selector {
   position: absolute;
@@ -213,10 +208,10 @@ a.css-url::after {
   content: "CSS";
 }
 
-a.gist-source,
-a.css-source {
+a.gist-source, a.css-source {
   float: left;
   padding: 6px 10px;
+  margin-right: 6px;
 }
 
 .info .selector .id {
