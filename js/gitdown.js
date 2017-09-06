@@ -2,7 +2,7 @@
 (function($) {
 
     $.gitdown = function(element, options, callback) {
-
+        
         /*
             Options are configurable by 3 means, in the following order:
             1. plugin instantiation
@@ -104,7 +104,7 @@
             content += '<div class="' + defaults['inner'] + '">';
             content += '</div>';
             content += '<div class="info"></div>';
-            $element.html(content);
+            $element.append(content);
             
             // ensure $element has an id
             if ( eid === '#' ) {
@@ -382,8 +382,8 @@
             $( eid + ' .info .selector' ).hide();
             
             // with everything loaded, execute user-provided callback
-            if (typeof callback == 'function') {
-                callback.call();
+            if (typeof plugin.settings.callback == 'function') {
+                plugin.settings.callback.call();
             }
         };
         
