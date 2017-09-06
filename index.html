@@ -26,13 +26,20 @@
         jQuery(document).ready(function() {
         
             // attach the plugin to an element
-            $('#wrapper').gitdown( {'title': 'GitDown'} );
+            $('#wrapper').gitdown( {'title': 'GitDown'},
+                                    done('Plugin fully loaded.') );
         
             // to call public methods
             // $('#element').data('gitdown').update_toc();
         
             // to access settings
             // $('#element').data('gitdown').settings.fontsize;
+            
+            // add a callback like so, if you need to do stuff after
+            // the plugin's ajax methods are completed
+            function done(p) {
+                console.log(p);
+            }
         
         });
     </script>

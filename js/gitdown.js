@@ -1,7 +1,7 @@
 /* global $, jQuery, location, HtmlWhitelistedSanitizer, URLSearchParams, URL */
 (function($) {
 
-    $.gitdown = function(element, options) {
+    $.gitdown = function(element, options, callback) {
 
         /*
             Options are configurable by 3 means, in the following order:
@@ -380,6 +380,11 @@
             
             // hide selectors at start
             $( eid + ' .info .selector' ).hide();
+            
+            // with everything loaded, execute user-provided callback
+            if (typeof callback == 'function') {
+                callback.call();
+            }
         };
         
         var handle_options = function() {

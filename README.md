@@ -1,5 +1,8 @@
 # GitDown
-Framework for building apps on GitHub Pages using Markdown, and with a heavy emphasis on experimenting through and using GitHub Gist for code hosting.
+jQuery + GitHub Pages + GitHub Gist + Markdown + MarkdownIt =  
+~~jGitHubPageGistMarkdownMarkdownIt~~ GitDown
+
+GitDown framework provides a core for quickly and easily building apps on GitHub Pages that use Markdown with a heavy emphasis on experimenting and extending using GitHub Gist for code hosting.
 
 ## What it do
 The framework provides:
