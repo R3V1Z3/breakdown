@@ -445,7 +445,7 @@
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
                     var name = plugin.css_name( $(this).text() );
-                    $(this).wrapInner('<a class="handle" name="' + name + '"/>');
+                    $(this).wrapInner('<a class="handle ' + name + '" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
                     $(this).nextUntil(heading).wrapAll('<div class="content"/>');
                 });
