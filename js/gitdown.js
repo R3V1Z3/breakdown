@@ -757,19 +757,6 @@
                     window.location.href = plugin.uri();
                 });
             });
-            
-            // add click event to toggle items in toc
-            $( eid + ' .toc .toggle' ).click(function() {
-                var name = $(this).parent().attr('href');
-                // toggle hidden status
-                if( $(this).parent().hasClass('hidden') ) {
-                    $(name).show();
-                    $(this).parent().removeClass('hidden');
-                } else {
-                    $(name).hide();
-                }
-                plugin.update_toc();
-            });
         };
         
         // helper function to avoid replication of example content
