@@ -51,22 +51,6 @@
             parameters_disallowed: ''
         };
         
-        // sanitize defaults to be safe
-        for ( var key in defaults ){
-            var val = defaults[key];
-            if ( defaults.hasOwnProperty(key) ) {
-                // only sanitize strings
-                if ( typeof val === 'string' ) {
-                    // ignore filenames
-                    if ( key.indexOf('filename') === -1 ){
-                        // replace non-alphanumerics with underscore
-                        val = val.replace(/[^a-z0-9_\s-]/g, '_');
-                        defaults[key] = val;
-                    }
-                }
-            }
-        }
-        
         var TOC = [];
         
         // get URL parameters
@@ -95,9 +79,6 @@
         // CONSTRUCTOR --------------------------------------------------------
         plugin.init = function() {
 
-            // sanitize defaults
-            
-            
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
 
@@ -132,6 +113,28 @@
         // plugin.methodName(arg1, arg2, ... argn) from inside the plugin or
         // element.data('pluginName').publicMethod(arg1, arg2, ... argn) from outside 
         // the plugin, where "element" is the element the plugin is attached to;
+        
+        // detect specified url parameter, clean and add it to settings
+        plugin.update_parameter = function(key) {
+            var val = '';
+            // check if specified key exists as url param
+            if ( params.has(key) ) {
+                // ensure the parameter is allowed
+                if ( plugin.settings.parameters_disallowed.indexOf(key) === -1 ) {
+                    val = params.get(key);
+                    // sanitize strings
+                    if ( typeof val === 'string' ) {
+                        // ignore filenames
+                        if ( key.indexOf('filename') === -1 ){
+                            // replace non-alphanumerics with underscore
+                            val = val.replace(/[^a-z0-9_\s-]/g, '_');
+                        }
+                    }
+                    plugin.settings[key] = val;
+                }
+            }
+            return val;
+        };
         
         plugin.eid = function(o) {
             if ( o === 'inner') return eid_inner;
@@ -348,16 +351,11 @@
         };
     
         // Update settings with URL parameters
+        // p = plugin.settings
         var extract_parameters = function( p ) {
             for (var key in p) {
-                if ( params.has(key) ) {
-                    if ( plugin.is_nothing( p['parameters_disallowed']) ){
-                        // ensure the parameter is allowed
-                        if ( p['parameters_disallowed'].indexOf(key) === -1 ) {
-                            plugin.settings[key] = params.get(key);
-                        }
-                    }
-                }
+                // check key against URL parameters
+                plugin.update_parameter(key);
             }
         };
         
