@@ -289,7 +289,7 @@ a.css-source {
     background: #333;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.25);
     /* border: solid whiteSmoke 4px; */
     border-radius: 3px;
 }

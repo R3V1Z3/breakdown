@@ -1,4 +1,4 @@
-/* global $, jQuery, location, HtmlWhitelistedSanitizer, URLSearchParams, URL */
+/* global jQuery, $, location, HtmlWhitelistedSanitizer, URLSearchParams, URL, hljs */
 (function($) {
 
     $.gitdown = function(element, options, callback) {
@@ -35,6 +35,7 @@
             gist_filename: '',
             css: 'default',
             css_filename: '',
+            highlight: 'default',
             preprocess: false,
             
             // defaults unavailable as url parameters
@@ -100,8 +101,8 @@
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
 
-            var content = '<div class="' + defaults['container'] + '">';
-            content += '<div class="' + defaults['inner'] + '">';
+            var content = '<div class="' + plugin.settings.container + '">';
+            content += '<div class="' + plugin.settings.inner + '">';
             content += '</div>';
             content += '<div class="info"></div>';
             $element.append(content);
@@ -116,8 +117,10 @@
                     $element.attr( 'id', eid.substr(1) );
                 }
             }
-            eid_container = eid + ' .' + defaults['container'];
-            eid_inner = eid_container + ' .' + defaults['inner'];
+            
+            // helper variables to simplify access to container elements
+            eid_container = eid + ' .' + plugin.settings.container;
+            eid_inner = eid_container + ' .' + plugin.settings.inner;
             
             // call main() based on options
             main();
@@ -219,20 +222,21 @@
                     dataType: "text",
                     success : function (data) {
                         pull_options(data);
-                        extract_parameters( defaults );
-                        var gist = defaults['gist'];
+                        var p = plugin.settings;
+                        extract_parameters( p );
+                        var gist = p.gist;
                         if ( !gist || gist === 'default' ) {
-                            defaults['gist'] === 'default';
-                            if ( !defaults['css'] || defaults['css'] === 'default' ) {
+                            plugin.settings.gist === 'default';
+                            if ( !p.css || p.css === 'default' ) {
                                 // no gist or CSS provided, so lets just render README
                                 su_render(data);
                             } else {
                                 // no gist provided, but CSS provided, so load CSS along with README
-                                load_gist( 'css', defaults['css'], defaults['css_filename'], data );
+                                load_gist( 'css', p.css, p.css_filename, data );
                             }
                         } else {
                             // a gist id was provided, test for CSS in callback
-                            load_gist( 'gist', defaults['gist'], defaults['gist_filename'] );
+                            load_gist( 'gist', p.gist, p.gist_filename );
                         }
                     }
                 });
@@ -251,8 +255,8 @@
                 if ( filename === '' || filename == null ) {
                     for (var file in gistdata.data.files) {
                         if (gistdata.data.files.hasOwnProperty(file)) {
-                            // save filename in defaults
-                            defaults[ type + '_filename' ] = gistdata.data.files[file].filename;
+                            // save filename in settings
+                            plugin.settings[ type + '_filename' ] = gistdata.data.files[file].filename;
                             // get file contents
                             var o = gistdata.data.files[file].content;
                             if (o) {
@@ -268,9 +272,9 @@
                     su_render(data);
                 } else {
                     // check if css id was provided
-                    if ( defaults['css'] != 'default' && defaults['css'] != '' ) {
+                    if ( plugin.settings.css != 'default' && plugin.settings.css != '' ) {
                         // css id provided so lets load it
-                        load_gist( 'css', defaults['css'], defaults['css_filename'], objects[0] );
+                        load_gist( 'css', plugin.settings.css, plugin.settings.css_filename, objects[0] );
                     } else {
                         // no css provided so let's start rendering
                         su_render(objects[0]);
@@ -343,15 +347,14 @@
             return processed;
         };
     
-        // Update defaults[] with URL parameters
-        // p = defaults
+        // Update settings with URL parameters
         var extract_parameters = function( p ) {
             for (var key in p) {
                 if ( params.has(key) ) {
                     if ( plugin.is_nothing( p['parameters_disallowed']) ){
                         // ensure the parameter is allowed
                         if ( p['parameters_disallowed'].indexOf(key) === -1 ) {
-                            defaults[key] = params.get(key);
+                            plugin.settings[key] = params.get(key);
                         }
                     }
                 }
@@ -360,13 +363,13 @@
         
         // Start content rendering process
         var su_render = function(data) {
-            if( defaults['preprocess'] ) {
+            if( plugin.settings.preprocess ) {
                 data = preprocess(data);
             }
             render(data);
             render_sections();
-            if ( defaults['fontsize'] != '' ) {
-                $( eid_inner ).css('font-size', defaults['fontsize'] + '%');
+            if ( plugin.settings.fontsize != '' ) {
+                $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
             }
             get_highlight_style();
             tag_replace('kbd');
@@ -439,8 +442,8 @@
         var render_sections = function() {
             
             // header section
-            var header = defaults['header'];
-            var heading = defaults['heading'];
+            var header = plugin.settings.header;
+            var heading = plugin.settings.heading;
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
                     var name = plugin.css_name( $(this).text() );
@@ -617,17 +620,18 @@
             
             // update gist and css urls
             var url = '';
-            if (defaults['gist'] != 'default') {
-                url = 'https://gist.github.com/' + defaults['gist'];
-                $( eid + ' .gist-url' ).text(defaults['gist_filename'] + ' ▾');
+            var p = plugin.settings;
+            if ( p.gist != 'default' ) {
+                url = 'https://gist.github.com/' + p.gist;
+                $( eid + ' .gist-url' ).text( p.gist_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
             $( eid + ' .gist-source' ).attr('href', url);
             
-            if (defaults['css'] != 'default') {
-                url = 'https://gist.github.com/' + defaults['css'];
-                $( eid + ' .css-url' ).text(defaults['css_filename'] + ' ▾');
+            if ( p.css != 'default' ) {
+                url = 'https://gist.github.com/' + p.css;
+                $( eid + ' .css-url' ).text( p.css_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
@@ -730,7 +734,7 @@
             
             // Gist and CSS selectors
             $( eid + ' .selector-toggle' ).click(function() {
-                prefix = '.gist';
+                var prefix = '.gist';
                 if ( $(this).hasClass('css-url') ) {
                     prefix = '.css';
                 }
