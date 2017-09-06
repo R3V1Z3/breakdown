@@ -29,7 +29,6 @@ These examples, when they exist in this README file, will be pulled and shown in
 - [Alexa Cheats](?gist=2a06603706fd7c2eb5c93f34ed316354) - Fun commands for Amazon Alexa.
 - [Screen Cheatsheet](?gist=af918e1618682638aa82) - Helpful commands for Screen.
 - [Regular Expression Cheatsheet](?gist=3893f6ac9447f7ee27fe) - Easy reference for regular expressions.
-- [Cucumber Cheatsheet](?gist=5728701) - Tips and shortcuts for Cucumber testing tool.
 - [R Spacial Analysis](?gist=fc661f26ef51eae6377b) - Spatial analysis notes in R language.
 - [Markdown resources](?gist=eba62d45c82d0767a5a0) - A great showcase for Markdownit's rendering capabilities.
 - [An exhibit of Markdown](?gist=deb74713e6aff8fdfce2) - Another great showcase for Markdown rendering.
@@ -38,7 +37,8 @@ These examples, when they exist in this README file, will be pulled and shown in
 ## Example CSS Themes
 As with the exmaple Gists, any CSS themes listed here will be pull and shown in a CSS theme drop-down in the Info panel.
 - [Alexa Cheats](?css=3340cb9dcb273289b51aef3570f5304d) - Port of theme from [Alexa Cheats](https://ugotsta.github.io/alexa-cheats/).
-- [Vintage Western](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
+- [Vintage West](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
+- [Old Glory](?css=43bff1c9c6ae8a829f67bd707ee8f142) - Vintage Mercan with themed Info panel.
 - [Woodwork](?css=c604615983fc6cdd5ebdbdd053800298) - Elegantly dark wood theme.
 - [Corkboard](?css=ada930f9dae1d0a8d95f41cb7a56d658) - Lively corkboard theme with CSS pins.
 - [Alternating Colors](?css=e774fa60940e2dc452d78e8382798a2c) - Flat but colorful theme.
