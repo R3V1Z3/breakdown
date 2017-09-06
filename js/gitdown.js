@@ -497,20 +497,21 @@
             return processed;
         };
         
-        var section_change = function() {
-            go_to_hash();
-        };
-        
         var get_current_section_id = function() {
             return $( eid + ' .section.current' ).attr('id');
         };
         
         var go_to_hash = function() {
+            // first remove 'current' class from previously selected section and toc
             $( eid + ' .section.current' ).removeClass('current');
+            $( eid + ' .toc a.current').removeClass('current');
             var hash = location.hash;
             var header_hash = '#' + $('.section.header').attr('id');
+            // check if this is the first time handling url hash
             if( hash && $(hash).length > 0 && hash != header_hash ) {
                 $( eid + ' .section' + hash ).removeClass('old').addClass('current');
+                // update toc with current hash
+                $( 'a[href*="#' + get_current_section_id() + '"]' ).addClass('current');
                 // scroll to specified hash position
                 $('body').animate({
                     scrollTop: $(hash).offset().top
@@ -519,7 +520,10 @@
                 // hash has changed since start so we'll just remove/add relevant classes
                 $( eid + ' .section.current' ).addClass('old').removeClass('current');
                 $( eid + ' .section.header' ).removeClass('old').addClass('current');
+                
             }
+            // update toc link with current
+            $( 'a[href*="#' + get_current_section_id() + '"]' ).addClass('current');
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
@@ -653,7 +657,7 @@
             
             // handle history
             $(window).on('popstate', function (e) {
-                section_change();
+                go_to_hash();
             });
             
             // commmand count
