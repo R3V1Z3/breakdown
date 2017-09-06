@@ -115,8 +115,8 @@
         // the plugin, where "element" is the element the plugin is attached to;
         
         // detect specified url parameter, clean and add it to settings
-        plugin.update_parameter = function(key) {
-            var val = '';
+        plugin.update_parameter = function( key, default_value ) {
+            var val = default_value;
             // check if specified key exists as url param
             if ( params.has(key) ) {
                 // ensure the parameter is allowed
