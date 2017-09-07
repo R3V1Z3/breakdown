@@ -502,7 +502,11 @@
         };
         
         var go_to_hash = function() {
-            // first remove 'current' class from previously selected section and toc
+            // first remove prior 'old' class
+            $( eid + ' .section.old' ).removeClass('old');
+            // add 'old' class to current section, to be used in presentations
+            $( eid + ' .section.current' ).addClass('old');
+            // now remove 'current' class from previously selected section and toc
             $( eid + ' .section.current' ).removeClass('current');
             $( eid + ' .toc a.current').removeClass('current');
             var hash = location.hash;
