@@ -28,13 +28,11 @@ html, body {
 
 /* Section */
 .section {
-  display: block;
   margin: auto;
   page-break-inside: avoid;
 }
 
 .section .content {
-  display: block;
   position: relative;
 }
 
