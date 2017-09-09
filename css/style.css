@@ -22,7 +22,6 @@ html, body {
 
 .inner {
   width: 50%;
-  padding: 40px;
   margin: auto;
 }
 
@@ -129,7 +128,7 @@ kbd:hover {
 }
 
 .info .hide {
-  text-align: right;
+  float: right;
   cursor: pointer;
 }
 

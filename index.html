@@ -30,16 +30,21 @@
                                     'callback': done,
             } );
         
+            var $gd = $('#wrapper').data('gitdown');
+            
             // to call public methods
-            // $('#element').data('gitdown').update_toc();
+            // $gd.update_toc();
         
             // to access settings
-            // $('#element').data('gitdown').settings.fontsize;
+            // $gd.settings.fontsize;
             
             // if you need to do stuff after the plugin's
             // ajax methods are completed, add a callback like so:
             function done() {
                 console.log('Plugin loaded.');
+                
+                // get example defaults
+                console.log( $gd.get_examples('css') );
             }
         
         });

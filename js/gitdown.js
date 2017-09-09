@@ -48,7 +48,11 @@
             hide_css_details: false,
             hide_toc: false,
             disable_hide: false,
-            parameters_disallowed: ''
+            parameters_disallowed: '',
+            
+            // GitDown stores a bunch of examples by default
+            // set this to false to not merge them into your app
+            merge_examples: true,
         };
         
         // get URL parameters
@@ -58,6 +62,8 @@
         
         var example_gist = {};
         var example_css = {};
+        // we'll use jquery $.extend later to merge these
+        var example_css_default = {"Alexa Cheats": "3340cb9dcb273289b51aef3570f5304d", "Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Alternating": "e774fa60940e2dc452d78e8382798a2c", "Spacious": "160db22223834d33b08337cebbbba94e", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9" };
         var sections = [];
         var link_symbol = '&#11150';
 
@@ -186,6 +192,22 @@
             return -1;
         };
         
+        // helper function to provide defaults
+        plugin.get_examples = function(c) {
+            var examples;
+            if ( c === 'css' ) {
+                examples = example_css;
+            } else examples = example_gist;
+            
+            var content = '{';
+            for ( var key in examples ) {
+                content += '"' + key + '": ';
+                content += '"' + examples[key] + '", ';
+            }
+            content += '}';
+            return content;
+        };
+        
         // let user easily get names of sections
         plugin.get_sections = function() {
             return sections;
@@ -257,8 +279,8 @@
                     url : "README.md",
                     dataType: "text",
                     success : function (data) {
-                        example_gist = pull_options( data, 'gist' );
-                        example_css = pull_options( data, 'css' );
+                        example_gist = extract_examples( data, 'gist' );
+                        example_css = $.extend( example_css_default, extract_examples( data, 'css' ) );
                         var p = plugin.settings;
                         extract_parameters( p );
                         var gist = p.gist;
@@ -322,7 +344,7 @@
             });
         };
         
-        var extract_examples = function(content, c) {
+        var extract_example_content = function(content, c) {
             var examples = [];
             // iterate over each line in content to check for and get id
             var lines = content.split('\n');
@@ -352,11 +374,10 @@
         };
         
         // pull example content from README.md and render it to selectors
-        var pull_options = function( data, c ) {
+        var extract_examples = function( data, c ) {
             
-            // this function is dumb, let's revampe it
             var exists;
-            var examples = [];
+            var examples = {};
             if ( c === 'gist') {
                 exists = data.indexOf('## Example Gists');
             } else {
@@ -364,13 +385,8 @@
             }
             
             if ( exists != -1 ) {
-                if ( c === 'gist' ) {
-                    var gist_content = data.substr( exists );
-                    examples = extract_examples( gist_content, c );
-                } else {
-                    var css_content = data.substr( exists );
-                    examples = extract_examples( css_content, c );
-                }
+                var content = data.substr( exists );
+                examples = extract_example_content( content, c );
             }
             return examples;
         };
@@ -655,7 +671,7 @@
                     } else if ( n === 'gd_toc' ) {
                         c += '<div class="toc"></div>';
                     } else if ( n === 'gd_hide' ) {
-                        c = '<div class="hide"><kbd>?</kbd> - show/hide this panel.</div>';
+                        c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
                     }
                     // replace content
                     $(this).html( t.replace( '$' + n, c ) );

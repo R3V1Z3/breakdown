@@ -45,12 +45,12 @@ These examples, when they exist in this README file, will be pulled and shown in
 ## Example CSS Themes
 As with the exmaple Gists, any CSS themes listed here will be pull and shown in a CSS theme drop-down in the Info panel.
 - [Alexa Cheats](?css=3340cb9dcb273289b51aef3570f5304d) - Port of theme from [Alexa Cheats](https://ugotsta.github.io/alexa-cheats/).
-- [Vintage West](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
+- [Vintage](?css=686ce03846004fd858579392ca0db2c1) - Old fashioned styling.
 - [Saint Billy](?css=76c39d26b1b44e07bd7a783311caded8) - Most in-need-a-forgivinest theme ever.
 - [Old Glory](?css=43bff1c9c6ae8a829f67bd707ee8f142) - Vintage Mercan with themed Info panel.
 - [Woodwork](?css=c604615983fc6cdd5ebdbdd053800298) - Elegantly dark wood theme.
 - [Corkboard](?css=ada930f9dae1d0a8d95f41cb7a56d658) - Lively corkboard theme with CSS pins.
-- [Alternating Colors](?css=e774fa60940e2dc452d78e8382798a2c) - Flat but colorful theme.
+- [Alternating](?css=e774fa60940e2dc452d78e8382798a2c) - Flat but colorful theme.
 - [Spacious](?css=160db22223834d33b08337cebbbba94e) - Spacious with subtle colors.
 - [Eerie](?css=7ac556b27c2cd34b00aa59e0d3621dea) - Eerie theme from [Eerie CSS](https://ugotsta.github.io/eerie-css/) project.
 - [Fiery Darkness](?css=c860958c04a53cd77575d5487ab1dec9) - Fiery red and yellow set against darkness.
