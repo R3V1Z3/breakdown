@@ -257,7 +257,8 @@
                     url : "README.md",
                     dataType: "text",
                     success : function (data) {
-                        pull_options(data);
+                        example_gist = pull_options( data, 'gist' );
+                        example_css = pull_options( data, 'css' );
                         var p = plugin.settings;
                         extract_parameters( p );
                         var gist = p.gist;
@@ -321,66 +322,57 @@
             });
         };
         
-        // pull example content from README.md and render it to selectors
-        var pull_options = function(data) {
-            var processed = '';
-            var lines = data.split('\n');
-            var gist_found = false;
-            var css_found = false;
-            var examples_end = 0;
+        var extract_examples = function(content, c) {
+            var examples = [];
+            // iterate over each line in content to check for and get id
+            var lines = content.split('\n');
+            // once end of section is reached, end will be 1
+            var end = false;
             $.each( lines, function( i, val ) {
-                // check for options without any block code ` on same line
-                if ( val.indexOf('<!-- [options:') != -1 && val.indexOf('`') === -1 ) {
-                    // options found, lets get them
-                    var o = val.split('<!-- [options:')[1];
-                    o = o.split(',');
-                    for ( var x = 0; x < o.length; x++) {
-                        var option = o[x].split('] -->')[0].trim();
-                        var key = option.split('=')[0].trim();
-                        var value = option.split('=')[1].trim();
-                        options[key] = value;
-                    }
-                }
-                if ( examples_end != -1 ) {
-                    if ( val.indexOf('## Example Gists') != -1 ){
-                        gist_found = true;
-                        css_found = false;
-                    }
-                    if ( val.indexOf('## Example CSS Themes') != -1 ){
-                        // css section found so let update the gist selector with processed info
-                        css_found = true;
-                        gist_found = false;
-                        examples_end = 1;
-                    }
+                // return if we've reached end of section
+                if ( val === '' ) end = true;
+                if ( !end ) {
                     if ( val.indexOf('- [') != -1 ) {
-                        if ( gist_found ){
-                            // item found and it's from gist example group
-                            var x = val.split(' [')[1];
-                            var name = x.split('](')[0];
-                            x = x.split('gist=')[1];
-                            // get the gist id
-                            var id = x.split( ') -' )[0];
-                            example_gist[name] = id;
-                        } else if ( css_found ) {
-                            examples_end++;
-                            // item is from css example group
-                            var x = val.split('- [')[1];
-                            var name = x.split('](')[0];
-                            x = x.split('css=')[1];
-                            // get the css gist id
-                            var id = x.split( ') -' )[0];
-                            example_css[name] = id;
-                        }
-                    } else {
-                        // no more option found for current section, end of section
-                        if (css_found && examples_end > 1) {
-                            // set examples_end to -1 to stop further parsing
-                            examples_end = -1;
+                        // item found, get values
+                        var x = val.split( ' [' )[1];
+                        var name = x.split( '](' )[0];
+                        x = x.split( c + '=' )[1];
+                        // get the id
+                        var id = x.split( ') -' )[0];
+                        if ( c === 'gist' ) {
+                            examples[name] = id;
+                        } else {
+                            examples[name] = id;
                         }
                     }
+
                 }
             });
-            return processed;
+            return examples;
+        };
+        
+        // pull example content from README.md and render it to selectors
+        var pull_options = function( data, c ) {
+            
+            // this function is dumb, let's revampe it
+            var exists;
+            var examples = [];
+            if ( c === 'gist') {
+                exists = data.indexOf('## Example Gists');
+            } else {
+                exists = data.indexOf('## Example CSS Themes');
+            }
+            
+            if ( exists != -1 ) {
+                if ( c === 'gist' ) {
+                    var gist_content = data.substr( exists );
+                    examples = extract_examples( gist_content, c );
+                } else {
+                    var css_content = data.substr( exists );
+                    examples = extract_examples( css_content, c );
+                }
+            }
+            return examples;
         };
     
         // Update settings with URL parameters
@@ -394,6 +386,9 @@
         
         // Start content rendering process
         var su_render = function(data) {
+            // best practice, files should end with newline, we'll ensure it.
+            data += '\n';
+            
             if( plugin.settings.preprocess ) {
                 data = preprocess(data);
             }
@@ -497,7 +492,10 @@
             
             // add section names to sections array for use with toc
             $( eid_inner + ' .section a.handle' ).each(function(){
-                sections.push( $(this).text() );
+                var t = $(this).text();
+                if ( t.indexOf( 'gd_info' ) === -1 ) {
+                    sections.push( t );
+                }
             });
 
         };
@@ -839,6 +837,7 @@
         // helper function to avoid replication of example content
         var example_content = function(examples) {
             var content = '';
+            //if ( examples.length < 1 ) return content;
             for (var key in examples) {
                 content += '<a href="https://gist.github.com/' + examples[key] + '" target="_blank">' + link_symbol + '</a>';
                 content += '<a class="id" id="' + examples[key] + '">' + key + '</a><br/>';
