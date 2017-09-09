@@ -4,7 +4,7 @@ jQuery + GitHub Pages + GitHub Gist + Markdown + MarkdownIt =
 
 GitDown framework provides a core for quickly and easily building apps on GitHub Pages that use Markdown with a heavy emphasis on experimenting and extending using GitHub Gist for code hosting.
 
-## What it do
+## What it do?
 The framework provides:
 - a base for ready-made projects that can easily be forked on GitHub.
 - Markdown rendering function using MarkdownIt
@@ -17,12 +17,20 @@ The framework provides:
 - URI handler
 - Various helper functions
 
+## What done it?
+Several projects now use the framework:
+- [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
+- [DownSlide](https://ugotsta.github.io/downslide/) - automatic presentations from Markdown documents
+- [Entwine](https://ugotsta.github.io/entwine/) - interactive fiction ala Markdown
+- [Emphases](https://ugotsta.github.io/emphases/) - annotation and highlighting app, mainly for Bible references
+
 ## GitHub not needed
 While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
 
 ### Core dependencies
-- [jQuery](https://jquery.com/) - used for ajax calls and for simplify_life()
-- [Markdownit.js](https://markdown-it.github.io/) - used to render Markdown
+- [jQuery](https://jquery.com/) - used for ajax calls and simplify_life()
+- [Markdown-it](https://markdown-it.github.io/) - does all the heavy lifting of Markdown rendering
+- [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
 ## Example Gists
 These examples, when they exist in this README file, will be pulled and shown in a Gist drop-down in the Info panel.
@@ -38,6 +46,7 @@ These examples, when they exist in this README file, will be pulled and shown in
 As with the exmaple Gists, any CSS themes listed here will be pull and shown in a CSS theme drop-down in the Info panel.
 - [Alexa Cheats](?css=3340cb9dcb273289b51aef3570f5304d) - Port of theme from [Alexa Cheats](https://ugotsta.github.io/alexa-cheats/).
 - [Vintage West](?css=686ce03846004fd858579392ca0db2c1) - Straight out the old west.
+- [Saint Billy](?css=76c39d26b1b44e07bd7a783311caded8) - Most in-need-a-forgivinest theme ever.
 - [Old Glory](?css=43bff1c9c6ae8a829f67bd707ee8f142) - Vintage Mercan with themed Info panel.
 - [Woodwork](?css=c604615983fc6cdd5ebdbdd053800298) - Elegantly dark wood theme.
 - [Corkboard](?css=ada930f9dae1d0a8d95f41cb7a56d658) - Lively corkboard theme with CSS pins.
@@ -45,3 +54,13 @@ As with the exmaple Gists, any CSS themes listed here will be pull and shown in 
 - [Spacious](?css=160db22223834d33b08337cebbbba94e) - Spacious with subtle colors.
 - [Eerie](?css=7ac556b27c2cd34b00aa59e0d3621dea) - Eerie theme from [Eerie CSS](https://ugotsta.github.io/eerie-css/) project.
 - [Fiery Darkness](?css=c860958c04a53cd77575d5487ab1dec9) - Fiery red and yellow set against darkness.
+ 
+## `$gd_info`
+`$gd_help_ribbon`
+`$gd_element_count`
+`$gd_gist`
+`$gd_css`
+
+### Table of Contents
+`$gd_toc`
+`$gd_hide`

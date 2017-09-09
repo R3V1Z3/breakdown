@@ -85,7 +85,6 @@ kbd:hover {
   top: 0px;
   right: 0px;
   width: 300px;
-  height: 470px;
   box-shadow: -2px 2px 8px rgba(0,0,0,0.45);
   border-radius: 0px 0px 0px 10px;
   padding: 10px;
@@ -130,14 +129,11 @@ kbd:hover {
 }
 
 .info .hide {
-  position: absolute;
   text-align: right;
-  bottom: 20px;
-  right: 20px;
   cursor: pointer;
 }
 
-.command-count code {
+.element-count code {
   background: rgba(255,255,255,0.25);
   padding: 2px 4px;
   border-radius: 3px;
@@ -282,10 +278,14 @@ a.gist-source, a.css-source {
     background: #333;
 }
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.25);
-    /* border: solid whiteSmoke 4px; */
+    background-color: rgba(255, 255, 255, 0.35);
     border-radius: 3px;
 }
+
+.info ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
 ::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 1);
 }

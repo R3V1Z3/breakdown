@@ -43,15 +43,13 @@
             title: 'GitDown',
             hide_info: false,
             hide_help_ribbon: false,
-            hide_command_count: false,
+            hide_element_count: false,
             hide_gist_details: false,
             hide_css_details: false,
             hide_toc: false,
             disable_hide: false,
             parameters_disallowed: ''
         };
-        
-        var TOC = [];
         
         // get URL parameters
         let params = (new URL(location)).searchParams;
@@ -60,6 +58,7 @@
         
         var example_gist = {};
         var example_css = {};
+        var sections = [];
         var link_symbol = '&#11150';
 
         // simplify plugin name with this
@@ -163,7 +162,7 @@
         };
         
         // helper function to ensure section ids are css compatible
-        plugin.css_name = function(str) {
+        plugin.clean_name = function(str) {
             str = str.toLowerCase();
             // remove non-alphanumerics
             str = str.replace(/[^a-z0-9_\s-]/g, '-');
@@ -187,17 +186,51 @@
             return -1;
         };
         
+        // let user easily get names of sections
+        plugin.get_sections = function() {
+            return sections;
+        };
+        
+        // let user override section names, for cases like Entwine
+        plugin.set_sections = function(s) {
+            sections = s;
+        };
+        
+        plugin.markdownit = function(content, container) {
+
+            var md = window.markdownit({
+                html: false, // Enable HTML - Keep as false for security
+                xhtmlOut: true, // Use '/' to close single tags (<br />).
+                breaks: true, // Convert '\n' in paragraphs into <br>
+                langPrefix: 'language-', // CSS language prefix for fenced blocks.
+                linkify: true,
+                typographer: true,
+                quotes: '“”‘’',
+                highlight: function(str, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        try {
+                            return '<pre class="hljs"><code>' +
+                                hljs.highlight(lang, str, true).value +
+                                '</code></pre>';
+                        }
+                        catch (__) {}
+                    }
+                    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+                }
+            });
+            $( container ).html( md.render(content) );
+        };
+        
         plugin.update_toc = function() {
-            var sections = section_names();
             var html = '';
             // iterate section classes and get id name to compose TOC
             for ( var i = 0; i < sections.length; i++ ) {
-                var name = plugin.css_name( sections[i] );
+                var name = plugin.clean_name( sections[i] );
                 html += '<a href="#' + name + '" ';
                 
                 var classes = '';
                 // add '.current' class if this section is currently selected
-                if ( plugin.css_name( sections[i] ) === get_current_section_id() ) {
+                if ( plugin.clean_name( sections[i] ) === get_current_section_id() ) {
                     classes += "current";
                 }
                 // add '.hidden' class if parent section is hidden
@@ -364,7 +397,10 @@
             if( plugin.settings.preprocess ) {
                 data = preprocess(data);
             }
-            render(data);
+            // setup info panel default content if it doesn't exist
+            data = set_info_defaults(data);
+            // render Markdown content
+            plugin.markdownit(data, eid_inner);
             render_sections();
             if ( plugin.settings.fontsize != '' ) {
                 $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
@@ -395,8 +431,8 @@
             if( options['hide_help_ribbon'] ) {
                 $( eid + ' .help-ribbon' ).remove();
             }
-            if( options['hide_command_count'] ) {
-                $( eid + ' .command-count' ).remove();
+            if( options['hide_element_count'] ) {
+                $( eid + ' .element-count' ).remove();
             }
             if( options['hide_gist_details'] ) {
                 $( eid + ' .gist-details' ).remove();
@@ -413,28 +449,23 @@
             }
         };
         
-        var render = function(content) {
-            var md = window.markdownit({
-                html: false, // Enable HTML tags in source
-                xhtmlOut: true, // Use '/' to close single tags (<br />).
-                breaks: true, // Convert '\n' in paragraphs into <br>
-                langPrefix: 'language-', // CSS language prefix for fenced blocks.
-                linkify: true,
-                typographer: true,
-                quotes: '“”‘’',
-                highlight: function(str, lang) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        try {
-                            return '<pre class="hljs"><code>' +
-                                hljs.highlight(lang, str, true).value +
-                                '</code></pre>';
-                        }
-                        catch (__) {}
-                    }
-                    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-                }
-            });
-            $( eid_inner ).html( md.render(content) );
+        var set_info_defaults = function(content) {
+            // check content for $info
+            if ( content.indexOf('`$gd_info`') === -1 ) {
+                // $info not found, so we'll add default content
+                var n = '\n';
+                var info_default = '## `$gd_info`' + n;
+                info_default += '`$gd_help_ribbon`' + n;
+                info_default += '`$gd_element_count`' + n;
+                info_default += '`$gd_gist`' + n;
+                info_default += '`$gd_css`' + n;
+                info_default += n;
+                info_default += '### Table of Contents' + n;
+                info_default += '`$gd_toc`' + n;
+                info_default += '`$gd_hide`' + n;
+                content += info_default;
+            }
+            return content;
         };
         
         var render_sections = function() {
@@ -444,9 +475,9 @@
             var heading = plugin.settings.heading;
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
-                    var name = plugin.css_name( $(this).text() );
+                    var name = plugin.clean_name( $(this).text() );
                     $(this).addClass('handle-heading');
-                    $(this).wrapInner('<a class="handle ' + name + '" name="' + name + '"/>');
+                    $(this).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
                     $(this).nextUntil(heading).wrapAll('<div class="content"/>');
                 });
@@ -457,12 +488,18 @@
             
             // create sections
             $( eid_inner + ' ' + heading ).each(function() {
-                var name = plugin.css_name( $(this).text() );
+                var name = plugin.clean_name( $(this).text() );
                 $(this).addClass('handle-heading');
                 $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                 $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
                 $(this).nextUntil(heading).wrapAll('<div class="content"/>');
             });
+            
+            // add section names to sections array for use with toc
+            $( eid_inner + ' .section a.handle' ).each(function(){
+                sections.push( $(this).text() );
+            });
+
         };
         
         var get_highlight_style = function() {
@@ -536,6 +573,7 @@
         // extra security measures need to be taken here since we're allowing html
         var tag_replace = function(tag) {
             var str = $( eid_inner ).html();
+            // for html comments
             if( tag === '<!--' ) {
                 var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
                 str = str.replace( r , '<!--$1-->' );
@@ -553,12 +591,13 @@
                 var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
                 var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
                 str = str.replace(open, '<' + tag + '$1>').replace(close, '</' + tag + '>');
-                $( eid_inner ).html(str);
+                // the regex is very restricted so we should have no security issues with html()
+                $( eid_inner ).html( str );
                 // update fontawesome icons
                 if ( tag === 'i' ){
                     $( eid + ' i' ).attr('class', function(_, classes) {
                         if( classes.indexOf('fa-') < 0 ){
-                            classes = plugin.css_name(classes);
+                            classes = plugin.clean_name(classes);
                             classes = classes.replace(/icon-(.*?)/, "fa-$1");
                         }
                         return classes;
@@ -575,53 +614,91 @@
             $('head').append('<style>' + sanitizedHtml + '</style>');
         };
         
+        var render_variables = function( $code, app_title ) {
+            $code.each(function( i, val ){
+                var c = '';
+                var t = $(this).text();
+                // get variable name if it exists
+                var n = variable_name(t);
+                if ( n != '' ) {
+                    if ( n === 'gd_info' ) {
+                        c = '<h1 class="app-title ' + plugin.clean_name(app_title) +  '">' + app_title + '</h1>';
+                    } else if ( n === 'gd_help_ribbon' ) {
+                        c = '<a class="help-ribbon" href="//github.com' + path;
+                        c += '#' + app_title.toLowerCase() + '">?</a>';
+                        $(this).next('br').remove();
+                    } else if ( n === 'gd_element_count' ) {
+                        c = '<div class="element-count">.section total:</div>';
+                    } else if ( n === 'gd_gist' ) {
+                        c = '<div class="gist-details">';
+                        c += '<a class="gist-source" href="https://github.com' + path;
+                        c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
+                        c += '<a class="gist-url selector-toggle">README.md ▾</a>';
+                        c += '<div class="gist-selector selector" class="selector">';
+                        c += '<input class="gist-input" type="text" placeholder="Gist ID" />';
+                        c += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
+                        c += '<a class="id" id="default">Default (README.md)</a><br/>';
+                        // Example Gist list
+                        c += example_content(example_gist);
+                        c += '</div></div>';
+                        $(this).next('br').remove();
+                    } else if ( n === 'gd_css' ) {
+                        c = '<div class="css-details">';
+                        c += '<a class="css-source" href="https://github.com' + path;
+                        c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
+                        c += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
+                        c += '<div class="css-selector selector" class="selector">';
+                        c += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
+                        c += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
+                        c += '<a class="id" id="default">Default (style.css)</a><br/>';
+                        // Example CSS list
+                        c += example_content(example_css);
+                        c += '</div></div>';
+                    } else if ( n === 'gd_toc' ) {
+                        c += '<div class="toc"></div>';
+                    } else if ( n === 'gd_hide' ) {
+                        c = '<div class="hide"><kbd>?</kbd> - show/hide this panel.</div>';
+                    }
+                    // replace content
+                    $(this).html( t.replace( '$' + n, c ) );
+                    // remove parent code wrapper
+                    $(this).contents().unwrap();
+                }
+            });
+        };
+        
+        // simple helper function to get variable names
+        var variable_name = function(str) {
+            if ( str.charAt(0) === '$' ) {
+                // ensure we return variable name without equal sign
+                var n = str.substr(1).split('=')[0].trim();
+                return n;
+            }
+            return '';
+        };
+        
         var render_info = function(app_title) {
             
-            var content = '';
-            content += '<a class="help-ribbon" href="//github.com' + path;
-            content += '#' + app_title.toLowerCase() + '">?</a>';
+            // first check if info content is available
+            var $info = $( eid + ' .section#gd-info');
+            $( eid + ' .info' ).html( $info.children() );
+            $info.remove();
             
-            content += '<h1 class="' + plugin.css_name(app_title) +  '">' + app_title + '</h1>';
-            content += '<div class="command-count">.section total:</div>';
-            content += '</br>';
-            content += '<div class="gist-details">';
-            content += '<a class="gist-source" href="https://github.com' + path;
-            content += 'master/README.md" target="_blank">' + link_symbol + '</a>';
-            content += '<a class="gist-url selector-toggle">README.md ▾</a>';
-            content += '<div class="gist-selector selector" class="selector">';
-            content += '<input class="gist-input" type="text" placeholder="Gist ID" />';
+            // now let's remove the extra stuff added in render_section
+            $( eid + ' .info .section').children().unwrap();
+            $( eid + ' .info .handle-heading').children().unwrap();
+            $( eid + ' .info a.handle').children().unwrap();
+            $( eid + ' .info .content').children().unwrap();
+            $( eid + ' .info p').children().unwrap();
             
-            content += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
-            content += '<a class="id" id="default">Default (README.md)</a><br/>';
-            
-            // Example Gist list
-            content += example_content(example_gist);
-            
-            content += '</div></div>';
-            content += '<div class="css-details">';
-            content += '<a class="css-source" href="https://github.com' + path;
-            content += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-            content += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
-            content += '<div class="css-selector selector" class="selector">';
-            content += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
-            
-            content += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-            content += '<a class="id" id="default">Default (style.css)</a><br/>';
-            
-            // Example CSS list
-            content += example_content(example_css);
-            
-            content += '</div></div>';
-            content += '<h3>Table of Contents</h3>';
-            content += '<div class="toc"></div>';
-            content += '<div class="hide"><kbd>?</kbd> - show/hide this panel.</div>';
-            $( eid + ' .info' ).html(content);
+            // render all variables in code blocks
+            render_variables( $( eid + ' .info code' ), app_title );
             
             // update TOC
             plugin.update_toc();
             
-            // command count
-            var c = $( eid + ' .command-count' ).text();
+            // element count
+            var c = $( eid + ' .element-count' ).text();
             c = c.split(' total')[0];
             render_count(c);
             
@@ -630,33 +707,24 @@
             var p = plugin.settings;
             if ( p.gist != 'default' ) {
                 url = 'https://gist.github.com/' + p.gist;
-                $( eid + ' .gist-url' ).text( p.gist_filename + ' ▾');
+                $( eid + ' .info .gist-url' ).text( p.gist_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
-            $( eid + ' .gist-source' ).attr('href', url);
+            $( eid + ' .info .gist-source' ).attr('href', url);
             
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
-                $( eid + ' .css-url' ).text( p.css_filename + ' ▾');
+                $( eid + ' .info .css-url' ).text( p.css_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
-            $( eid + ' .css-source' ).attr('href', url);
-        };
-        
-        // returns comma-delimmeted array of section names
-        var section_names = function() {
-            var a = [];
-            $( eid_inner + ' .section a.handle' ).each(function(){
-                a.push( $(this).text() );
-            });
-            return a;
+            $( eid + ' .info .css-source' ).attr('href', url);
         };
         
         var render_count = function(element) {
             var count = $( eid_inner + ' ' + element ).length;
-            $( eid + ' .command-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
+            $( eid + ' .element-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
         
         var register_events = function() {
@@ -667,10 +735,10 @@
             });
             
             // commmand count
-            $( eid + ' .command-count' ).click(function() {
+            $( eid + ' .element-count' ).click(function() {
                 var count_array = ['.section','kbd','li','code'];
                 // get current count option
-                var c = $( eid + ' .command-count' ).text();
+                var c = $( eid + ' .element-count' ).text();
                 c = c.split(' total')[0];
                 
                 // find current item in count_array
@@ -778,35 +846,21 @@
             return content;
         };
 
-        // call the "constructor" method
+        // call constructor
         plugin.init();
 
     };
 
-    // add the plugin to the jQuery.fn object
+    // add plugin to the jQuery.fn object
     $.fn.gitdown = function(options) {
 
-        // iterate through the DOM elements we are attaching the plugin to
+        // ensure plugin not already attached to element before adding
         return this.each(function() {
-
-            // if plugin has not already been attached to the element
-            if (undefined == $(this).data('gitdown')) {
-
-                // create a new instance of the plugin
-                // pass the DOM element and the user-provided options as arguments
-                var plugin = new $.gitdown(this, options);
-
-                // in the jQuery version of the element
-                // store a reference to the plugin object
-                // you can later access the plugin and its methods and properties like
-                // element.data('pluginName').publicMethod(arg1, arg2, ... argn) or
-                // element.data('pluginName').settings.propertyName
-                $(this).data('gitdown', plugin);
-
+            if ( undefined == $(this).data('gitdown') ) {
+                var plugin = new $.gitdown( this, options );
+                $(this).data( 'gitdown', plugin );
             }
-
         });
-
     };
 
 })(jQuery);
