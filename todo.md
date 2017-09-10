@@ -8,7 +8,7 @@ In-progress
 - ~~remove height from #info~~
 - ~~remove $gd_info from toc~~
 - ~~rewrote pull_options()~~
-- figure out a way to include example themes from core GitDown project so that child projects can use the same themes without having to copy-paste them.
+- ~~include exampe themes in core for easy access by child projects~~
 
 TODO
 - change load_gist() to use callbacks and make load_gist public

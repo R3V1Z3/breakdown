@@ -63,7 +63,7 @@
         var example_gist = {};
         var example_css = {};
         // we'll use jquery $.extend later to merge these
-        var example_css_default = {"Alexa Cheats": "3340cb9dcb273289b51aef3570f5304d", "Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Alternating": "e774fa60940e2dc452d78e8382798a2c", "Spacious": "160db22223834d33b08337cebbbba94e", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9" };
+        var example_css_default = {"Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9", "Ghastly": "d1a6d5621b883bf6af886855d853d502" };
         var sections = [];
         var link_symbol = '&#11150';
 
