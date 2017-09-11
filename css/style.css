@@ -57,6 +57,11 @@ pre.hljs {
   background: none;
 }
 
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 kbd {
   background: black;
   color: white;

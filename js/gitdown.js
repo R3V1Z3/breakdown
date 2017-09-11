@@ -38,6 +38,9 @@
             highlight: 'default',
             preprocess: false,
             
+            // set false to render raw text content
+            markdownit: true,
+            
             // defaults unavailable as url parameters
             
             title: 'GitDown',
@@ -63,17 +66,12 @@
         var example_gist = {};
         var example_css = {};
         // we'll use jquery $.extend later to merge these
-        var example_css_default = {"Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9", "Ghastly": "d1a6d5621b883bf6af886855d853d502" };
+        var example_css_default = {"Technology": "adc373c2d5a5d2b07821686e93a9630b", "Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9", "Ghastly": "d1a6d5621b883bf6af886855d853d502" };
         var sections = [];
         var link_symbol = '&#11150';
 
-        // simplify plugin name with this
+        // simplify plugin name with this and declare settings
         var plugin = this;
-
-        // plugin's properties will be available through this object like:
-        // plugin.settings.propertyName from inside the plugin or
-        // element.data('pluginName').settings.propertyName from outside the plugin, 
-        // where "element" is the element the plugin is attached to;
         plugin.settings = {};
         
         var $element = $(element);
@@ -218,8 +216,32 @@
             sections = s;
         };
         
-        plugin.markdownit = function(content, container) {
-
+        // render raw content, no Markdown formatting
+        plugin.render_raw = function( content, c, markdownit ) {
+            if ( markdownit === 'false' ) {
+                $(c).children().remove();
+                // add section div
+                $(c).append('<div class="section header"></div>');
+                $(c + ' .section.header').append('<div class="content"><pre></pre></div>');
+                // syntax highlight code
+                $(c + ' .section.header .content pre').text( content );
+                $(c + ' .section.header .content pre').each(function( i, block ) {
+                    hljs.highlightBlock(block);
+                });
+                // #code-overlay also, then hide it, user can unhide if needed
+                // $('div#code-overlay').text(content);
+                // $('div#code-overlay').each(function(i, block) {
+                //     hljs.highlightBlock(block);
+                // });
+                // $('div#code-overlay').hide();
+                // copy code bg color to body bg
+                //$('body').css('background', $('div#code').css('background'));
+            }
+        }
+        
+        // render content in container
+        // set markdownit true to render Markdown
+        plugin.render = function( content, container ) {
             var md = window.markdownit({
                 html: false, // Enable HTML - Keep as false for security
                 xhtmlOut: true, // Use '/' to close single tags (<br />).
@@ -402,26 +424,42 @@
         
         // Start content rendering process
         var su_render = function(data) {
+            
             // best practice, files should end with newline, we'll ensure it.
             data += '\n';
             
+            // preprocess data if user specified
             if( plugin.settings.preprocess ) {
                 data = preprocess(data);
             }
+            
             // setup info panel default content if it doesn't exist
             data = set_info_defaults(data);
-            // render Markdown content
-            plugin.markdownit(data, eid_inner);
-            render_sections();
+            
+            // render content
+            plugin.render( data, eid_inner );
+            
+            // arrange content in sections based on headings
+            sectionize();
+            
             if ( plugin.settings.fontsize != '' ) {
                 $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
             }
             get_highlight_style();
+            
+            // handle special tags we want to allow
             tag_replace('kbd');
             tag_replace('i');
             tag_replace('<!--');
+            
+            // set current section and go there
             go_to_hash();
+            
+            // render info panel and toc based on current section
             render_info( plugin.settings.title );
+            
+            // render raw text if user specified
+            plugin.render_raw( data, eid_inner, plugin.settings.markdownit );
             
             register_events();
             handle_options();
@@ -479,7 +517,7 @@
             return content;
         };
         
-        var render_sections = function() {
+        var sectionize = function() {
             
             // header section
             var header = plugin.settings.header;
@@ -493,8 +531,10 @@
                     $(this).nextUntil(heading).wrapAll('<div class="content"/>');
                 });
             } else {
-                //no header, so we'll add an empty one
-                $( eid_inner ).prepend('<div class="header"></div>');
+                // add a header if none already exists
+                if ( $( eid_inner + '.section.header').length > 0 ) {
+                    $( eid_inner ).append('<div class="section header"></div>');
+                }
             }
             
             // create sections

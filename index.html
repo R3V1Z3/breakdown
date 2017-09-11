@@ -23,6 +23,7 @@
     </div>
 
     <script>
+        var $gd;
         jQuery(document).ready(function() {
         
             // attach the plugin to an element
@@ -30,7 +31,7 @@
                                     'callback': done,
             } );
         
-            var $gd = $('#wrapper').data('gitdown');
+            $gd = $('#wrapper').data('gitdown');
             
             // to call public methods
             // $gd.update_toc();
