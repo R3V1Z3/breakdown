@@ -58,7 +58,5 @@ As with the exmaple Gists, any CSS themes listed here will be pull and shown in 
 `$gd_element_count`
 `$gd_gist`
 `$gd_css`
-
-### Table of Contents
-`$gd_toc`
+`$gd_toc = "Table of Contents"`
 `$gd_hide`

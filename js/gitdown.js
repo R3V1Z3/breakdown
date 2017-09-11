@@ -268,28 +268,34 @@
         
         plugin.update_toc = function() {
             var html = '';
-            // iterate section classes and get id name to compose TOC
-            for ( var i = 0; i < sections.length; i++ ) {
-                var name = plugin.clean_name( sections[i] );
-                html += '<a href="#' + name + '" ';
-                
-                var classes = '';
-                // add '.current' class if this section is currently selected
-                if ( plugin.clean_name( sections[i] ) === get_current_section_id() ) {
-                    classes += "current";
+            if (sections.length > 0 ) {
+                // iterate section classes and get id name to compose TOC
+                for ( var i = 0; i < sections.length; i++ ) {
+                    var name = plugin.clean_name( sections[i] );
+                    html += '<a href="#' + name + '" ';
+                    
+                    var classes = '';
+                    // add '.current' class if this section is currently selected
+                    if ( plugin.clean_name( sections[i] ) === get_current_section_id() ) {
+                        classes += "current";
+                    }
+                    // add '.hidden' class if parent section is hidden
+                    if ( $('#' + name).is(':hidden') ) {
+                        classes += " hidden";
+                    }
+                    if ( classes != '' ) {
+                        html += 'class="' + classes + '"';
+                    }
+                    html += '>';
+                    html += sections[i];
+                    html += '</a>';
                 }
-                // add '.hidden' class if parent section is hidden
-                if ( $('#' + name).is(':hidden') ) {
-                    classes += " hidden";
-                }
-                if ( classes != '' ) {
-                    html += 'class="' + classes + '"';
-                }
-                html += '>';
-                html += sections[i];
-                html += '</a>';
+                $( eid + ' .info .toc' ).html( html );
+            } else {
+                // remove the toc if there are no sections
+                $(eid + ' .info .toc-heading').remove();
+                $(eid + ' .info .toc').remove();
             }
-            $( eid + ' .toc' ).html( html );
         };
 
         // PRIVATE METHODS -----------------------------------------------------
@@ -517,9 +523,7 @@
                 info_default += '`$gd_element_count`' + n;
                 info_default += '`$gd_gist`' + n;
                 info_default += '`$gd_css`' + n;
-                info_default += n;
-                info_default += '### Table of Contents' + n;
-                info_default += '`$gd_toc`' + n;
+                info_default += '`$gd_toc = "Table of Contents"`' + n;
                 info_default += '`$gd_hide`' + n;
                 content += info_default;
             }
@@ -677,22 +681,51 @@
             $('head').append('<style>' + sanitizedHtml + '</style>');
         };
         
+        // returns true if n begins with str 
+        var begins = function( t, str ) {
+            // only return true if str found at start of t
+            if ( t.indexOf(str) === 0 ) {
+                return true;
+            }
+            return false;
+        };
+        
+        var get_variable_value = function( v ) {
+            var s = v.split('=');
+            if ( s.length > 0 ) {
+                // get content beginning after = operator
+                var value = s[1].trim();
+                // return value if wrapped in quotes
+                value = value.split('"');
+                if ( value.length > 0 ) {
+                    return value[1];
+                } else if ( isNaN(value) ) {
+                    // otherwise return numeric value
+                    return value;
+                }
+            }
+            return '';
+        };
+        
         var render_variables = function( $code, app_title ) {
             $code.each(function( i, val ){
                 var c = '';
                 var t = $(this).text();
-                // get variable name if it exists
-                var n = variable_name(t);
-                if ( n != '' ) {
-                    if ( n === 'gd_info' ) {
+                // n holds exact variable string for replacement later
+                var n = '';
+                if ( t != '' ) {
+                    if ( begins( t, '$gd_info' ) ) {
                         c = '<h1 class="app-title ' + plugin.clean_name(app_title) +  '">' + app_title + '</h1>';
-                    } else if ( n === 'gd_help_ribbon' ) {
+                        n = '$gd_info';
+                    } else if ( begins( t, '$gd_help_ribbon' ) ) {
                         c = '<a class="help-ribbon" href="//github.com' + path;
                         c += '#' + app_title.toLowerCase() + '">?</a>';
                         $(this).next('br').remove();
-                    } else if ( n === 'gd_element_count' ) {
+                        n = '$gd_help_ribbon';
+                    } else if ( begins( t, '$gd_element_count' ) ) {
                         c = '<div class="element-count">.section total:</div>';
-                    } else if ( n === 'gd_gist' ) {
+                        n = '$gd_element_count';
+                    } else if ( begins( t, '$gd_gist' ) ) {
                         c = '<div class="gist-details">';
                         c += '<a class="gist-source" href="https://github.com' + path;
                         c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
@@ -704,8 +737,9 @@
                         // Example Gist list
                         c += example_content(example_gist);
                         c += '</div></div>';
+                        n = '$gd_gist';
                         $(this).next('br').remove();
-                    } else if ( n === 'gd_css' ) {
+                    } else if ( begins( t, '$gd_css' ) ) {
                         c = '<div class="css-details">';
                         c += '<a class="css-source" href="https://github.com' + path;
                         c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
@@ -717,27 +751,24 @@
                         // Example CSS list
                         c += example_content(example_css);
                         c += '</div></div>';
-                    } else if ( n === 'gd_toc' ) {
+                        n = '$gd_css';
+                        $(this).next('br').remove();
+                    } else if ( begins( t, '$gd_toc' ) ) {
+                        // get value after variable
+                        var v = get_variable_value( t );
+                        c += '<h3 class="toc-heading">' + v + '</h3>';
                         c += '<div class="toc"></div>';
-                    } else if ( n === 'gd_hide' ) {
+                        n = t;
+                    } else if ( begins( t, '$gd_hide' ) ) {
                         c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
+                        n = '$gd_hide';
                     }
-                    // replace content
-                    $(this).html( t.replace( '$' + n, c ) );
+                    // replace content containing variable with new content
+                    $(this).html( t.replace( n, c ) );
                     // remove parent code wrapper
                     $(this).contents().unwrap();
                 }
             });
-        };
-        
-        // simple helper function to get variable names
-        var variable_name = function(str) {
-            if ( str.charAt(0) === '$' ) {
-                // ensure we return variable name without equal sign
-                var n = str.substr(1).split('=')[0].trim();
-                return n;
-            }
-            return '';
         };
         
         var render_info = function(app_title) {
