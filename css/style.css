@@ -52,8 +52,7 @@ code {
   border-radius: 3px;
 }
 
-pre code,
-pre.hljs {
+pre code {
   background: none;
 }
 
