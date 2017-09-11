@@ -67,6 +67,9 @@
         var example_css = {};
         // we'll use jquery $.extend later to merge these
         var example_css_default = {"Technology": "adc373c2d5a5d2b07821686e93a9630b", "Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9", "Ghastly": "d1a6d5621b883bf6af886855d853d502" };
+        // for access to transform values, we'll make sanitized css available
+        var clean_css = '';
+        
         var sections = [];
         var link_symbol = '&#11150';
 
@@ -209,6 +212,11 @@
         // let user easily get names of sections
         plugin.get_sections = function() {
             return sections;
+        };
+        
+        // let user easily get names of sections
+        plugin.get_css = function() {
+            return clean_css;
         };
         
         // let user override section names, for cases like Entwine
@@ -677,6 +685,8 @@
             var parser = new HtmlWhitelistedSanitizer(true);
             var sanitizedHtml = parser.sanitizeString(css);
             $('head').append('<style>' + sanitizedHtml + '</style>');
+            // we'll save the css for apps that need it, for example, for transforms
+            clean_css = sanitizedHtml;
         };
         
         // returns true if n begins with str 
