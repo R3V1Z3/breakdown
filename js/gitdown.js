@@ -223,12 +223,16 @@
                 // add section div
                 $(c).append('<div class="section header"></div>');
                 $(c + ' .section.header').append('<div class="content"><pre></pre></div>');
+                
                 // syntax highlight code
                 var $pre = $(c + ' .section.header .content pre');
                 $pre.text( content );
                 $pre.each(function( i, block ) {
                     hljs.highlightBlock(block);
                 });
+                
+                // make inner bg color same as hljs bg color
+                $(eid_inner).css('background', $pre.css('background'));
                 
                 var $clone = $pre.clone();
                 $pre.parent().append($clone);
