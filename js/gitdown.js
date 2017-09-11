@@ -224,20 +224,17 @@
                 $(c).append('<div class="section header"></div>');
                 $(c + ' .section.header').append('<div class="content"><pre></pre></div>');
                 // syntax highlight code
-                $(c + ' .section.header .content pre').text( content );
-                $(c + ' .section.header .content pre').each(function( i, block ) {
+                var $pre = $(c + ' .section.header .content pre');
+                $pre.text( content );
+                $pre.each(function( i, block ) {
                     hljs.highlightBlock(block);
                 });
-                // #code-overlay also, then hide it, user can unhide if needed
-                // $('div#code-overlay').text(content);
-                // $('div#code-overlay').each(function(i, block) {
-                //     hljs.highlightBlock(block);
-                // });
-                // $('div#code-overlay').hide();
-                // copy code bg color to body bg
-                //$('body').css('background', $('div#code').css('background'));
+                
+                var $clone = $pre.clone();
+                $pre.parent().append($clone);
+                $clone.hide();
             }
-        }
+        };
         
         // render content in container
         // set markdownit true to render Markdown
@@ -302,7 +299,12 @@
                     dataType: "text",
                     success : function (data) {
                         example_gist = extract_examples( data, 'gist' );
-                        example_css = $.extend( example_css_default, extract_examples( data, 'css' ) );
+                        var examples = extract_examples( data, 'css' );
+                        if ( plugin.settings.merge_examples === 'false' ) {
+                            example_css = examples;
+                        } else {
+                            example_css = $.extend( example_css_default, examples );
+                        }
                         var p = plugin.settings;
                         extract_parameters( p );
                         var gist = p.gist;
@@ -433,6 +435,9 @@
                 data = preprocess(data);
             }
             
+            // create data backup for use render_raw()
+            var raw_data = data;
+            
             // setup info panel default content if it doesn't exist
             data = set_info_defaults(data);
             
@@ -459,7 +464,7 @@
             render_info( plugin.settings.title );
             
             // render raw text if user specified
-            plugin.render_raw( data, eid_inner, plugin.settings.markdownit );
+            plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
             
             register_events();
             handle_options();
