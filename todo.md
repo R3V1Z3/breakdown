@@ -9,6 +9,7 @@ In-progress
 - ~~remove $gd_info from toc~~
 - ~~rewrote pull_options()~~
 - ~~include exampe themes in core for easy access by child projects~~
+- ~~update variable logic and add simple routine for operators, also hide toc when there are no sections as it won't be helpful~~
 
 TODO
 - change load_gist() to use callbacks and make load_gist public
