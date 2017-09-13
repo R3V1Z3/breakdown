@@ -6,6 +6,7 @@ In-progress
 - make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
 
 TODO
+- .info should be movable so style it with position:relative so it works with both relative and absolute position
 - change load_gist() to use callbacks and make load_gist public
 - add function to handle dependencies internally so user doesn't need to add <script> and <style> references on their own.
 - for ease with compiling into local apps, first try and access dependencies in a local folder. Or maybe just add a flag that uses the local folder rather than CDN, etc.
@@ -14,6 +15,7 @@ TODO
 - allow html comments for adding data elements to sections such as section positions.
 
 DONE
+- ~~add .panel class to .info to allow apps to create panels that are hidden with .info~~
 - ~~include exampe themes in core for easy access by child projects~~
 - ~~update variable logic and add simple routine for operators ( $gd_toc="Contents" ), also hide toc when there are no sections as it won't be helpful~~
 - ~~add a general style for app-title~~

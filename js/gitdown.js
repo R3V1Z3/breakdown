@@ -91,7 +91,7 @@
             var content = '<div class="' + plugin.settings.container + '">';
             content += '<div class="' + plugin.settings.inner + '">';
             content += '</div>';
-            content += '<div class="info"></div>';
+            content += '<div class="info panel"></div>';
             $element.append(content);
             
             // ensure $element has an id
@@ -857,13 +857,13 @@
             
             // event handler to toggle info panel
             $( eid + ' .hide' ).click(function() {
-                $( eid + ' .info' ).toggleClass('minimized');
+                $( eid + ' .panel' ).toggleClass('minimized');
             });
             
-            // to help with mobile, show .info when container is clicked outside sections
+            // to help with mobile, show .panel when container is clicked outside sections
             $( eid_inner ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
-                    $( eid + ' .info' ).removeClass('minimized');
+                    $( eid + ' .panel' ).removeClass('minimized');
                 }
             });
             
@@ -871,7 +871,7 @@
             $(document).keyup(function(e) {
                 if( e.which == 191 ) {
                     // ? for help
-                    $( eid + ' .info' ).toggleClass('minimized');
+                    $( eid + ' .panel' ).toggleClass('minimized');
                 } else if (e.keyCode === 27) {
                     // Escape
                     $( eid + ' .selector' ).hide();
