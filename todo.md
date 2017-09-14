@@ -4,6 +4,7 @@ In-progress
 - Remove Example Gists and add code for pulling examples from $gd_info using list items
 - allow $gd_info to be hidden with html comments
 - make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
+- ~~add .hi and .lo styles so user can style sections based on index~~
 
 TODO
 - .info should be movable so style it with position:relative so it works with both relative and absolute position
@@ -13,6 +14,7 @@ TODO
 - when parsing gist or README, get preferred theme to allow user to specify a theme. This can be overriden if needed by the host project (ie. someone forks the project and doesn't want to allow users access to custom themes).
 - ensure tag_replace() sanitizes
 - allow html comments for adding data elements to sections such as section positions.
+- let user specify initial file other than README.md
 
 DONE
 - ~~add .panel class to .info to allow apps to create panels that are hidden with .info~~

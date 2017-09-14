@@ -614,12 +614,17 @@
         };
         
         var go_to_hash = function() {
-            // first remove prior 'old' class
-            $( eid + ' .section.old' ).removeClass('old');
+            var $old = $( eid + ' .section.old' );
+            var $current = $( eid + ' .section.current' );
+            // remove hi and lo classes
+            $old.removeClass('hi lo');
+            $current.removeClass('hi lo');
+            // remove prior 'old' class
+            $old.removeClass('old');
             // add 'old' class to current section, to be used in presentations
-            $( eid + ' .section.current' ).addClass('old');
+            $current.addClass('old');
             // now remove 'current' class from previously selected section and toc
-            $( eid + ' .section.current' ).removeClass('current');
+            $current.removeClass('current');
             $( eid + ' .toc a.current').removeClass('current');
             var hash = location.hash;
             var header_hash = '#' + $('.section.header').attr('id');
@@ -640,6 +645,16 @@
             }
             // update toc link with current
             $( 'a[href*="#' + get_current_section_id() + '"]' ).addClass('current');
+            // add .next or .prev to .old class so user can style based on index
+            $old = $( eid + ' .section.old' );
+            $current = $( eid + ' .section.current' );
+            if ( $old.index() > $current.index() ) {
+                $current.addClass('lo');
+                $old.addClass('hi');
+            } else {
+                $current.addClass('hi');
+                $old.addClass('lo');
+            }
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
@@ -649,6 +664,8 @@
             // for html comments
             if( tag === '<!--' ) {
                 var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
+                // unescape html comment $1 = ' --> bad code <!--'
+                // how can we sanitize just the placeholder $1?
                 str = str.replace( r , '<!--$1-->' );
                 $( eid_inner ).html(str);
                 // replace back comments wrapped in code blocks
