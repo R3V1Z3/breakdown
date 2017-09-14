@@ -1,23 +1,22 @@
 # GitDown
-jQuery + GitHub Pages + GitHub Gist + Markdown + MarkdownIt =  
-~~jGitHubPageGistMarkdownMarkdownIt~~ GitDown
+jQuery + GitHub Pages + MarkdownIt = ~~jGitHubMarkdownIt~~ GitDown
 
-GitDown framework provides a core for quickly and easily building apps on GitHub Pages that use Markdown with a heavy emphasis on experimenting and extending using GitHub Gist for code hosting.
+GitDown is an experimental framework for quickly building apps on GitHub Pages that use Markdown, and with a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
 
-## What it do?
+## What does it do?
 The framework provides:
 - a base for ready-made projects that can easily be forked on GitHub.
 - Markdown rendering function using MarkdownIt
 - Configurable info panel with routine to update it
 - Section renderer
 - URL parameters
-- Preprocess and postprocess functions for special cases includint tag_replace()
+- Preprocess and postprocess functions for special cases including tag_replace()
 - Simple function to render CSS
 - Function to convert names to CSS-compatible ones
 - URI handler
 - Various helper functions
 
-## What done it?
+## What uses it?
 Several projects now use the framework:
 - [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
 - [DownSlide](https://ugotsta.github.io/downslide/) - automatic presentations from Markdown documents
@@ -52,6 +51,7 @@ As with the exmaple Gists, any CSS themes listed here will be pull and shown in 
 - [Corkboard](?css=ada930f9dae1d0a8d95f41cb7a56d658) - Lively corkboard theme with CSS pins.
 - [Eerie](?css=7ac556b27c2cd34b00aa59e0d3621dea) - Eerie theme from [Eerie CSS](https://ugotsta.github.io/eerie-css/) project.
 - [Ghastly](?css=d1a6d5621b883bf6af886855d853d502) - Eerie in the truest, traditional sense.
+- [Writing on the Wall](?css=241b47680c730c7162cb5f82d6d788fa) - Writing on the cavern walls.
 
 ## `$gd_info`
 `$gd_help_ribbon`

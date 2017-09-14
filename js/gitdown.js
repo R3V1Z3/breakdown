@@ -66,7 +66,16 @@
         var example_gist = {};
         var example_css = {};
         // we'll use jquery $.extend later to merge these
-        var example_css_default = {"Technology": "adc373c2d5a5d2b07821686e93a9630b", "Vintage": "686ce03846004fd858579392ca0db2c1", "Saint Billy": "76c39d26b1b44e07bd7a783311caded8", "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142", "Woodwork": "c604615983fc6cdd5ebdbdd053800298", "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658", "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea", "Fiery Darkness": "c860958c04a53cd77575d5487ab1dec9", "Ghastly": "d1a6d5621b883bf6af886855d853d502" };
+        var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
+                                    "Vintage": "686ce03846004fd858579392ca0db2c1",
+                                    "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
+                                    "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
+                                    "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
+                                    "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658",
+                                    "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
+                                    "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
+                                    "Ghastly": "d1a6d5621b883bf6af886855d853d502"
+        };
         // for access to transform values, we'll make sanitized css available
         var clean_css = '';
         
@@ -621,7 +630,7 @@
             $current.removeClass('hi lo');
             // remove prior 'old' class
             $old.removeClass('old');
-            // add 'old' class to current section, to be used in presentations
+            // add 'old' class to current section
             $current.addClass('old');
             // now remove 'current' class from previously selected section and toc
             $current.removeClass('current');
@@ -939,8 +948,8 @@
                 // set position
                 var p = $(this).position();
                 $( eid + ' ' + prefix + '-selector' ).css({
-                    top: p.top + $(this).height() + 10,
-                    left: p.left - 50
+                    top: p.top + $(this).height() * 2 - 5,
+                    left: p.left
                 });
                 
                 // create click events for links
