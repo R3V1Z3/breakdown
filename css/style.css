@@ -228,6 +228,7 @@ a.gist-source, a.css-source {
   padding: 4px;
   border: none;
   outline: 1px solid rgba(0,0,0,0.2);
+  height: 1.5em;
 }
 
 .info .selector input::-webkit-input-placeholder,

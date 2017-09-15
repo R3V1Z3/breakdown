@@ -5,7 +5,7 @@ In-progress
 - allow $gd_info to be hidden with html comments
 - make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
 - ~~add .hi and .lo styles so user can style sections based on index~~
-- re-style selector drop-boxes to better suit info panel
+- ~~re-style selector drop-boxes to better suit info panel~~
 
 TODO
 - .info should be movable so style it with position:relative so it works with both relative and absolute position

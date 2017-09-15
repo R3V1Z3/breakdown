@@ -948,7 +948,7 @@
                 // set position
                 var p = $(this).position();
                 $( eid + ' ' + prefix + '-selector' ).css({
-                    top: p.top + $(this).height() * 2 - 5,
+                    top: p.top + $(this).height() - 17,
                     left: p.left
                 });
                 
