@@ -32,7 +32,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
 ## Example Gists
-These examples, when they exist in this README file, will be pulled and shown in a Gist drop-down in the Info panel.
+These examples, when they exist in this README file, will be pulled and shown in a Gist drop-down in the Info panel. <!-- This should <script src"http://google'.com"></script>be converted to html comment -->
 - [Alexa Cheats](?gist=2a06603706fd7c2eb5c93f34ed316354) - Fun commands for Amazon Alexa.
 - [Screen Cheatsheet](?gist=af918e1618682638aa82) - Helpful commands for Screen.
 - [Regular Expression Cheatsheet](?gist=3893f6ac9447f7ee27fe) - Easy reference for regular expressions.

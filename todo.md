@@ -6,6 +6,7 @@ In-progress
 - make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
 - ~~add .hi and .lo styles so user can style sections based on index~~
 - ~~re-style selector drop-boxes to better suit info panel~~
+- ~~ensure tag_replace() sanitizes - now using sanitizer.js for this as well~~
 
 TODO
 - .info should be movable so style it with position:relative so it works with both relative and absolute position
@@ -13,7 +14,6 @@ TODO
 - add function to handle dependencies internally so user doesn't need to add <script> and <style> references on their own.
 - for ease with compiling into local apps, first try and access dependencies in a local folder. Or maybe just add a flag that uses the local folder rather than CDN, etc.
 - when parsing gist or README, get preferred theme to allow user to specify a theme. This can be overriden if needed by the host project (ie. someone forks the project and doesn't want to allow users access to custom themes).
-- ensure tag_replace() sanitizes
 - allow html comments for adding data elements to sections such as section positions.
 - let user specify initial file other than README.md
 

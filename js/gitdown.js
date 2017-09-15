@@ -667,15 +667,18 @@
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
-        // extra security measures need to be taken here since we're allowing html
         var tag_replace = function(tag) {
             var str = $( eid_inner ).html();
             // for html comments
             if( tag === '<!--' ) {
+                // add content of comments as data-attributes attribute
+                // $().data( "comments", 52 );
                 var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
-                // unescape html comment $1 = ' --> bad code <!--'
-                // how can we sanitize just the placeholder $1?
-                str = str.replace( r , '<!--$1-->' );
+                str = str.replace( r , function(match, $1, offset, string){
+                    var parser = new HtmlWhitelistedSanitizer(true);
+                    $1 = parser.sanitizeString($1);
+                    return '<!--' + $1 + '-->';
+                });
                 $( eid_inner ).html(str);
                 // replace back comments wrapped in code blocks
                 $( eid + ' code' ).contents().each(function(i, val) {
@@ -689,7 +692,12 @@
             } else {
                 var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
                 var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
-                str = str.replace(open, '<' + tag + '$1>').replace(close, '</' + tag + '>');
+                str = str.replace( open , function(match, $1, offset, string){
+                    var parser = new HtmlWhitelistedSanitizer(true);
+                    $1 = parser.sanitizeString($1);
+                    return '<' + tag + $1 + '>';
+                });
+                str = str.replace(close, '</' + tag + '>');
                 // the regex is very restricted so we should have no security issues with html()
                 $( eid_inner ).html( str );
                 // update fontawesome icons

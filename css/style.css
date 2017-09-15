@@ -173,9 +173,9 @@ kbd:hover {
   right: 10px;
   z-index: 100;
   height: auto;
-  background: #333;
+  background: floralwhite;
   border-radius: 10px;
-  box-shadow: 0 0 12px #000;
+  box-shadow: 0 0 12px floralwhite;
   padding: 10px;
   cursor: pointer;
   border: none;
@@ -191,6 +191,10 @@ kbd:hover {
   padding: 6px;
   display: block;
   margin: 4px;
+}
+
+.info .selector a:hover {
+  filter: brightness(0.5);
 }
 
 a.selector-toggle::after {
@@ -223,8 +227,8 @@ a.gist-source, a.css-source {
   margin-bottom: 6px;
   width: 95%;
   border-radius: 5px;
-  color: #ccc;
-  background: rgba(255,255,255,0.2);
+  color: #333;
+  background: rgba(0,0,0,0.2);
   padding: 4px;
   border: none;
   outline: 1px solid rgba(0,0,0,0.2);
