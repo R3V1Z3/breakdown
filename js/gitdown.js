@@ -122,6 +122,16 @@
             main();
 
         };
+        
+        // jQuery EXTENSIONS ---------------------------------------------------
+        
+        // extend jQuery with getComments
+        // credits: https://stackoverflow.com/questions/22562113/read-html-comments-with-js-or-jquery#22562475
+        $.fn.getComments = function () {
+            return this.contents().map(function () {
+                if (this.nodeType === 8) return this.nodeValue;
+            }).get();
+        };
 
         // PUBLIC METHODS ------------------------------------------------------
         
