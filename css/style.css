@@ -259,6 +259,7 @@ a.gist-source, a.css-source {
   border: 3px double black;
   text-shadow: 1px 1px 1px white, 2px 2px 4px black, -1px -1px 1px white, -2px -2px 8px black;
   font-family: "Times New Roman", serif !important;
+  line-height: normal;
 }
 
 #wrapper .info a.help-ribbon::before,
