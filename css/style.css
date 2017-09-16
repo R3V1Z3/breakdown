@@ -173,12 +173,12 @@ kbd:hover {
   right: 10px;
   z-index: 100;
   height: auto;
-  background: floralwhite;
+  background: white;
   border-radius: 10px;
-  box-shadow: 0 0 12px floralwhite;
+  box-shadow: 0 0 2px white;
   padding: 10px;
   cursor: pointer;
-  border: none;
+  border: 2px solid black;
 }
 
 .selector-wrapper {
@@ -228,7 +228,7 @@ a.gist-source, a.css-source {
   width: 95%;
   border-radius: 5px;
   color: #333;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.3);
   padding: 4px;
   border: none;
   outline: 1px solid rgba(0,0,0,0.2);
