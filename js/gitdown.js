@@ -445,7 +445,7 @@
             
             // hide selectors at start
             $( eid + ' .info .selector' ).hide();
-            
+
             // with everything loaded, execute user-provided callback
             if (typeof plugin.settings.callback == 'function') {
                 plugin.settings.callback.call();
@@ -632,6 +632,7 @@
                 $current.addClass('hi');
                 $old.addClass('lo');
             }
+            
             
             // scroll to top of current link in toc
             var top_toc = $(eid + ' .toc').offset().top;
