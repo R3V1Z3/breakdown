@@ -1,12 +1,8 @@
 # Project Tasks
 
 In-progress
-- Remove Example Gists and add code for pulling examples from $gd_info using list items
 - allow $gd_info to be hidden with html comments
 - make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
-- ~~add .hi and .lo styles so user can style sections based on index~~
-- ~~re-style selector drop-boxes to better suit info panel~~
-- ~~ensure tag_replace() sanitizes - now using sanitizer.js for this as well~~
 
 TODO
 - .info should be movable so style it with position:relative so it works with both relative and absolute position
@@ -18,6 +14,10 @@ TODO
 - let user specify initial file other than README.md
 
 DONE
+- ~~Remove Example Gists and add code for pulling examples from $gd_info using list items~~
+- ~~add .hi and .lo styles so user can style sections based on index~~
+- ~~re-style selector drop-boxes to better suit info panel~~
+- ~~ensure tag_replace() sanitizes - now using sanitizer.js for this as well~~
 - ~~add .panel class to .info to allow apps to create panels that are hidden with .info~~
 - ~~include exampe themes in core for easy access by child projects~~
 - ~~update variable logic and add simple routine for operators ( $gd_toc="Contents" ), also hide toc when there are no sections as it won't be helpful~~

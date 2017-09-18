@@ -94,13 +94,22 @@ kbd:hover {
   z-index: 100;
 }
 
-.info h1 {
+.info .app-title {
   margin: 0;
   font-size: 2.3em;
 }
 
 .info h1, .info h3 {
   text-transform: none;
+}
+
+.info p {
+  margin: 0;
+}
+
+.info .toc,
+.info .element-count {
+    margin-bottom: 1em;
 }
 
 .info a {

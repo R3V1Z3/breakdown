@@ -55,7 +55,8 @@
             
             // GitDown stores a bunch of examples by default
             // set this to false to not merge them into your app
-            merge_examples: true,
+            merge_themes: true,
+            merge_gists: false,
         };
         
         // get URL parameters
@@ -66,6 +67,10 @@
         var example_gist = {};
         var example_css = {};
         // we'll use jquery $.extend later to merge these
+        var example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
+                                    "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
+        };
+        
         var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Vintage": "686ce03846004fd858579392ca0db2c1",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
@@ -78,6 +83,7 @@
         };
         // for access to transform values, we'll make sanitized css available
         var clean_css = '';
+        var info_content = '';
         
         var sections = [];
         var link_symbol = '&#11150';
@@ -118,6 +124,9 @@
             eid_container = eid + ' .' + plugin.settings.container;
             eid_inner = eid_container + ' .' + plugin.settings.inner;
             
+            // setup default info content
+            info_content = default_info_content();
+            
             // call main() based on options
             main();
 
@@ -134,10 +143,6 @@
         };
 
         // PUBLIC METHODS ------------------------------------------------------
-        
-        // plugin.methodName(arg1, arg2, ... argn) from inside the plugin or
-        // element.data('pluginName').publicMethod(arg1, arg2, ... argn) from outside 
-        // the plugin, where "element" is the element the plugin is attached to;
         
         // detect specified url parameter, clean and add it to settings
         plugin.update_parameter = function( key, default_value ) {
@@ -159,23 +164,6 @@
                 }
             }
             return val;
-        };
-        
-        plugin.eid = function(o) {
-            if ( o === 'inner') return eid_inner;
-            return eid_container;
-        };
-        
-        // returns true if input variable is null, undefined or ''
-        plugin.is_nothing = function(i) {
-            if ( i === undefined || i == undefined) {
-                return true;
-            } else {
-                if ( i === '' ) {
-                    return true;
-                }
-            }
-            return false;
         };
 
         // helper function for combining url parts
@@ -243,28 +231,6 @@
             sections = s;
         };
         
-        // render raw content, no Markdown formatting
-        plugin.render_raw = function( content, c, markdownit ) {
-            if ( markdownit === 'false' ) {
-                $(c).children().remove();
-                // add section div
-                $(c).append('<div class="section header"></div>');
-                $(c + ' .section.header').append('<div class="content"><pre class="code"></pre></div>');
-                
-                // syntax highlight code
-                var $pre = $(c + ' .section.header .content pre');
-                $pre.text( content );
-                $pre.each(function( i, block ) {
-                    hljs.highlightBlock(block);
-                });
-                
-                var $clone = $pre.clone();
-                $clone.removeClass('code').addClass('code-overlay');
-                $pre.parent().append($clone);
-                $clone.hide();
-            }
-        };
-        
         // render content in container
         // set markdownit true to render Markdown
         plugin.render = function( content, container ) {
@@ -289,6 +255,28 @@
                 }
             });
             $( container ).html( md.render(content) );
+        };
+        
+        // render raw content, no Markdown formatting
+        plugin.render_raw = function( content, c, markdownit ) {
+            if ( markdownit === 'false' ) {
+                $(c).children().remove();
+                // add section div
+                $(c).append('<div class="section header"></div>');
+                $(c + ' .section.header').append('<div class="content"><pre class="code"></pre></div>');
+                
+                // syntax highlight code
+                var $pre = $(c + ' .section.header .content pre');
+                $pre.text( content );
+                $pre.each(function( i, block ) {
+                    hljs.highlightBlock(block);
+                });
+                
+                var $clone = $pre.clone();
+                $clone.removeClass('code').addClass('code-overlay');
+                $pre.parent().append($clone);
+                $clone.hide();
+            }
         };
         
         plugin.update_toc = function() {
@@ -326,20 +314,13 @@
         // PRIVATE METHODS -----------------------------------------------------
         var main = function() {
             var load_readme = true;
-            // we'll later allow Markdown content input
             if(load_readme) {
                 // Start by loading README.md file to get options and potentially content
                 $.ajax({
                     url : "README.md",
                     dataType: "text",
                     success : function (data) {
-                        example_gist = extract_examples( data, 'gist' );
-                        var examples = extract_examples( data, 'css' );
-                        if ( plugin.settings.merge_examples === 'false' ) {
-                            example_css = examples;
-                        } else {
-                            example_css = $.extend( example_css_default, examples );
-                        }
+                        data = extract_info_content(data);
                         var p = plugin.settings;
                         extract_parameters( p );
                         var gist = p.gist;
@@ -402,53 +383,6 @@
                 console.log('Error on ajax return.');
             });
         };
-        
-        var extract_example_content = function(content, c) {
-            var examples = [];
-            // iterate over each line in content to check for and get id
-            var lines = content.split('\n');
-            // once end of section is reached, end will be 1
-            var end = false;
-            $.each( lines, function( i, val ) {
-                // return if we've reached end of section
-                if ( val === '' ) end = true;
-                if ( !end ) {
-                    if ( val.indexOf('- [') != -1 ) {
-                        // item found, get values
-                        var x = val.split( ' [' )[1];
-                        var name = x.split( '](' )[0];
-                        x = x.split( c + '=' )[1];
-                        // get the id
-                        var id = x.split( ') -' )[0];
-                        if ( c === 'gist' ) {
-                            examples[name] = id;
-                        } else {
-                            examples[name] = id;
-                        }
-                    }
-
-                }
-            });
-            return examples;
-        };
-        
-        // pull example content from README.md and render it to selectors
-        var extract_examples = function( data, c ) {
-            
-            var exists;
-            var examples = {};
-            if ( c === 'gist') {
-                exists = data.indexOf('## Example Gists');
-            } else {
-                exists = data.indexOf('## Example CSS Themes');
-            }
-            
-            if ( exists != -1 ) {
-                var content = data.substr( exists );
-                examples = extract_example_content( content, c );
-            }
-            return examples;
-        };
     
         // Update settings with URL parameters
         // p = plugin.settings
@@ -470,14 +404,15 @@
                 data = preprocess(data);
             }
             
-            // create data backup for use render_raw()
+            // create data backup for use with render_raw()
             var raw_data = data;
             
             // setup info panel default content if it doesn't exist
-            data = set_info_defaults(data);
+            data = extract_info_content(data);
             
-            // render content
+            // render content and info panel
             plugin.render( data, eid_inner );
+            plugin.render( info_content, eid + ' .info');
             
             // arrange content in sections based on headings
             sectionize();
@@ -488,9 +423,9 @@
             get_highlight_style();
             
             // handle special tags we want to allow
-            tag_replace('kbd');
-            tag_replace('i');
-            tag_replace('<!--');
+            tag_replace( 'kbd', eid );
+            tag_replace( 'i', eid );
+            tag_replace( '<!--', eid );
             
             // set current section and go there
             go_to_hash();
@@ -538,21 +473,44 @@
             }
         };
         
-        var set_info_defaults = function(content) {
-            // check content for $info
-            if ( content.indexOf('`$gd_info`') === -1 ) {
-                // $info not found, so we'll add default content
-                var n = '\n';
-                var info_default = '## `$gd_info`' + n;
-                info_default += '`$gd_help_ribbon`' + n;
-                info_default += '`$gd_element_count`' + n;
-                info_default += '`$gd_gist`' + n;
-                info_default += '`$gd_css`' + n;
-                info_default += '`$gd_toc = "Table of Contents"`' + n;
-                info_default += '`$gd_hide`' + n;
-                content += info_default;
+        var default_info_content = function() {
+            var n = '\n';
+            var info = '# Info <!-- {$gd_info} -->' + n;
+            info += '<!-- {$gd_help_ribbon} -->' + n;
+            info += '<!-- {$gd_element_count} -->' + n;
+            info += 'GIST <!-- {$gd_gist} -->' + n;
+            info += '- [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)' + n;
+            info += 'CSS <!-- {$gd_css} -->' + n;
+            info += '- [Vintage](https://gist.github.com/686ce03846004fd858579392ca0db2c1)' + n;
+            info += '## Table of Contents <!-- {$gd_toc} -->' + n;
+            info += '<!-- {$gd_hide} -->' + n;
+            return info;
+        };
+        
+        var extract_info_content = function(content) {
+            var n = '\n';
+            var info = '';
+            var info_found = false;
+            var c = content;
+            // check content for $gd_info
+            if ( c.indexOf('<!-- {$gd_info} -->') != -1 ) {
+                c = '';
+                // get all content starting with occurrence of $gd_info
+                var lines = content.split('\n');
+                $.each( lines, function( i, val ){
+                    if ( val.indexOf('<!-- {$gd_info} -->') != -1 ) {
+                        info_found = true;
+                    }
+                    if ( info_found ) {
+                        info += val + n;
+                    } else {
+                        // add line to content for return later
+                        c += val + n;
+                    }
+                });
+                info_content = info;
             }
-            return content;
+            return c;
         };
         
         var sectionize = function() {
@@ -677,8 +635,8 @@
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
-        var tag_replace = function(tag) {
-            var str = $( eid_inner ).html();
+        var tag_replace = function( tag, container ) {
+            var str = $( container ).html();
             // for html comments
             if( tag === '<!--' ) {
                 // add content of comments as data-attributes attribute
@@ -689,16 +647,15 @@
                     $1 = parser.sanitizeString($1);
                     return '<!--' + $1 + '-->';
                 });
-                $( eid_inner ).html(str);
+                $( container ).html(str);
                 // replace back comments wrapped in code blocks
-                $( eid + ' code' ).contents().each(function(i, val) {
+                $( container + ' code' ).contents().each(function(i, val) {
                     if ( this.nodeType === 8 ) {
                         var p = this.parentNode;
                         var r = document.createTextNode('<!-- ' + this.nodeValue + ' -->');
                         p.replaceChild( r, this );
                     }
                 });
-                
             } else {
                 var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
                 var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
@@ -709,17 +666,17 @@
                 });
                 str = str.replace(close, '</' + tag + '>');
                 // the regex is very restricted so we should have no security issues with html()
-                $( eid_inner ).html( str );
+                $( container ).html( str );
                 // update fontawesome icons
                 if ( tag === 'i' ){
-                    $( eid + ' i' ).attr('class', function(_, classes) {
+                    $( container + ' i' ).attr('class', function(_, classes) {
                         if( classes.indexOf('fa-') < 0 ){
                             classes = plugin.clean_name(classes);
                             classes = classes.replace(/icon-(.*?)/, "fa-$1");
                         }
                         return classes;
                     });
-                    $( eid + ' i' ).addClass('fa');
+                    $( container + ' i' ).addClass('fa');
                 }
             }
         };
@@ -742,103 +699,136 @@
             return false;
         };
         
-        var get_variable_value = function( v ) {
-            var s = v.split('=');
-            if ( s.length > 0 ) {
-                // get content beginning after = operator
-                var value = s[1].trim();
-                // return value if wrapped in quotes
-                value = value.split('"');
-                if ( value.length > 0 ) {
-                    return value[1];
-                } else if ( isNaN(value) ) {
-                    // otherwise return numeric value
-                    return value;
+        var extract_variable = function( v ) {
+            // ensure there's an open paren
+            if ( v.indexOf('{') != -1 ) {
+                var v1 = v.split('{')[1];
+                // ensure there's a closing paren
+                if ( v1.indexOf('}') != -1 ) {
+                    var v2 = v1.split('}')[0];
+                    // ensure the variable begins with $
+                    if ( v2.indexOf('$') != -1 ) {
+                        return v2;
+                    }
                 }
             }
             return '';
         };
         
-        var render_variables = function( $code, app_title ) {
-            $code.each(function( i, val ){
-                var c = '';
-                var t = $(this).text();
-                // n holds exact variable string for replacement later
-                var n = '';
-                if ( t != '' ) {
-                    if ( begins( t, '$gd_info' ) ) {
-                        c = '<h1 class="app-title ' + plugin.clean_name(app_title) +  '">' + app_title + '</h1>';
-                        n = '$gd_info';
-                    } else if ( begins( t, '$gd_help_ribbon' ) ) {
-                        c = '<a class="help-ribbon" href="//github.com' + path;
-                        c += '#' + app_title.toLowerCase() + '">?</a>';
-                        $(this).next('br').remove();
-                        n = '$gd_help_ribbon';
-                    } else if ( begins( t, '$gd_element_count' ) ) {
-                        c = '<div class="element-count">.section total:</div>';
-                        n = '$gd_element_count';
-                    } else if ( begins( t, '$gd_gist' ) ) {
-                        c = '<div class="gist-details">';
-                        c += '<a class="gist-source" href="https://github.com' + path;
-                        c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
-                        c += '<a class="gist-url selector-toggle">README.md ▾</a>';
-                        c += '<div class="gist-selector selector" class="selector">';
-                        c += '<input class="gist-input" type="text" placeholder="Gist ID" />';
-                        c += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
-                        c += '<a class="id" id="default">Default (README.md)</a><br/>';
-                        // Example Gist list
-                        c += example_content(example_gist);
-                        c += '</div></div>';
-                        n = '$gd_gist';
-                        $(this).next('br').remove();
-                    } else if ( begins( t, '$gd_css' ) ) {
-                        c = '<div class="css-details">';
-                        c += '<a class="css-source" href="https://github.com' + path;
-                        c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-                        c += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
-                        c += '<div class="css-selector selector" class="selector">';
-                        c += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
-                        c += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-                        c += '<a class="id" id="default">Default (style.css)</a><br/>';
-                        // Example CSS list
-                        c += example_content(example_css);
-                        c += '</div></div>';
-                        n = '$gd_css';
-                        $(this).next('br').remove();
-                    } else if ( begins( t, '$gd_toc' ) ) {
-                        // get value after variable
-                        var v = get_variable_value( t );
-                        c += '<h3 class="toc-heading">' + v + '</h3>';
-                        c += '<div class="toc"></div>';
-                        n = t;
-                    } else if ( begins( t, '$gd_hide' ) ) {
-                        c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
-                        n = '$gd_hide';
-                    }
-                    // replace content containing variable with new content
-                    $(this).html( t.replace( n, c ) );
-                    // remove parent code wrapper
-                    $(this).contents().unwrap();
-                }
+        var extract_examples = function( $examples ) {
+            var examples = {};
+            $examples.find('li').each(function(){
+                var $li = $(this);
+                var name = $li.text();
+                var id = $li.find('a').attr('href');
+                id = id.substr( id.lastIndexOf('/') + 1 );
+                examples[name] = id;
             });
+            return examples;
+        };
+        
+        var variable_html = function( v, $t ) {
+            // c is the html
+            var c = '';
+            // r will hold exact replacement string for later
+            var r = '';
+            var title = plugin.settings.title;
+            if ( v != '' ) {
+                if ( begins( v, '$gd_info' ) ) {
+                    $t.text( title ).addClass( plugin.clean_name(title) + ' app-title' );
+                } else if ( begins( v, '$gd_help_ribbon' ) ) {
+                    c = '<a class="help-ribbon" href="//github.com' + path;
+                    c += '#' + title.toLowerCase() + '">?</a>';
+                    $t.html(c);
+                } else if ( begins( v, '$gd_element_count' ) ) {
+                    c = '<div class="element-count">.section total:</div>';
+                    $t.append(c);
+                } else if ( begins( v, '$gd_gist' ) ) {
+                    
+                    // first extract contents of list for examples
+                    var $gists = $t.next();
+                    var examples = extract_examples( $gists );
+                    $gists.remove();
+                    
+                    // check settings and merge examples if needed
+                    if ( plugin.settings.merge_themes === 'false' ) {
+                        example_gist = examples;
+                    } else {
+                        example_gist = $.extend( example_gist_default, examples );
+                    }
+                    
+                    c = '<div class="gist-details">';
+                    c += '<a class="gist-source" href="https://github.com' + path;
+                    c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
+                    c += '<a class="gist-url selector-toggle">README.md ▾</a>';
+                    c += '<div class="gist-selector selector" class="selector">';
+                    c += '<input class="gist-input" type="text" placeholder="Gist ID" />';
+                    c += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
+                    c += '<a class="id" id="default">Default (README.md)</a><br/>';
+                    // Example Gist list
+                    c += example_content(example_gist);
+                    c += '</div></div>';
+                    $t.next('br').remove();
+                    $t.html(c);
+                } else if ( begins( v, '$gd_css' ) ) {
+                    var $gists = $t.next();
+                    var examples = extract_examples( $gists );
+                    $gists.remove();
+                    
+                    // check settings and merge examples if needed
+                    if ( plugin.settings.merge_themes === 'false' ) {
+                        example_css = examples;
+                    } else {
+                        example_css = $.extend( example_css_default, examples );
+                    }
+                    
+                    c = '<div class="css-details">';
+                    c += '<a class="css-source" href="https://github.com' + path;
+                    c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
+                    c += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
+                    c += '<div class="css-selector selector" class="selector">';
+                    c += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
+                    c += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
+                    c += '<a class="id" id="default">Default (style.css)</a><br/>';
+                    // Example CSS list
+                    c += example_content(example_css);
+                    c += '</div></div>';
+                    $t.next('br').remove();
+                    $t.html(c);
+                } else if ( begins( v, '$gd_toc' ) ) {
+                    c += '<div class="toc"></div>';
+                    $t.after(c);
+                } else if ( begins( v, '$gd_hide' ) ) {
+                    c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
+                    $t.html( c );
+                }
+            }
+        };
+        
+        var render_variables = function( container, app_title ) {
+            var $sections = $( container );
+            if ( $sections.length > 0 ) {
+                // find attributes and position section
+                $sections.each(function() {
+                    var comments = $(this).getComments();
+                    if ( comments.length > 0 ) {
+                        for ( var i = 0; i < comments.length; i++ ) {
+                            var v = extract_variable( comments[i] );
+                            if ( v != '' ) {
+                                variable_html( v, $(this) );
+                            }
+                        }
+                    }
+                });
+            }
         };
         
         var render_info = function(app_title) {
-            
-            // first check if info content is available
-            var $info = $( eid + ' .section#gd-info');
-            $( eid + ' .info' ).html( $info.children() );
-            $info.remove();
-            
-            // now let's remove the extra stuff added in render_section
-            $( eid + ' .info .section').children().unwrap();
-            $( eid + ' .info .handle-heading').children().unwrap();
-            $( eid + ' .info a.handle').children().unwrap();
-            $( eid + ' .info .content').children().unwrap();
-            $( eid + ' .info p').children().unwrap();
+
+            //console.log( $('.info *').getComments() );
             
             // render all variables in code blocks
-            render_variables( $( eid + ' .info code' ), app_title );
+            render_variables( eid + ' .info *', app_title );
             
             // update TOC
             plugin.update_toc();
