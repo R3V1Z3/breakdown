@@ -751,7 +751,7 @@
                     $gists.remove();
                     
                     // check settings and merge examples if needed
-                    if ( plugin.settings.merge_themes === 'false' ) {
+                    if ( plugin.settings.merge_gists === 'false' ) {
                         example_gist = examples;
                     } else {
                         example_gist = $.extend( example_gist_default, examples );
