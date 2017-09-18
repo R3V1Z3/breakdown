@@ -31,11 +31,11 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Markdown-it](https://markdown-it.github.io/) - does all the heavy lifting of Markdown rendering
 - [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
-# Info <!-- {$gd_info} -->
+# Examples <!-- {$gd_info} -->
 <!-- {$gd_help_ribbon} -->
 <!-- {$gd_element_count} -->
 
-GIST <!-- {$gd_gist} -->
+Example Gists <!-- {$gd_gist} -->
 - [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)
 - [Screen Cheatsheet](https://gist.github.com/af918e1618682638aa82)
 - [Regular Expression Cheatsheet](https://gist.github.com/3893f6ac9447f7ee27fe)
@@ -44,7 +44,7 @@ GIST <!-- {$gd_gist} -->
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 
-CSS <!-- {$gd_css} -->
+Themes <!-- {$gd_css} -->
 - [Vintage](https://gist.github.com/686ce03846004fd858579392ca0db2c1)
 - [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
 - [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
@@ -54,5 +54,6 @@ CSS <!-- {$gd_css} -->
 - [Eerie](https://gist.github.com/7ac556b27c2cd34b00aa59e0d3621dea)
 - [Ghastly](https://gist.github.com/d1a6d5621b883bf6af886855d853d502)
 - [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
-## Table of Contents <!-- {$gd_toc} -->
+
+<!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->

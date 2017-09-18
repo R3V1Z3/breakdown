@@ -215,11 +215,11 @@ a.selector-toggle::after {
 }
 
 a.gist-url::after {
-  content: "GIST";
+  content: attr(name);
 }
 
 a.css-url::after {
-  content: "CSS";
+  content: attr(name);
 }
 
 a.gist-source, a.css-source {

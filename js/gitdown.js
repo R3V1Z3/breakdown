@@ -730,8 +730,6 @@
         var variable_html = function( v, $t ) {
             // c is the html
             var c = '';
-            // r will hold exact replacement string for later
-            var r = '';
             var title = plugin.settings.title;
             if ( v != '' ) {
                 if ( begins( v, '$gd_info' ) ) {
@@ -760,7 +758,7 @@
                     c = '<div class="gist-details">';
                     c += '<a class="gist-source" href="https://github.com' + path;
                     c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
-                    c += '<a class="gist-url selector-toggle">README.md ▾</a>';
+                    c += '<a name="' + $t.text() + '" class="gist-url selector-toggle">README.md ▾</a>';
                     c += '<div class="gist-selector selector" class="selector">';
                     c += '<input class="gist-input" type="text" placeholder="Gist ID" />';
                     c += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
@@ -785,7 +783,7 @@
                     c = '<div class="css-details">';
                     c += '<a class="css-source" href="https://github.com' + path;
                     c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-                    c += '<a class="css-url selector-toggle">Default (style.css) ▾</a>';
+                    c += '<a name="' + $t.text() + '" class="css-url selector-toggle">Default (style.css) ▾</a>';
                     c += '<div class="css-selector selector" class="selector">';
                     c += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
                     c += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
@@ -796,8 +794,16 @@
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_toc' ) ) {
+                    // handle assignment
+                    if ( v.indexOf('=') != -1 ) {
+                        var toc = v.split('=')[1];
+                        toc = toc.replace(/["'“”]/g, '');
+                        c += '<h3>' + toc + '</h3>';
+                    }
                     c += '<div class="toc"></div>';
-                    $t.after(c);
+                    if ( $t.is('p') ) {
+                        $t.before(c);
+                    } else $t.after(c);
                 } else if ( begins( v, '$gd_hide' ) ) {
                     c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
                     $t.html( c );
