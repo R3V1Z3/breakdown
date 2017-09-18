@@ -45,15 +45,6 @@ Example Gists <!-- {$gd_gist} -->
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 
 Themes <!-- {$gd_css} -->
-- [Vintage](https://gist.github.com/686ce03846004fd858579392ca0db2c1)
-- [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
-- [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
-- [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
-- [Woodwork](https://gist.github.com/c604615983fc6cdd5ebdbdd053800298)
-- [Corkboard](https://gist.github.com/ada930f9dae1d0a8d95f41cb7a56d658)
-- [Eerie](https://gist.github.com/7ac556b27c2cd34b00aa59e0d3621dea)
-- [Ghastly](https://gist.github.com/d1a6d5621b883bf6af886855d853d502)
-- [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
 
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->

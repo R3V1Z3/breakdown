@@ -744,9 +744,12 @@
                 } else if ( begins( v, '$gd_gist' ) ) {
                     
                     // first extract contents of list for examples
+                    var examples = {};
                     var $gists = $t.next();
-                    var examples = extract_examples( $gists );
-                    $gists.remove();
+                    if ( $gists.is('ul') ) {
+                        examples = extract_examples( $gists );
+                        $gists.remove();
+                    }
                     
                     // check settings and merge examples if needed
                     if ( plugin.settings.merge_gists === 'false' ) {
@@ -769,9 +772,14 @@
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_css' ) ) {
+                    
+                    // first extract contents of list for examples
+                    var examples = {};
                     var $gists = $t.next();
-                    var examples = extract_examples( $gists );
-                    $gists.remove();
+                    if ( $gists.is('ul') ) {
+                        examples = extract_examples( $gists );
+                        $gists.remove();
+                    }
                     
                     // check settings and merge examples if needed
                     if ( plugin.settings.merge_themes === 'false' ) {
