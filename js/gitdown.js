@@ -798,7 +798,7 @@
                     if ( v.indexOf('=') != -1 ) {
                         var toc = v.split('=')[1];
                         toc = toc.replace(/["'“”]/g, '');
-                        c += '<h3>' + toc + '</h3>';
+                        c += '<h3 class="toc-heading">' + toc + '</h3>';
                     }
                     c += '<div class="toc"></div>';
                     if ( $t.is('p') ) {
@@ -831,8 +831,6 @@
         
         var render_info = function(app_title) {
 
-            //console.log( $('.info *').getComments() );
-            
             // render all variables in code blocks
             render_variables( eid + ' .info *', app_title );
             
