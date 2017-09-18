@@ -431,11 +431,11 @@
             tag_replace( 'i', eid );
             tag_replace( '<!--', eid );
             
-            // set current section and go there
-            go_to_hash();
-            
             // render info panel and toc based on current section
             render_info( plugin.settings.title );
+            
+            // set current section and go there
+            go_to_hash();
             
             // render raw text if user specified
             plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
@@ -632,6 +632,11 @@
                 $current.addClass('hi');
                 $old.addClass('lo');
             }
+            
+            // scroll to top of current link in toc
+            var top_toc = $(eid + ' .toc').offset().top;
+            var top_current = $(eid + ' .toc a.current').offset().top;
+            $('.toc').animate({scrollTop: top_current - top_toc});
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
