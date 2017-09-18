@@ -633,11 +633,10 @@
                 $old.addClass('lo');
             }
             
-            
             // scroll to top of current link in toc
-            var top_toc = $(eid + ' .toc').offset().top;
-            var top_current = $(eid + ' .toc a.current').offset().top;
-            $('.toc').animate({scrollTop: top_current - top_toc});
+            var t = $(eid + ' .toc');
+            var c = $(eid + ' .toc a.current');
+            t.animate({scrollTop: t.scrollTop() + (c.offset().top - t.offset().top)});
         };
         
         // custom method to allow for certain tags like <i> and <kbd>
