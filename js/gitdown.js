@@ -217,7 +217,13 @@
         };
         
         plugin.get_current_section_id = function() {
-            return $( eid + ' .section.current' ).attr('id');
+            // make the first .section current if no current section is set yet
+            var $current = $( eid + ' .section.current' );
+            if ( $current.length < 1) {
+                $current = $( eid + ' .section:first-child');
+                $current.addClass('current');
+            }
+            return $current.attr('id');
         };
         
         // let user easily get names of sections
@@ -609,9 +615,9 @@
             if( hash && $(hash).length > 0 && hash != header_hash ) {
                 $( eid + ' .section' + hash ).removeClass('old').addClass('current');
                 // update toc with current hash
-                $( 'a[href*="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
+                $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
                 // scroll to specified hash position
-                $('body').animate({
+                $( eid ).animate({
                     scrollTop: $(hash).offset().top
                 });
             } else {
@@ -621,7 +627,7 @@
                 
             }
             // update toc link with current
-            $( 'a[href*="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
+            $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
             // add .next or .prev to .old class so user can style based on index
             $old = $( eid + ' .section.old' );
             $current = $( eid + ' .section.current' );
