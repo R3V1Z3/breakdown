@@ -216,6 +216,10 @@
             return content;
         };
         
+        plugin.get_current_section_id = function() {
+            return $( eid + ' .section.current' ).attr('id');
+        };
+        
         // let user easily get names of sections
         plugin.get_sections = function() {
             return sections;
@@ -289,7 +293,7 @@
                     
                     var classes = '';
                     // add '.current' class if this section is currently selected
-                    if ( plugin.clean_name( sections[i] ) === get_current_section_id() ) {
+                    if ( plugin.clean_name( sections[i] ) === plugin.get_current_section_id() ) {
                         classes += "current";
                     }
                     // add '.hidden' class if parent section is hidden
@@ -586,10 +590,6 @@
             return processed;
         };
         
-        var get_current_section_id = function() {
-            return $( eid + ' .section.current' ).attr('id');
-        };
-        
         var go_to_hash = function() {
             var $old = $( eid + ' .section.old' );
             var $current = $( eid + ' .section.current' );
@@ -609,7 +609,7 @@
             if( hash && $(hash).length > 0 && hash != header_hash ) {
                 $( eid + ' .section' + hash ).removeClass('old').addClass('current');
                 // update toc with current hash
-                $( 'a[href*="#' + get_current_section_id() + '"]' ).addClass('current');
+                $( 'a[href*="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
                 // scroll to specified hash position
                 $('body').animate({
                     scrollTop: $(hash).offset().top
@@ -621,7 +621,7 @@
                 
             }
             // update toc link with current
-            $( 'a[href*="#' + get_current_section_id() + '"]' ).addClass('current');
+            $( 'a[href*="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
             // add .next or .prev to .old class so user can style based on index
             $old = $( eid + ' .section.old' );
             $current = $( eid + ' .section.current' );
