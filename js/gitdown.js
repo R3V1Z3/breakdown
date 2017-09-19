@@ -763,10 +763,10 @@
                     }
                     
                     // check settings and merge examples if needed
-                    if ( plugin.settings.merge_gists === 'false' ) {
-                        example_gist = examples;
-                    } else {
+                    if ( plugin.settings.merge_gists ) {
                         example_gist = $.extend( example_gist_default, examples );
+                    } else {
+                        example_gist = examples;
                     }
                     
                     c = '<div class="gist-details">';
