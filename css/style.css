@@ -23,7 +23,6 @@ html, body {
 .inner {
   width: 50%;
   margin: auto;
-  touch-action: none;
 }
 
 /* Section */
