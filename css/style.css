@@ -29,6 +29,7 @@ html, body {
 .section {
   margin: auto;
   page-break-inside: avoid;
+  touch-action: none;
 }
 
 .section .content {
