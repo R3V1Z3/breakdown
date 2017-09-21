@@ -80,7 +80,8 @@
                                     "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
                                     "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
                                     "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
-                                    "Ghastly": "d1a6d5621b883bf6af886855d853d502"
+                                    "Ghastly": "d1a6d5621b883bf6af886855d853d502",
+                                    "Deep Blue": "51aa23d96f9bd81fe55c47b2d51855a5"
         };
         // for access to transform values, we'll make sanitized css available
         var clean_css = '';

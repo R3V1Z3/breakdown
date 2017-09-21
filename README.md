@@ -55,6 +55,7 @@ Themes <!-- {$gd_css} -->
 - [Eerie](https://gist.github.com/7ac556b27c2cd34b00aa59e0d3621dea)
 - [Ghastly](https://gist.github.com/d1a6d5621b883bf6af886855d853d502)
 - [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
+- [Deep Blue](https://gist.github.com/51aa23d96f9bd81fe55c47b2d51855a5)
 
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->
