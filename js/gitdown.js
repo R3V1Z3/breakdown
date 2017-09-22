@@ -238,13 +238,19 @@
             return clean_css;
         };
         
-        // let user override section names, for cases like Entwine
+        // let user override toc section list, for cases like Entwine
         plugin.set_sections = function(s) {
             sections = s;
         };
         
         // render content in container
-        // set markdownit true to render Markdown
+        
+        // how do we maintain original markdown code for each section?
+        
+        // re-write everything
+        // we'll parse original markdown content
+        // separate the content into sections at the markdown level
+        // then render each section
         plugin.render = function( content, container ) {
             var md = window.markdownit({
                 html: false, // Enable HTML - Keep as false for security
@@ -530,6 +536,7 @@
             // header section
             var header = plugin.settings.header;
             var heading = plugin.settings.heading;
+            
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
                     var name = plugin.clean_name( $(this).text() );
@@ -559,6 +566,14 @@
                 var t = $(this).text();
                 if ( t.indexOf( 'gd_info' ) === -1 ) {
                     sections.push( t );
+                }
+            });
+            
+            // if section's parent is not eid_inner, then move it there
+            $( eid_inner + ' .section' ).each(function() {
+                var $parent = $(this).parent();
+                if ( !$parent.is( $(eid_inner) ) ) {
+                    $(this).appendTo( eid_inner );
                 }
             });
 
