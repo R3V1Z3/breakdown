@@ -2,30 +2,30 @@
 (function($) {
 
     $.gitdown = function(element, options, callback) {
-        
+
         /*
             Options are configurable by 3 means, in the following order:
             1. plugin instantiation
             2. options in README <!-- {options: foo=bar...} -->
             3. URL parameters
-            
+
             That represents order of precedence. Options provided through
             plugin instantiation code take precedence over those specified by
             URL parameter.
-            
+
             Thus, if you fork the repo on GitHub, you can easily alter the
             options at instantiation in index.html so that URL parameters are
             disallowed. Or more easily, you can alter the options by just
             editing the README.
-            
+
             The goal is to allow flexibility for any level of user from
             developers to designers or those just looking to have fun.
         */
 
         var defaults = {
-            
+
             // defaults for url parameters
-            
+
             header: 'h1',               // element to use for header
             heading: 'h2',              // element to use for sections
             container: 'container',     // class added for container
@@ -37,12 +37,12 @@
             css_filename: '',
             highlight: 'default',
             preprocess: false,
-            
+
             // set false to render raw text content
             markdownit: true,
-            
+
             // defaults unavailable as url parameters
-            
+
             title: 'GitDown',
             hide_info: false,
             hide_help_ribbon: false,
@@ -52,25 +52,25 @@
             hide_toc: false,
             disable_hide: false,
             parameters_disallowed: '',
-            
+
             // GitDown stores a bunch of examples by default
             // set this to false to not merge them into your app
             merge_themes: true,
             merge_gists: false,
         };
-        
+
         // get URL parameters
         let params = (new URL(location)).searchParams;
         var path = '/' + window.location.hostname.split('.')[0];
         path += window.location.pathname;
-        
+
         var example_gist = {};
         var example_css = {};
         // we'll use jquery $.extend later to merge these
         var example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
                                     "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
         };
-        
+
         var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
@@ -86,14 +86,14 @@
         // for access to transform values, we'll make sanitized css available
         var clean_css = '';
         var info_content = '';
-        
+
         var sections = [];
         var link_symbol = '&#11150';
 
         // simplify plugin name with this and declare settings
         var plugin = this;
         plugin.settings = {};
-        
+
         var $element = $(element);
         var eid = '#' + $element.attr('id');
         var eid_container;
@@ -110,7 +110,7 @@
             content += '</div>';
             content += '<div class="info panel"></div>';
             $element.append(content);
-            
+
             // ensure $element has an id
             if ( eid === '#' ) {
                 var new_id = '#wrapper';
@@ -121,21 +121,21 @@
                     $element.attr( 'id', eid.substr(1) );
                 }
             }
-            
+
             // helper variables to simplify access to container elements
             eid_container = eid + ' .' + plugin.settings.container;
             eid_inner = eid_container + ' .' + plugin.settings.inner;
-            
+
             // setup default info content
             info_content = default_info_content();
-            
+
             // call main() based on options
             main();
 
         };
-        
+
         // jQuery EXTENSIONS ---------------------------------------------------
-        
+
         // extend jQuery with getComments
         // credits: https://stackoverflow.com/questions/22562113/read-html-comments-with-js-or-jquery#22562475
         $.fn.getComments = function () {
@@ -145,7 +145,7 @@
         };
 
         // PUBLIC METHODS ------------------------------------------------------
-        
+
         // detect specified url parameter, clean and add it to settings
         plugin.update_parameter = function( key, default_value ) {
             var val = default_value;
@@ -176,7 +176,7 @@
             base = base.split('#')[0];
             return base + q + location.hash;
         };
-        
+
         // helper function to ensure section ids are css compatible
         plugin.clean_name = function(str) {
             str = str.toLowerCase();
@@ -190,7 +190,7 @@
             str = str.replace(/[\s_]/g, '-');
             return str;
         };
-        
+
         // find first character in str that is not char and return its location
         plugin.find_first_char_not = function(char, str) {
             for (var i = 0; i < str.length; i++){
@@ -201,14 +201,14 @@
             // found only same char so return -1
             return -1;
         };
-        
+
         // helper function to provide defaults
         plugin.get_examples = function(c) {
             var examples;
             if ( c === 'css' ) {
                 examples = example_css;
             } else examples = example_gist;
-            
+
             var content = '{';
             for ( var key in examples ) {
                 content += '"' + key + '": ';
@@ -217,7 +217,7 @@
             content += '}';
             return content;
         };
-        
+
         plugin.get_current_section_id = function() {
             // make the first .section current if no current section is set yet
             var $current = $( eid + ' .section.current' );
@@ -227,26 +227,26 @@
             }
             return $current.attr('id');
         };
-        
+
         // let user easily get names of sections
         plugin.get_sections = function() {
             return sections;
         };
-        
+
         // let user easily get names of sections
         plugin.get_css = function() {
             return clean_css;
         };
-        
+
         // let user override toc section list, for cases like Entwine
         plugin.set_sections = function(s) {
             sections = s;
         };
-        
+
         // render content in container
-        
+
         // how do we maintain original markdown code for each section?
-        
+
         // re-write everything
         // we'll parse original markdown content
         // separate the content into sections at the markdown level
@@ -274,7 +274,7 @@
             });
             $( container ).html( md.render(content) );
         };
-        
+
         // render raw content, no Markdown formatting
         plugin.render_raw = function( content, c, markdownit ) {
             if ( markdownit === 'false' ) {
@@ -282,21 +282,21 @@
                 // add section div
                 $(c).append('<div class="section header"></div>');
                 $(c + ' .section.header').append('<div class="content"><pre class="code"></pre></div>');
-                
+
                 // syntax highlight code
                 var $pre = $(c + ' .section.header .content pre');
                 $pre.text( content );
                 $pre.each(function( i, block ) {
                     hljs.highlightBlock(block);
                 });
-                
+
                 var $clone = $pre.clone();
                 $clone.removeClass('code').addClass('code-overlay');
                 $pre.parent().append($clone);
                 $clone.hide();
             }
         };
-        
+
         plugin.update_toc = function() {
             var html = '';
             if (sections.length > 0 ) {
@@ -304,7 +304,7 @@
                 for ( var i = 0; i < sections.length; i++ ) {
                     var name = plugin.clean_name( sections[i] );
                     html += '<a href="#' + name + '" ';
-                    
+
                     var classes = '';
                     // add '.current' class if this section is currently selected
                     if ( plugin.clean_name( sections[i] ) === plugin.get_current_section_id() ) {
@@ -358,10 +358,10 @@
                     }
                 });
             } else {
-                
+
             }
         };
-        
+
         var load_gist = function (type, gist_id, filename, data){
             $.ajax({
                 url: 'https://api.github.com/gists/' + gist_id,
@@ -401,7 +401,7 @@
                 console.log('Error on ajax return.');
             });
         };
-    
+
         // Update settings with URL parameters
         // p = plugin.settings
         var extract_parameters = function( p ) {
@@ -410,53 +410,53 @@
                 plugin.update_parameter(key);
             }
         };
-        
+
         // Start content rendering process
         var su_render = function(data) {
-            
+
             // best practice, files should end with newline, we'll ensure it.
             data += '\n';
-            
+
             // preprocess data if user specified
             if( plugin.settings.preprocess ) {
                 data = preprocess(data);
             }
-            
+
             // create data backup for use with render_raw()
             var raw_data = data;
-            
+
             // setup info panel default content if it doesn't exist
             data = extract_info_content(data);
-            
+
             // render content and info panel
             plugin.render( data, eid_inner );
             plugin.render( info_content, eid + ' .info');
-            
+
             // arrange content in sections based on headings
             sectionize();
-            
+
             if ( plugin.settings.fontsize != '' ) {
                 $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
             }
             get_highlight_style();
-            
+
             // handle special tags we want to allow
             tag_replace( 'kbd', eid );
             tag_replace( 'i', eid );
             tag_replace( '<!--', eid );
-            
+
             // render info panel and toc based on current section
             render_info( plugin.settings.title );
-            
+
             // set current section and go there
             go_to_hash();
-            
+
             // render raw text if user specified
             plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
-            
+
             register_events();
             handle_options();
-            
+
             // hide selectors at start
             $( eid + ' .info .selector' ).hide();
 
@@ -465,7 +465,7 @@
                 plugin.settings.callback.call();
             }
         };
-        
+
         var handle_options = function() {
             if( options['hide_info'] ) {
                 $( eid + ' .info' ).remove();
@@ -490,21 +490,19 @@
                 $( eid + ' .info h3' ).remove();
             }
         };
-        
+
         var default_info_content = function() {
             var n = '\n';
             var info = '# Info <!-- {$gd_info} -->' + n;
             info += '<!-- {$gd_help_ribbon} -->' + n;
             info += '<!-- {$gd_element_count} -->' + n;
             info += 'GIST <!-- {$gd_gist} -->' + n;
-            info += '- [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)' + n;
             info += 'CSS <!-- {$gd_css} -->' + n;
-            info += '- [Vintage](https://gist.github.com/686ce03846004fd858579392ca0db2c1)' + n;
             info += '## Table of Contents <!-- {$gd_toc} -->' + n;
             info += '<!-- {$gd_hide} -->' + n;
             return info;
         };
-        
+
         var extract_info_content = function(content) {
             var n = '\n';
             var info = '';
@@ -530,13 +528,13 @@
             }
             return c;
         };
-        
+
         var sectionize = function() {
-            
+
             // header section
             var header = plugin.settings.header;
             var heading = plugin.settings.heading;
-            
+
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
                     var name = plugin.clean_name( $(this).text() );
@@ -551,7 +549,7 @@
                     $( eid_inner ).append('<div class="section header"></div>');
                 }
             }
-            
+
             // create sections
             $( eid_inner + ' ' + heading ).each(function() {
                 var name = plugin.clean_name( $(this).text() );
@@ -560,7 +558,7 @@
                 $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
                 $(this).nextUntil(heading).wrapAll('<div class="content"/>');
             });
-            
+
             // add section names to sections array for use with toc
             $( eid_inner + ' .section a.handle' ).each(function(){
                 var t = $(this).text();
@@ -568,7 +566,7 @@
                     sections.push( t );
                 }
             });
-            
+
             // if section's parent is not eid_inner, then move it there
             $( eid_inner + ' .section' ).each(function() {
                 var $parent = $(this).parent();
@@ -578,7 +576,7 @@
             });
 
         };
-        
+
         var get_highlight_style = function() {
             // get highlight.js style if provided
             var highlight = params.get('highlight');
@@ -586,7 +584,7 @@
             // add style reference to head to load it
             $('head').append('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/' + highlight.replace(/[^a-zA-Z0-9-_]+/ig, '') + '.min.css">');
         }
-        
+
         // to help with incorrectly formatted Markdown (which is very common)
         var preprocess = function(data) {
             var processed = '';
@@ -612,7 +610,7 @@
             });
             return processed;
         };
-        
+
         var go_to_hash = function() {
             var $old = $( eid + ' .section.old' );
             var $current = $( eid + ' .section.current' );
@@ -641,7 +639,7 @@
                 // hash has changed since start so we'll just remove/add relevant classes
                 $( eid + ' .section.current' ).addClass('old').removeClass('current');
                 $( eid + ' .section.header' ).removeClass('old').addClass('current');
-                
+
             }
             // update toc link with current
             $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
@@ -655,13 +653,13 @@
                 $current.addClass('hi');
                 $old.addClass('lo');
             }
-            
+
             // scroll to top of current link in toc
             var t = $(eid + ' .toc');
             var c = $(eid + ' .toc a.current');
             t.animate({scrollTop: t.scrollTop() + (c.offset().top - t.offset().top)});
         };
-        
+
         // custom method to allow for certain tags like <i> and <kbd>
         var tag_replace = function( tag, container ) {
             var str = $( container ).html();
@@ -708,7 +706,7 @@
                 }
             }
         };
-        
+
         var render_css = function(css) {
             // attempt to sanitize CSS so hacker don't splode our website
             var parser = new HtmlWhitelistedSanitizer(true);
@@ -717,8 +715,8 @@
             // we'll save the css for apps that need it, for example, for transforms
             clean_css = sanitizedHtml;
         };
-        
-        // returns true if n begins with str 
+
+        // returns true if n begins with str
         var begins = function( t, str ) {
             // only return true if str found at start of t
             if ( t.indexOf(str) === 0 ) {
@@ -726,7 +724,7 @@
             }
             return false;
         };
-        
+
         var extract_variable = function( v ) {
             // ensure there's an open paren
             if ( v.indexOf('{') != -1 ) {
@@ -742,7 +740,7 @@
             }
             return '';
         };
-        
+
         var extract_examples = function( $examples ) {
             var examples = {};
             $examples.find('li').each(function(){
@@ -754,7 +752,7 @@
             });
             return examples;
         };
-        
+
         var variable_html = function( v, $t ) {
             // c is the html
             var c = '';
@@ -770,7 +768,7 @@
                     c = '<div class="element-count">.section total:</div>';
                     $t.append(c);
                 } else if ( begins( v, '$gd_gist' ) ) {
-                    
+
                     // first extract contents of list for examples
                     var examples = {};
                     var $gists = $t.next();
@@ -778,14 +776,14 @@
                         examples = extract_examples( $gists );
                         $gists.remove();
                     }
-                    
+
                     // check settings and merge examples if needed
                     if ( plugin.settings.merge_gists ) {
                         example_gist = $.extend( example_gist_default, examples );
                     } else {
                         example_gist = examples;
                     }
-                    
+
                     c = '<div class="gist-details">';
                     c += '<a class="gist-source" href="https://github.com' + path;
                     c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
@@ -800,7 +798,7 @@
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_css' ) ) {
-                    
+
                     // first extract contents of list for examples
                     var examples = {};
                     var $gists = $t.next();
@@ -808,14 +806,14 @@
                         examples = extract_examples( $gists );
                         $gists.remove();
                     }
-                    
+
                     // check settings and merge examples if needed
                     if ( plugin.settings.merge_themes === 'false' ) {
                         example_css = examples;
                     } else {
                         example_css = $.extend( example_css_default, examples );
                     }
-                    
+
                     c = '<div class="css-details">';
                     c += '<a class="css-source" href="https://github.com' + path;
                     c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
@@ -846,7 +844,7 @@
                 }
             }
         };
-        
+
         var render_variables = function( container, app_title ) {
             var $sections = $( container );
             if ( $sections.length > 0 ) {
@@ -864,20 +862,20 @@
                 });
             }
         };
-        
+
         var render_info = function(app_title) {
 
             // render all variables in code blocks
             render_variables( eid + ' .info *', app_title );
-            
+
             // update TOC
             plugin.update_toc();
-            
+
             // element count
             var c = $( eid + ' .element-count' ).text();
             c = c.split(' total')[0];
             render_count(c);
-            
+
             // update gist and css urls
             var url = '';
             var p = plugin.settings;
@@ -888,7 +886,7 @@
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
             $( eid + ' .info .gist-source' ).attr('href', url);
-            
+
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
                 $( eid + ' .info .css-url' ).text( p.css_filename + ' ▾');
@@ -897,26 +895,26 @@
             }
             $( eid + ' .info .css-source' ).attr('href', url);
         };
-        
+
         var render_count = function(element) {
             var count = $( eid_inner + ' ' + element ).length;
             $( eid + ' .element-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
-        
+
         var register_events = function() {
-            
+
             // handle history
             $(window).on('popstate', function (e) {
                 go_to_hash();
             });
-            
+
             // commmand count
             $( eid + ' .element-count' ).click(function() {
                 var count_array = ['.section','kbd','li','code'];
                 // get current count option
                 var c = $( eid + ' .element-count' ).text();
                 c = c.split(' total')[0];
-                
+
                 // find current item in count_array
                 var x = count_array.indexOf(c);
                 // increment current item
@@ -928,19 +926,19 @@
                 c = count_array[x];
                 render_count(c);
             });
-            
+
             // event handler to toggle info panel
             $( eid + ' .hide' ).click(function() {
                 $( eid + ' .panel' ).toggleClass('minimized');
             });
-            
+
             // to help with mobile, show .panel when container is clicked outside sections
             $( eid_inner ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
                     $( eid + ' .panel' ).removeClass('minimized');
                 }
             });
-            
+
             // Key events
             $(document).keyup(function(e) {
                 if( e.which == 191 ) {
@@ -951,21 +949,21 @@
                     $( eid + ' .selector' ).hide();
                 }
             });
-            
+
             $( eid + ' .gist-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
                     params.set( 'gist', $(this).val() );
                     window.location.href = plugin.uri();
                 }
             });
-            
+
             $( eid + ' .css-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
                     params.set( 'css', $(this).val() );
                     window.location.href = plugin.uri();
                 }
             });
-            
+
             // hide selector if it or link not clicked
             $(document).click(function(event) {
                 var $t = $(event.target);
@@ -982,7 +980,7 @@
                     }
                 }
             });
-            
+
             // Gist and CSS selectors
             $( eid + ' .selector-toggle' ).click(function() {
                 var prefix = '.gist';
@@ -992,14 +990,14 @@
                 $( eid + ' ' + prefix + '-selector' ).toggle();
                 // move focus to text input
                 $( eid + ' ' + prefix + '-input' ).focus();
-    
+
                 // set position
                 var p = $(this).position();
                 $( eid + ' ' + prefix + '-selector' ).css({
                     top: p.top + $(this).height() - 17,
                     left: p.left
                 });
-                
+
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
                     if ( prefix === '.gist' ){
@@ -1011,7 +1009,7 @@
                 });
             });
         };
-        
+
         // helper function to avoid replication of example content
         var example_content = function(examples) {
             var content = '';
