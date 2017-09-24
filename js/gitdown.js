@@ -243,14 +243,6 @@
             sections = s;
         };
 
-        // render content in container
-
-        // how do we maintain original markdown code for each section?
-
-        // re-write everything
-        // we'll parse original markdown content
-        // separate the content into sections at the markdown level
-        // then render each section
         plugin.render = function( content, container ) {
             var md = window.markdownit({
                 html: false, // Enable HTML - Keep as false for security
@@ -272,6 +264,25 @@
                     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
                 }
             });
+
+            $(eid).append('<div id="buffer"></div>');
+            var $buffer = $( eid + ' #buffer');
+
+            // iterate over each line of content
+            var lines = content.split('\n');
+            $.each( lines, function( i, val ){
+                $buffer.html( md.render(val) );
+                var $first = $buffer.children().first();
+                if ( $first.length > 0 ) {
+                    $first.data( 'md', val );
+                    // when newline occurs, $first is undefined
+                    // thus .data() will be undefined as well
+                }
+                $buffer.children().appendTo(container);
+                $buffer.html('');
+            });
+            $buffer.remove();
+
             $( container ).html( md.render(content) );
         };
 
