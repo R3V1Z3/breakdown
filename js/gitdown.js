@@ -243,7 +243,9 @@
             sections = s;
         };
 
-        plugin.render = function( content, container ) {
+        plugin.render = function( content, container, store_markdown ) {
+
+            // markdownit options
             var md = window.markdownit({
                 html: false, // Enable HTML - Keep as false for security
                 xhtmlOut: true, // Use '/' to close single tags (<br />).
@@ -264,26 +266,8 @@
                     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
                 }
             });
-
-            $(eid).append('<div id="buffer"></div>');
-            var $buffer = $( eid + ' #buffer');
-
-            // iterate over each line of content
-            var lines = content.split('\n');
-            $.each( lines, function( i, val ){
-                $buffer.html( md.render(val) );
-                var $first = $buffer.children().first();
-                if ( $first.length > 0 ) {
-                    $first.data( 'md', val );
-                    // when newline occurs, $first is undefined
-                    // thus .data() will be undefined as well
-                }
-                $buffer.children().appendTo(container);
-                $buffer.html('');
-            });
-            $buffer.remove();
-
-            $( container ).html( md.render(content) );
+            
+            $(container).html( md.render(content) );
         };
 
         // render raw content, no Markdown formatting
@@ -440,8 +424,8 @@
             data = extract_info_content(data);
 
             // render content and info panel
-            plugin.render( data, eid_inner );
-            plugin.render( info_content, eid + ' .info');
+            plugin.render( data, eid_inner, true );
+            plugin.render( info_content, eid + ' .info', false );
 
             // arrange content in sections based on headings
             sectionize();
@@ -585,7 +569,6 @@
                     $(this).appendTo( eid_inner );
                 }
             });
-
         };
 
         var get_highlight_style = function() {
@@ -702,9 +685,8 @@
                     return '<' + tag + $1 + '>';
                 });
                 str = str.replace(close, '</' + tag + '>');
-                // the regex is very restricted so we should have no security issues with html()
                 $( container ).html( str );
-                // update fontawesome icons
+                // special handler for fontawesome icons
                 if ( tag === 'i' ){
                     $( container + ' i' ).attr('class', function(_, classes) {
                         if( classes.indexOf('fa-') < 0 ){

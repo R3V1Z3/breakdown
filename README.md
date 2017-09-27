@@ -11,10 +11,7 @@ The framework provides:
 - Section renderer
 - URL parameters
 - Preprocess and postprocess functions for special cases including tag_replace()
-- Simple function to render CSS
-- Function to convert names to CSS-compatible ones
 - URI handler
-- Various helper functions
 
 ## What uses it?
 Several projects now use the framework:

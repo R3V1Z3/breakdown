@@ -7,8 +7,8 @@
 
     <script src="//code.jquery.com/jquery-latest.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/7.0.0/markdown-it.min.js"></script>
-    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.0/markdown-it.min.js"></script>
+
     <script src="js/sanitizer.js"></script>
     <script src="js/gitdown.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -17,7 +17,7 @@
 </head>
 
 <body id="custom">
-    
+
     <!-- Outer wrapper -->
     <div id="wrapper">
     </div>
@@ -25,29 +25,29 @@
     <script>
         var $gd;
         jQuery(document).ready(function() {
-        
+
             // attach the plugin to an element
             $('#wrapper').gitdown( {'title': 'GitDown',
                                     'callback': done,
             } );
-        
+
             var $gd = $('#wrapper').data('gitdown');
-            
+
             // to call public methods
             // $gd.update_toc();
-        
+
             // to access settings
             // $gd.settings.fontsize;
-            
+
             // if you need to do stuff after the plugin's
             // ajax methods are completed, add a callback like so:
             function done() {
                 console.log('Plugin loaded.');
-                
+
                 // get example defaults
-                console.log( $gd.get_examples('css') );
+                //console.log( $gd.get_examples('css') );
             }
-        
+
         });
     </script>
 </body>
