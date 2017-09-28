@@ -651,7 +651,9 @@
             // scroll to top of current link in toc
             var t = $(eid + ' .toc');
             var c = $(eid + ' .toc a.current');
-            t.animate({scrollTop: t.scrollTop() + (c.offset().top - t.offset().top)});
+            if ( c.length > 0 ) {
+                t.animate({scrollTop: t.scrollTop() + (c.offset().top - t.offset().top)});
+            }
         };
 
         // custom method to allow for certain tags like <i> and <kbd>
