@@ -1,4 +1,3 @@
-/* global jQuery, $, location, HtmlWhitelistedSanitizer, URLSearchParams, URL, hljs */
 (function($) {
 
     $.gitdown = function(element, options, callback) {
