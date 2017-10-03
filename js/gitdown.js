@@ -804,19 +804,7 @@
                     } else {
                         example_gist = examples;
                     }
-
                     c = selector_html( 'gist', $t, 'Gist ID' );
-                    // c = '<div class="gist-details">';
-                    // c += '<a class="gist-source" href="https://github.com' + path;
-                    // c += 'master/README.md" target="_blank">' + link_symbol + '</a>';
-                    // c += '<a name="' + $t.text() + '" class="gist-url selector-toggle">README.md ▾</a>';
-                    // c += '<div class="gist-selector selector" class="selector">';
-                    // c += '<input class="gist-input" type="text" placeholder="Gist ID" />';
-                    // c += '<a href="https://github.com' + path + 'blob/master/README.md" target="_blank">' + link_symbol + '</a>';
-                    // c += '<a class="id" id="default">Default (README.md)</a><br/>';
-                    // // Example Gist list
-                    // c += example_content(example_gist);
-                    // c += '</div></div>';
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_css' ) ) {
@@ -835,20 +823,7 @@
                     } else {
                         example_css = $.extend( example_css_default, examples );
                     }
-
                     c = selector_html('css', $t, 'Gist ID for CSS theme');
-
-                    // c = '<div class="css-details">';
-                    // c += '<a class="css-source" href="https://github.com' + path;
-                    // c += 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-                    // c += '<a name="' + $t.text() + '" class="css-url selector-toggle">Default (style.css) ▾</a>';
-                    // c += '<div class="css-selector selector" class="selector">';
-                    // c += '<input class="css-input" type="text" placeholder="Gist ID for CSS theme" />';
-                    // c += '<a href="https://github.com' + path + 'blob/master/css/style.css" target="_blank">' + link_symbol + '</a>';
-                    // c += '<a class="id" id="default">Default (style.css)</a><br/>';
-                    // // Example CSS list
-                    // c += example_content(example_css);
-                    // c += '</div></div>';
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_toc' ) ) {
