@@ -893,6 +893,11 @@
             }
         };
 
+        // simple helper to reduce repitition for getting selector class
+        var get_selector_class = function ($c) {
+            return $c.parent().attr('class').split('-')[0];
+        }
+
         var render_info = function(app_title) {
 
             // render all variables in comments
@@ -998,12 +1003,20 @@
             $(document).click(function(event) {
                 var $t = $(event.target);
                 // check if any .selector dialog is visiable
-                if ( $( eid + ' .selector' ).is(':visible') ) {
+                var $visible_selector = $( eid + ' .selector:visible' );
+                if ( $visible_selector.length > 0 ) {
                     // get the dialog's class by parent div's class
-                    var c = $( eid + ' .selector:visible' ).parent().attr('class');
-                    c = c.split('-')[0];
+                    var c = get_selector_class( $visible_selector );
                     if ( $t.hasClass(`${c}-url`) || $t.hasClass(`${c}-selector`) || $t.hasClass(`${c}-input`) ) {
-                        // dialog is open and click occurred within its elements
+                        if ( $visible_selector.length > 1 ) {
+                            // hide any other open selector dialogs
+                            $visible_selector.each(function(){
+                                var b = get_selector_class( $(this) );
+                                if ( b != c ) {
+                                    $(this).hide();
+                                }
+                            });
+                        }
                     } else {
                         $( eid + ` .${c}-selector` ).hide();
                     }
@@ -1012,6 +1025,7 @@
 
             // Gist and CSS selectors
             $( eid + ' .selector-url' ).click(function() {
+                var c = get_selector_class( $(this) );
                 var prefix = '.gist';
                 if ( $(this).hasClass('css-url') ) {
                     prefix = '.css';
