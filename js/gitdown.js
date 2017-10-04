@@ -50,7 +50,7 @@
             hide_css_details: false,
             hide_toc: false,
             disable_hide: false,
-            parameters_disallowed: '',
+            parameters_disallowed: 'title,hide_any',
 
             // GitDown stores a bunch of examples by default
             // set this to false to not merge them into your app
@@ -762,27 +762,21 @@
             }
             
             var c = `<div class="${n}-details">`;
-            
-            // add:
-            // link to external resource using link_symbol
-            // link triggering resource loading process
 
             // current item
             if ( n === 'gist' || n === 'css' ) {
                 is_gist = true;
-                c += `<a class=" selector-source" href="https://github.com${path}`;
+                c += `<a class="selector-source" href="https://github.com${path}`;
                 c += `master/${file}" target="_blank">${link_symbol}</a>`;
                 c += `<a name="${$t.text()}" class="${n}-url selector-url">${file} ▾</a>`;
             } else {
                 // other selectors
-                // get first item in list
-                //c += list_html( items, is_gist );
-                c += `<a class=" selector-source" href="${$t.text()}" target="_blank">${link_symbol}</a>`;
+                c += `<a class="selector-source" href="${$t.text()}" target="_blank">${link_symbol}</a>`;
                 c += `<a name="${$t.text()}" class="${n}-url selector-url">${$t.text()} ▾</a>`;
             }
 
             c += `<div class="${n}-selector selector" class="selector">`;
-            c += `<input class="${n}-input .selector-input" type="text" placeholder="${placeholder}" />`;
+            c += `<input class="${n}-input selector-input" type="text" placeholder="${placeholder}" />`;
 
             c += '<div class="selector-wrapper">';
 
@@ -794,9 +788,7 @@
 
             // Example list
             c += list_html( items, is_gist );
-            c += '</div>'; // .selector-wrapper
-            c += '</div>'; // .selector
-            c += '</div>'; // .n-details
+            c += '</div></div></div>';
             return c;
         }
 
@@ -922,21 +914,23 @@
             // other selectors will default to first item
             var url = '';
             var p = plugin.settings;
+            var type = 'gist';
             if ( p.gist != 'default' ) {
                 url = 'https://gist.github.com/' + p.gist;
                 $( eid + ' .info .gist-url' ).text( p.gist_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
-            $( eid + ' .info .selector-source' ).attr('href', url);
+            $( eid + ` .info .${type}-details .selector-source` ).attr('href', url);
 
+            type = 'css';
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
                 $( eid + ' .info .css-url' ).text( p.css_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
-            $( eid + ' .info .selector-source' ).attr('href', url);
+            $( eid + ` .info .${type}-details .selector-source` ).attr('href', url);
         };
 
         var render_count = function(element) {
@@ -993,16 +987,11 @@
                 }
             });
 
-            $( eid + ' .gist-input' ).keyup(function(e) {
+            $( eid + ' .info .selector-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
-                    params.set( 'gist', $(this).val() );
-                    window.location.href = plugin.uri();
-                }
-            });
-
-            $( eid + ' .css-input' ).keyup(function(e) {
-                if( e.which == 13 ) {
-                    params.set( 'css', $(this).val() );
+                    // get parent class
+                    var c = get_selector_class( $(this).parent() );
+                    params.set( c, $(this).val() );
                     window.location.href = plugin.uri();
                 }
             });

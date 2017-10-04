@@ -55,5 +55,11 @@ Themes <!-- {$gd_css} -->
 - [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
 - [Deep Blue](https://gist.github.com/51aa23d96f9bd81fe55c47b2d51855a5)
 
+Tracks <!-- {$gd_selector_music_ids} -->
+- [Amen](https://soundcloud.com/ugotsta/son-of-no-man-amen)
+- [Nothing](https://soundcloud.com/ugotsta/nothing)
+- [Saint Billy](https://soundcloud.com/ugotsta/saint-billy-version-b0-1)
+- [Insanity's Bliss](https://soundcloud.com/ugotsta/insanitys-bliss)
+
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->
