@@ -340,6 +340,7 @@
                             plugin.settings.gist === 'default';
                             if ( !p.css || p.css === 'default' ) {
                                 // no gist or CSS provided, so lets just render README
+                                $('html').addClass('gd-default');
                                 su_render(data);
                             } else {
                                 // no gist provided, but CSS provided, so load CSS along with README
