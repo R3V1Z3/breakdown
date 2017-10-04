@@ -773,6 +773,12 @@
                 c += `<a class=" selector-source" href="https://github.com${path}`;
                 c += `master/${file}" target="_blank">${link_symbol}</a>`;
                 c += `<a name="${$t.text()}" class="${n}-url selector-url">${file} ▾</a>`;
+            } else {
+                // other selectors
+                // get first item in list
+                //c += list_html( items, is_gist );
+                c += `<a class=" selector-source" href="${$t.text()}" target="_blank">${link_symbol}</a>`;
+                c += `<a name="${$t.text()}" class="${n}-url selector-url">${$t.text()} ▾</a>`;
             }
 
             c += `<div class="${n}-selector selector" class="selector">`;
@@ -783,7 +789,7 @@
             // first list item
             if ( n === 'gist' || n === 'css' ) {
                 c += `<a href="https://github.com${path}blob/master/${file}" target="_blank">${link_symbol}</a>`;
-                c += `<a class="id" id="default">Default (${file})</a><br/>`;
+                c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
             }
 
             // Example list
@@ -913,6 +919,7 @@
             render_count(c);
 
             // update gist and css urls
+            // other selectors will default to first item
             var url = '';
             var p = plugin.settings;
             if ( p.gist != 'default' ) {
@@ -1027,10 +1034,7 @@
             // Gist and CSS selectors
             $( eid + ' .selector-url' ).click(function() {
                 var c = get_selector_class( $(this) );
-                var prefix = '.gist';
-                if ( $(this).hasClass('css-url') ) {
-                    prefix = '.css';
-                }
+                var prefix = '.' + c;
                 $( eid + ' ' + prefix + '-selector' ).toggle();
                 // move focus to text input
                 $( eid + ' ' + prefix + '-input' ).focus();
@@ -1044,11 +1048,7 @@
 
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
-                    if ( prefix === '.gist' ){
-                        params.set( 'gist', $(this).attr('id') );
-                    } else {
-                        params.set( 'css', $(this).attr('id') );
-                    }
+                    params.set( c, $(this).attr('data-id') );
                     window.location.href = plugin.uri();
                 });
             });
@@ -1061,10 +1061,10 @@
             for (var key in items) {
                 if (is_gist_id) {
                     content += '<a href="https://gist.github.com/' + items[key] + '" target="_blank">' + link_symbol + '</a>';
-                    content += '<a class="id" id="' + items[key] + '">' + key + '</a><br/>';
+                    content += '<a class="id" data-id="' + items[key] + '">' + key + '</a><br/>';
                 } else {
-                    content += '<a href="' + items[key] + '" target="_blank">' + link_symbol + '</a>';
-                    content += '<a class="id">' + key + '</a><br/>';
+                    content += `<a href="${items[key]}" target="_blank">${link_symbol}</a>`;
+                    content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
                 }
             }
             return content;
