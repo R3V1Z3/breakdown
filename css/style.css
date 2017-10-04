@@ -131,21 +131,10 @@ kbd:hover {
 }
 
 .info a:hover,
-.info .toc a:hover,
-.gist-url:hover,
-.css-url:hover,
-.info .selector-toggle:hover {
+.info .toc a:hover {
   color: #fff;
   cursor: pointer;
   background: rgba(255,255,255,0.15);
-}
-
-.info .gist-url,
-.info .css-url {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding-left: 4px;
-  padding-right: 4px;
-  border-radius: 3px;
 }
 
 .info .hide {
@@ -174,9 +163,7 @@ kbd:hover {
   border-radius: 5px;
 }
 
-.info .toc a,
-.gist-url,
-.css-url {
+.info .toc a {
   display: inline;
   cursor: pointer;
 }
@@ -187,7 +174,7 @@ kbd:hover {
   border-bottom: 1px solid black;
 }
 
-/* Gist and CSS selector */
+/* Selector  styling */
 .info .selector {
   position: absolute;
   top: 10px;
@@ -203,39 +190,44 @@ kbd:hover {
   border: 2px solid black;
 }
 
-.selector-wrapper {
-  overflow-y: scroll;
-  max-height: 100px;
+.info .selector-url {
+  display: block;
+  cursor: pointer;
+  color: #999;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: 3px;
+  margin: 4px;
 }
 
-.info .selector-toggle {
-  color: #999;
-  padding: 6px;
-  display: block;
-  margin: 4px;
+.info .selector-url:hover {
+  color: #fff;
+  cursor: pointer;
+  background: rgba(255,255,255,0.15);
+}
+
+a.selector-url::after {
+  position: absolute;
+  color: rgba(255,255,255,0.25);
+  font-family: monospace;
+  padding: 2px;
+  right: 2em;
+}
+
+.selector-wrapper {
+  overflow-y: scroll;
+  max-height: 11em;
 }
 
 .info .selector a:hover {
   filter: brightness(0.5);
 }
 
-a.selector-toggle::after {
-  text-align: right;
-  float: right;
-  color: rgba(255,255,255,0.25);
-  font-family: monospace;
-  padding: 2px;
-}
-
-a.gist-url::after {
+a.selector-url::after {
   content: attr(name);
 }
 
-a.css-url::after {
-  content: attr(name);
-}
-
-a.gist-source, a.css-source {
+a.selector-source {
   float: left;
   padding: 6px 10px;
   margin-right: 6px;
@@ -247,7 +239,7 @@ a.gist-source, a.css-source {
 
 .info .selector input {
   margin-bottom: 6px;
-  width: 95%;
+  width: 97%;
   border-radius: 5px;
   color: #333;
   background: rgba(0,0,0,0.3);
@@ -311,10 +303,18 @@ a.gist-source, a.css-source {
 /* Scrollbar styling */
 ::-webkit-scrollbar {
     background: #333;
+    border-radius: 3px;
 }
+
+.selector ::-webkit-scrollbar {
+  background: #eee;
+  border: 2px solid #ddd;
+}
+
 ::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.35);
     border-radius: 3px;
+    border: 2px solid rgba(0,0,0,0.15);
 }
 
 .info ::-webkit-scrollbar-thumb {

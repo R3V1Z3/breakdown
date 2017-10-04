@@ -72,10 +72,10 @@
 
         var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
+                                    "Monogrid": "2d004ce3de0abc7a27be84f48ea17591",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
                                     "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
-                                    "Corkboard": "ada930f9dae1d0a8d95f41cb7a56d658",
                                     "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
                                     "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
                                     "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
@@ -704,10 +704,11 @@
         var render_css = function(css) {
             // attempt to sanitize CSS so hacker don't splode our website
             var parser = new HtmlWhitelistedSanitizer(true);
-            var sanitizedHtml = parser.sanitizeString(css);
-            $('head').append('<style>' + sanitizedHtml + '</style>');
+            var cleaned = parser.sanitizeString(css);
+            $('head').append('<style>' + cleaned + '</style>');
             // we'll save the css for apps that need it, for example, for transforms
-            clean_css = sanitizedHtml;
+            // TODO: store this in browser so apps can use it without having to re-load from source
+            clean_css = cleaned;
         };
 
         // returns true if n begins with str
@@ -735,42 +736,60 @@
             return '';
         };
 
-        var extract_examples = function( $examples ) {
-            var examples = {};
-            $examples.find('li').each(function(){
+        var extract_li = function( $ul, is_gist ) {
+            var li = {};
+            $ul.find('li').each(function(){
                 var $li = $(this);
                 var name = $li.text();
                 var id = $li.find('a').attr('href');
-                id = id.substr( id.lastIndexOf('/') + 1 );
-                examples[name] = id;
+                if (is_gist) {
+                    id = id.substr( id.lastIndexOf('/') + 1 );
+                }
+                li[name] = id;
             });
-            return examples;
+            return li;
         };
 
-        var selector_html = function( n, $t, placeholder ) {
+        var selector_html = function( n, $t, placeholder, items ) {
 
             var file = '';
-            var examples = [];
+            var is_gist = false;
             if ( n === 'gist' ){
                 file = 'README.md';
-                examples = example_gist;
             } else if ( n === 'css' ) {
                 file = 'css/style.css';
-                examples = example_css;
             }
-            // this may need adjusting 'blob/master/css/style.css';
             
-            c = `<div class="${n}-details">`;
-            c += `<a class="${n}-source" href="https://github.com${path}`;
-            c += `master/${file}" target="_blank">${link_symbol}</a>`;
-            c += `<a name="${$t.text()}" class="${n}-url selector-toggle">${file} ▾</a>`;
+            var c = `<div class="${n}-details">`;
+            
+            // add:
+            // link to external resource using link_symbol
+            // link triggering resource loading process
+
+            // current item
+            if ( n === 'gist' || n === 'css' ) {
+                is_gist = true;
+                c += `<a class=" selector-source" href="https://github.com${path}`;
+                c += `master/${file}" target="_blank">${link_symbol}</a>`;
+                c += `<a name="${$t.text()}" class="${n}-url selector-url">${file} ▾</a>`;
+            }
+
             c += `<div class="${n}-selector selector" class="selector">`;
-            c += `<input class="${n}-input" type="text" placeholder="${placeholder}" />`;
-            c += `<a href="https://github.com${path}blob/master/${file}" target="_blank">${link_symbol}</a>`;
-            c += `<a class="id" id="default">Default (${file})</a><br/>`;
+            c += `<input class="${n}-input .selector-input" type="text" placeholder="${placeholder}" />`;
+
+            c += '<div class="selector-wrapper">';
+
+            // first list item
+            if ( n === 'gist' || n === 'css' ) {
+                c += `<a href="https://github.com${path}blob/master/${file}" target="_blank">${link_symbol}</a>`;
+                c += `<a class="id" id="default">Default (${file})</a><br/>`;
+            }
+
             // Example list
-            c += example_content(examples);
-            c += '</div></div>';
+            c += list_html( items, is_gist );
+            c += '</div>'; // .selector-wrapper
+            c += '</div>'; // .selector
+            c += '</div>'; // .n-details
             return c;
         }
 
@@ -794,7 +813,7 @@
                     var examples = {};
                     var $gists = $t.next();
                     if ( $gists.is('ul') ) {
-                        examples = extract_examples( $gists );
+                        examples = extract_li( $gists, true );
                         $gists.remove();
                     }
 
@@ -804,7 +823,7 @@
                     } else {
                         example_gist = examples;
                     }
-                    c = selector_html( 'gist', $t, 'Gist ID' );
+                    c = selector_html( 'gist', $t, 'Gist ID', example_gist );
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_css' ) ) {
@@ -813,7 +832,7 @@
                     var examples = {};
                     var $gists = $t.next();
                     if ( $gists.is('ul') ) {
-                        examples = extract_examples( $gists );
+                        examples = extract_li( $gists, true );
                         $gists.remove();
                     }
 
@@ -823,7 +842,7 @@
                     } else {
                         example_css = $.extend( example_css_default, examples );
                     }
-                    c = selector_html('css', $t, 'Gist ID for CSS theme');
+                    c = selector_html( 'css', $t, 'Gist ID for CSS theme', example_css );
                     $t.next('br').remove();
                     $t.html(c);
                 } else if ( begins( v, '$gd_toc' ) ) {
@@ -838,8 +857,20 @@
                         $t.before(c);
                     } else $t.after(c);
                 } else if ( begins( v, '$gd_hide' ) ) {
-                    c = '<a class="hide"><kbd>?</kbd> - show/hide this panel.</a>';
-                    $t.html( c );
+                    c = '<a class="hide"><kbd>ESC</kbd> - show/hide this panel.</a>';
+                    $t.html(c);
+                } else if ( begins( v, '$gd_selector_' ) ) {
+                    var v_name = v.split('$gd_selector_')[1];
+                    // first extract contents of list for examples
+                    var items = {};
+                    var $gists = $t.next();
+                    if ( $gists.is('ul') ) {
+                        items = extract_li( $gists, false );
+                        $gists.remove();
+                        c = selector_html( v_name, $t, v_name, items );
+                    }
+                    $t.next('br').remove();
+                    $t.html(c);
                 }
             }
         };
@@ -884,7 +915,7 @@
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
-            $( eid + ' .info .gist-source' ).attr('href', url);
+            $( eid + ' .info .selector-source' ).attr('href', url);
 
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
@@ -892,7 +923,7 @@
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
-            $( eid + ' .info .css-source' ).attr('href', url);
+            $( eid + ' .info .selector-source' ).attr('href', url);
         };
 
         var render_count = function(element) {
@@ -966,22 +997,21 @@
             // hide selector if it or link not clicked
             $(document).click(function(event) {
                 var $t = $(event.target);
-                if ( $( eid + ' .gist-selector' ).is(':visible') ) {
-                    if ( $t.hasClass('gist-url') || $t.hasClass('gist-selector') || $t.hasClass('gist-input') ) {
+                // check if any .selector dialog is visiable
+                if ( $( eid + ' .selector' ).is(':visible') ) {
+                    // get the dialog's class by parent div's class
+                    var c = $( eid + ' .selector:visible' ).parent().attr('class');
+                    c = c.split('-')[0];
+                    if ( $t.hasClass(`${c}-url`) || $t.hasClass(`${c}-selector`) || $t.hasClass(`${c}-input`) ) {
+                        // dialog is open and click occurred within its elements
                     } else {
-                        $( eid + ' .gist-selector' ).hide();
-                    }
-                }
-                if ( $( eid + ' .css-selector' ).is(':visible') ) {
-                    if ( $t.hasClass('css-url') || $t.hasClass('css-selector') || $t.hasClass('css-input') ) {
-                    } else {
-                        $( eid + ' .css-selector' ).hide();
+                        $( eid + ` .${c}-selector` ).hide();
                     }
                 }
             });
 
             // Gist and CSS selectors
-            $( eid + ' .selector-toggle' ).click(function() {
+            $( eid + ' .selector-url' ).click(function() {
                 var prefix = '.gist';
                 if ( $(this).hasClass('css-url') ) {
                     prefix = '.css';
@@ -1010,12 +1040,17 @@
         };
 
         // helper function to avoid replication of example content
-        var example_content = function(examples) {
+        var list_html = function( items, is_gist_id ) {
             var content = '';
             //if ( examples.length < 1 ) return content;
-            for (var key in examples) {
-                content += '<a href="https://gist.github.com/' + examples[key] + '" target="_blank">' + link_symbol + '</a>';
-                content += '<a class="id" id="' + examples[key] + '">' + key + '</a><br/>';
+            for (var key in items) {
+                if (is_gist_id) {
+                    content += '<a href="https://gist.github.com/' + items[key] + '" target="_blank">' + link_symbol + '</a>';
+                    content += '<a class="id" id="' + items[key] + '">' + key + '</a><br/>';
+                } else {
+                    content += '<a href="' + items[key] + '" target="_blank">' + link_symbol + '</a>';
+                    content += '<a class="id">' + key + '</a><br/>';
+                }
             }
             return content;
         };
