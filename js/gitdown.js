@@ -72,7 +72,7 @@
 
         var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
-                                    "Monogrid": "2d004ce3de0abc7a27be84f48ea17591",
+                                    "Future Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
                                     "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
@@ -751,6 +751,20 @@
             return li;
         };
 
+        var proper_filename = function(f) {
+            // remove occurences of gitdown- in filename
+            if ( f.indexOf('gitdown-') != -1 ) f = f.split('gitdown-')[1];
+            //f = f.split('gitdown-')[1];
+            // remove extension
+            f = f.split('.')[0];
+            // replace dashes and underscores with space
+            f = f.replace(/-/g, ' ');
+            f = f.replace(/_/g, ' ');
+            // capitalize words
+            f = f.replace( /\b\w/g, l => l.toUpperCase() );
+            return f;
+        }
+
         var selector_html = function( n, $t, placeholder, items ) {
 
             var file = '';
@@ -760,6 +774,9 @@
             } else if ( n === 'css' ) {
                 file = 'css/style.css';
             }
+
+            var proper = proper_filename(file);
+            placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
             
             var c = `<div class="${n}-details">`;
 
@@ -768,7 +785,7 @@
                 is_gist = true;
                 c += `<a class="selector-source" href="https://github.com${path}`;
                 c += `master/${file}" target="_blank">${link_symbol}</a>`;
-                c += `<a name="${$t.text()}" class="${n}-url selector-url">${file} ▾</a>`;
+                c += `<a name="${$t.text()}" class="${n}-url selector-url">${proper} ▾</a>`;
             } else {
                 // other selectors
                 c += `<a class="selector-source" href="${$t.text()}" target="_blank">${link_symbol}</a>`;
@@ -917,7 +934,7 @@
             var type = 'gist';
             if ( p.gist != 'default' ) {
                 url = 'https://gist.github.com/' + p.gist;
-                $( eid + ' .info .gist-url' ).text( p.gist_filename + ' ▾');
+                $( eid + ' .info .gist-url' ).text( proper_filename(p.gist_filename) + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
@@ -926,7 +943,7 @@
             type = 'css';
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
-                $( eid + ' .info .css-url' ).text( p.css_filename + ' ▾');
+                $( eid + ' .info .css-url' ).text( proper_filename(p.css_filename) + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
