@@ -995,11 +995,9 @@
 
             // Key events
             $(document).keyup(function(e) {
-                if( e.which == 191 ) {
+                if( e.which == 27 ) {
                     // ? for help
                     $( eid + ' .panel' ).toggleClass('minimized');
-                } else if (e.keyCode === 27) {
-                    // Escape
                     $( eid + ' .selector' ).hide();
                 }
             });
