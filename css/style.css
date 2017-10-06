@@ -64,6 +64,7 @@ kbd {
   border-radius: 3px;
   border-bottom: 1px solid gray;
   cursor: pointer;
+  font-size: 0.6em;
 }
 
 kbd:hover {
