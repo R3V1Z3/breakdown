@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<!-- ClipArt by Arvin61r58 (http://openclipart.org/user-detail/Arvin61r58) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg2"
+   viewBox="0 0 765 990"
+   height="11in"
+   width="8.5in">
+  <title
+     id="title4156">Parchment</title>
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient4853">
+      <stop
+         id="stop4855"
+         offset="0"
+         stop-color="#c2b294" />
+      <stop
+         id="stop4857"
+         offset="0.071429"
+         stop-color="#c7b89b" />
+      <stop
+         id="stop4859"
+         offset="0.142857"
+         stop-color="#cbc1a3" />
+      <stop
+         id="stop4861"
+         offset="0.214286"
+         stop-color="#d2c8ad" />
+      <stop
+         id="stop4863"
+         offset="0.285714"
+         stop-color="#d8cfb6" />
+      <stop
+         id="stop4865"
+         offset="0.357143"
+         stop-color="#d9d2b8" />
+      <stop
+         id="stop4867"
+         offset="0.428571"
+         stop-color="#d9d2b8" />
+      <stop
+         id="stop4869"
+         offset="0.5"
+         stop-color="#d9d2b8" />
+      <stop
+         id="stop4871"
+         offset="0.571429"
+         stop-color="#d9d2b8" />
+      <stop
+         id="stop4873"
+         offset="0.642857"
+         stop-color="#d6cfb5" />
+      <stop
+         id="stop4875"
+         offset="0.714286"
+         stop-color="#d3c8ad" />
+      <stop
+         id="stop4877"
+         offset="0.785714"
+         stop-color="#cdc1a6" />
+      <stop
+         id="stop4879"
+         offset="0.857143"
+         stop-color="#c7b79c" />
+      <stop
+         id="stop4881"
+         offset="0.928571"
+         stop-color="#bfad8f" />
+      <stop
+         id="stop4883"
+         offset="1"
+         stop-color="#bbac89" />
+    </linearGradient>
+    <linearGradient
+       xlink:href="#linearGradient4853"
+       id="linearGradient4905"
+       x1="228.75844"
+       y1="492.81158"
+       x2="230.48671"
+       y2="85.096519"
+       gradientUnits="userSpaceOnUse" />
+    <filter
+       height="1"
+       y="0"
+       width="1"
+       x="0"
+       style="color-interpolation-filters:sRGB"
+       id="filter4480">
+      <feTurbulence
+         baseFrequency="0.05"
+         numOctaves="5"
+         type="fractalNoise"
+         result="result91"
+         id="feTurbulence4482" />
+      <feDisplacementMap
+         scale="10"
+         result="result5"
+         xChannelSelector="R"
+         in="SourceGraphic"
+         in2="result91"
+         id="feDisplacementMap4484"
+         yChannelSelector="A" />
+      <feComposite
+         in="SourceGraphic"
+         operator="atop"
+         in2="result5"
+         id="feComposite4486" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Parchment</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Arvin61r58</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Openclipart.org</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:identifier>https://openclipart.org</dc:identifier>
+        <dc:source>https://openclipart.org/user-detail/Arvin61r58</dc:source>
+        <dc:description>parchment</dc:description>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>paper</rdf:li>
+            <rdf:li>parchment</rdf:li>
+            <rdf:li>old</rdf:li>
+            <rdf:li>old paper</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <path
+     id="rect3336"
+     d="m 85.47275,83.828429 c 0,0 8.237496,-7.847155 8.237496,-7.847155 0,0 16.209864,3.172926 16.209864,3.172926 0,0 25.20986,-4.34099 25.20986,-4.34099 0,0 15.74136,0.748688 15.74136,0.748688 0,0 21.7836,13.248548 21.7836,13.248548 0,0 22.20036,-0.775496 22.20036,-0.775496 0,0 18.08497,-12.768633 18.08497,-12.768633 0,0 12.39452,12.332368 12.39452,12.332368 0,0 15.83002,-6.820538 15.83002,-6.820538 0,0 31.92922,4.297713 31.92922,4.297713 0,0 16.80681,2.346979 16.80681,2.346979 0,0 15.54151,-12.55003 15.54151,-12.55003 0,0 12.95552,11.896635 12.95552,11.896635 0,0 30.5032,-6.82089 30.5032,-6.82089 0,0 18.83316,0.07388 18.83316,0.07388 0,0 5.04938,1.57316 5.04938,1.57316 -0.64488,8.41026 9.34904,11.048132 8.74668,19.458386 -0.60236,8.41026 -1.08885,28.74261 -1.6408,37.15286 -0.55196,8.41026 -9.0641,16.43336 -9.55777,24.84362 -0.49368,8.41026 3.38752,18.27477 2.96001,26.68502 -0.42752,8.41026 5.03469,6.09588 4.68122,14.50614 -0.35347,8.41026 -9.5819,26.87605 -9.85344,35.2863 -0.27155,8.41026 4.84922,3.90052 4.66748,12.31078 -0.18175,8.41026 -7.28026,18.13503 -7.36432,26.54528 -0.0841,8.41025 2.46126,15.39417 2.48277,23.80443 0.0215,8.41026 -2.07015,29.12853 -1.93524,37.53879 0.13495,8.41025 11.19448,13.32233 11.45076,21.73259 0.25628,8.41026 -12.69569,17.05563 -12.31021,25.46588 0.38549,8.41026 13.95366,17.024 14.47623,25.43426 0.52257,8.41026 -9.476,8.57928 -8.80846,16.98953 0.66753,8.41026 11.63909,25.84304 12.45948,34.2533 0.82038,8.41026 -1.70547,19.93633 -0.72435,28.34658 0,0 -19.07901,-12.9949 -19.07901,-12.9949 0,0 -16.18501,11.34994 -16.18501,11.34994 0,0 -28.3197,0.63627 -28.3197,0.63627 0,0 -10.75551,-11.4105 -10.75551,-11.4105 0,0 -29.22189,7.78557 -29.22189,7.78557 0,0 -18.90653,-0.39379 -18.90653,-0.39379 0,0 -8.5472,4.69593 -8.5472,4.69593 0,0 -25.99166,-12.01237 -25.99166,-12.01237 0,0 -8.04634,5.79653 -8.04634,5.79653 0,0 -22.01512,-5.77744 -22.01512,-5.77744 0,0 -19.23015,-0.24919 -19.23015,-0.24919 0,0 -16.55861,1.97667 -16.55861,1.97667 0,0 -24.39526,11.15283 -24.39526,11.15283 0,0 -25.66585,-5.33768 -25.66585,-5.33768 0,0 -5.08222,-0.68286 -5.08222,-0.68286 0,0 -32.045547,2.06948 -32.045547,2.06948 1.30495,-7.93572 15.030195,-15.7059 16.168495,-23.70223 1.1383,-7.99633 1.303942,-14.71002 2.276312,-22.76669 0.97237,-8.05667 -10.404177,-19.89171 -9.596997,-28.00845 0.80718,-8.11674 14.820049,-20.05049 15.462769,-28.22703 0.64271,-8.17654 -2.209595,-19.76607 -1.730605,-28.00215 0.47899,-8.23608 -8.575034,-12.66456 -8.259044,-20.95991 0.31599,-8.29535 0.25598,-12.53657 0.4097,-20.89093 0.15373,-8.35435 12.132418,-13.48432 12.124608,-21.89742 -0.008,-8.41309 -12.011199,-20.14958 -12.179809,-28.62115 -0.16861,-8.47157 9.28774,-24.87574 8.95906,-33.40552 -0.32868,-8.52977 -0.643074,-4.36453 -1.131084,-12.95224 -0.48802,-8.58772 2.204269,-20.34541 1.557649,-28.9908 -0.64663,-8.6454 -13.799757,-17.2718 -14.604247,-25.9746 -0.8045,-8.7028 6.252261,-27.46198 5.290631,-36.22193 -0.96164,-8.75994 3.03104,-12.54204 1.913,-21.35886 C 88.010421,97.757105 73.05994,90.198866 71.78622,81.325436 c 0,0 13.847601,1.857538 13.847601,1.857538"
+     style="opacity:1;fill:url(#linearGradient4905);fill-opacity:1;fill-rule:nonzero;stroke:#a26151;stroke-width:0.87475686;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter4480)"
+     transform="matrix(2.3105177,0,0,2.2624343,-143.36333,-146.75996)" />
+</svg>
