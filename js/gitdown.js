@@ -72,7 +72,7 @@
 
         var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
-                                    "Future Archaic": "2d004ce3de0abc7a27be84f48ea17591",
+                                    "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
                                     "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
@@ -80,7 +80,8 @@
                                     "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
                                     "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
                                     "Ghastly": "d1a6d5621b883bf6af886855d853d502",
-                                    "Deep Blue": "51aa23d96f9bd81fe55c47b2d51855a5"
+                                    "Deep Blue": "51aa23d96f9bd81fe55c47b2d51855a5",
+                                    "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
         };
         // for access to transform values, we'll make sanitized css available
         var clean_css = '';
