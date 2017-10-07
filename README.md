@@ -44,7 +44,7 @@ Example Gists <!-- {$gd_gist} -->
 Themes <!-- {$gd_css} -->
 - [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
 - [Console](https://gist.github.com/e9217f4e7ed7c8fa18f13d12def1ad6c)
-- [Future Archaic](https://gist.github.com/2d004ce3de0abc7a27be84f48ea17591)
+- [Tech Archaic](https://gist.github.com/2d004ce3de0abc7a27be84f48ea17591)
 - [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
 - [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
 - [Woodwork](https://gist.github.com/c604615983fc6cdd5ebdbdd053800298)

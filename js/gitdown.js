@@ -917,6 +917,9 @@
 
         var render_info = function(app_title) {
 
+            // first create .unhide div used to unhide the panel on mobile
+            $( eid + ' .container' ).append('<div class="unhide"></div>');
+
             // render all variables in comments
             render_variables( eid + ' .info *', app_title );
 
@@ -988,7 +991,7 @@
             });
 
             // to help with mobile, show .panel when container is clicked outside sections
-            $( eid_inner ).on('click', function (e) {
+            $( eid + ' .unhide' ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
                     $( eid + ' .panel' ).removeClass('minimized');
                 }
@@ -997,7 +1000,7 @@
             // Key events
             $(document).keyup(function(e) {
                 if( e.which == 27 ) {
-                    // ? for help
+                    // ESC key to hide/unhide info panel
                     $( eid + ' .panel' ).toggleClass('minimized');
                     $( eid + ' .selector' ).hide();
                 }
