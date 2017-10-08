@@ -359,11 +359,11 @@
         };
 
         var load_gist = function (type, gist_id, filename, data){
-            $.ajax({
+            var jqxhr = $.ajax({
                 url: 'https://api.github.com/gists/' + gist_id,
                 type: 'GET',
                 dataType: 'jsonp'
-            }).success(function(gistdata) {
+            }).done(function(gistdata) {
                 var objects = [];
                 if ( filename === '' || filename == null ) {
                     for (var file in gistdata.data.files) {
@@ -393,8 +393,11 @@
                         su_render(objects[0]);
                     }
                 }
-            }).error(function(e) {
-                console.log('Error on ajax return.');
+            }).fail(function( xhr, ajaxOptions, thrownError ) {
+                console.log(xhr.status);
+                if ( xhr.status === 404 ) {
+                    console.log('404 error, .');
+                }
             });
         };
 
