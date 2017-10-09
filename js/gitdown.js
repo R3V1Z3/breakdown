@@ -294,7 +294,7 @@
 
         plugin.update_toc = function() {
             var html = '';
-            if (sections.length > 0 ) {
+            if (sections.length > 1 ) {
                 // iterate section classes and get id name to compose TOC
                 for ( var i = 0; i < sections.length; i++ ) {
                     var name = plugin.clean_name( sections[i] );
