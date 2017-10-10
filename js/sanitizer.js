@@ -89,7 +89,7 @@ HtmlWhitelistedSanitizer.prototype.sanitizeString = function(input) {
   // dangerous scripts since the element isn't attached to the window's document.
   // To be extra cautious, we could dynamically create an iframe, pass the
   // input to the iframe and get back the sanitized string.
-  var doc = document.implementation.createHTMLDocument();
+  var doc = document.implementation.createHTMLDocument('title');
   var div = doc.createElement('div');
   div.innerHTML = input;
 

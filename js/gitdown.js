@@ -59,7 +59,8 @@
         };
 
         // get URL parameters
-        let params = (new URL(location)).searchParams;
+        var params = (new URL(location)).searchParams;
+        console.log(params);
         var path = '/' + window.location.hostname.split('.')[0];
         path += window.location.pathname;
 
