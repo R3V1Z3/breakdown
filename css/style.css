@@ -292,6 +292,10 @@ a.selector-source {
   color: rgba(0,0,0,0.15);
 }
 
+.info .choices {
+  margin: 1em 0;
+}
+
 .info .choices::after {
   content: attr(data-name);
 }
