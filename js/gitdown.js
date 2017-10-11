@@ -244,6 +244,21 @@
             sections = s;
         };
 
+        // shortcut to get url params
+        plugin.get_param = function(key) {
+            if ( params.has(key) ) {
+                return params.get(key);
+            }
+            // return empty string if key doesn't exist
+            return '';            
+        };
+
+        // shortcut to set param and refresh window with new param
+        plugin.set_param = function( key, value ) {
+            params.set( key, value );
+            window.location.href = plugin.uri();
+        };
+
         plugin.render = function( content, container, store_markdown ) {
 
             // markdownit options
@@ -448,6 +463,9 @@
             // render info panel and toc based on current section
             render_info( plugin.settings.title );
 
+            // update choice fields
+            update_fields();
+
             // set current section and go there
             go_to_hash();
 
@@ -465,6 +483,25 @@
                 plugin.settings.callback.call();
             }
         };
+
+        var update_fields = function() {
+            // update choice fields
+            var $choices = $( eid + ' .info .choices' );
+            $choices.each(function(){
+                var v_name = plugin.clean_name( $(this).attr('data-name') );
+                // get the parameter if it exists
+                var p = plugin.get_param(v_name);
+                if ( p != '' ) {
+                    var $c = $(this).find('.choice');
+                    $c.removeClass('selected');
+                    $c.each(function( i, val ){
+                        if ( $(this).text() === p ) {
+                            $(this).addClass('selected');
+                        }
+                    });
+                }
+            });
+        }
 
         var handle_options = function() {
             if( options['hide_info'] ) {
@@ -892,6 +929,25 @@
                     }
                     $t.next('br').remove();
                     $t.html(c);
+                } else if ( begins( v, '$gd_choice_' ) ) {
+                    var v_name = v.split('$gd_choice_')[1];
+                    // return if there's no assignment after variable
+                    if ( v_name.indexOf('=') === -1 ) return;
+                    // remove assignment text from name
+                    v_name = v_name.split('=')[0];
+                    // get the assigned string
+                    var v_items = v.split('=')[1];
+                    // remove parens
+                    v_items = v_items.substring(1);
+                    v_items = v_items.substring( 0, v_items.length - 1 );
+                    // get user assigned string
+                    var items = v_items.split(',');
+                    c = `<div data-name="${proper_filename(v_name)}" class="choices ${v_name}">`;
+                    for ( var i = 0; i < items.length; i++ ) {
+                        c += `<a class="choice">${items[i]}</a> `;
+                    }
+                    c += '</div>';
+                    $t.html(c);
                 }
             }
         };
@@ -923,6 +979,7 @@
 
             // first create .unhide div used to unhide the panel on mobile
             $( eid + ' .container' ).append('<div class="unhide"></div>');
+            $( eid + ' .container' ).append('<div class="fullscreen"></div>');
 
             // render all variables in comments
             render_variables( eid + ' .info *', app_title );
@@ -963,11 +1020,43 @@
             $( eid + ' .element-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
 
+        function toggleFullscreen(e) {
+            e = e || document.documentElement;
+            if (!document.fullscreenElement && !document.mozFullScreenElement &&
+                !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (e.requestFullscreen) {
+                    e.requestFullscreen();
+                } else if (e.msRequestFullscreen) {
+                    e.msRequestFullscreen();
+                } else if (e.mozRequestFullScreen) {
+                    e.mozRequestFullScreen();
+                } else if (e.webkitRequestFullscreen) {
+                    e.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
         var register_events = function() {
 
             // handle history
             $(window).on('popstate', function (e) {
                 go_to_hash();
+            });
+
+            // fullscreen request
+            $( eid + ' .fullscreen').click(function(){
+                var e = document.getElementById( eid.substring(1) );
+                toggleFullscreen(e);
             });
 
             // commmand count
@@ -1044,7 +1133,7 @@
             });
 
             // Gist and CSS selectors
-            $( eid + ' .selector-url' ).click(function() {
+            $( eid + ' .info .selector-url' ).click(function() {
                 var c = get_selector_class( $(this) );
                 var prefix = '.' + c;
                 $( eid + ' ' + prefix + '-selector' ).toggle();
@@ -1063,6 +1152,12 @@
                     params.set( c, $(this).attr('data-id') );
                     window.location.href = plugin.uri();
                 });
+            });
+
+            // Choice selectors
+            $( eid + ' .info .choices .choice' ).click(function() {
+                var c_name = $(this).parent().attr('data-name');
+                plugin.set_param( plugin.clean_name(c_name), $(this).text() );
             });
         };
 
