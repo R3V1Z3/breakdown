@@ -18,6 +18,7 @@ Several projects now use the framework:
 - [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
 - [DownSlide](https://ugotsta.github.io/downslide/) - automatic presentations from Markdown documents
 - [Entwine](https://ugotsta.github.io/entwine/) - interactive fiction ala Markdown
+- [EntwinED](https://ugotsta.github.io/entwined/) - modular text processor and editor for Entwine
 - [Emphases](https://ugotsta.github.io/emphases/) - annotation and highlighting app, mainly for Bible references
 
 ## GitHub not needed

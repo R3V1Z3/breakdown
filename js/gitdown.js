@@ -178,6 +178,32 @@
             return base + q + location.hash;
         };
 
+        plugin.toggleFullscreen = function(e) {
+            e = e || document.documentElement;
+            if (!document.fullscreenElement && !document.mozFullScreenElement &&
+                !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (e.requestFullscreen) {
+                    e.requestFullscreen();
+                } else if (e.msRequestFullscreen) {
+                    e.msRequestFullscreen();
+                } else if (e.mozRequestFullScreen) {
+                    e.mozRequestFullScreen();
+                } else if (e.webkitRequestFullscreen) {
+                    e.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+        }
+
         // helper function to ensure section ids are css compatible
         plugin.clean_name = function(str) {
             str = str.toLowerCase();
@@ -1020,32 +1046,6 @@
             $( eid + ' .element-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
         };
 
-        function toggleFullscreen(e) {
-            e = e || document.documentElement;
-            if (!document.fullscreenElement && !document.mozFullScreenElement &&
-                !document.webkitFullscreenElement && !document.msFullscreenElement) {
-                if (e.requestFullscreen) {
-                    e.requestFullscreen();
-                } else if (e.msRequestFullscreen) {
-                    e.msRequestFullscreen();
-                } else if (e.mozRequestFullScreen) {
-                    e.mozRequestFullScreen();
-                } else if (e.webkitRequestFullscreen) {
-                    e.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
-        }
-
         var register_events = function() {
 
             // handle history
@@ -1056,7 +1056,7 @@
             // fullscreen request
             $( eid + ' .fullscreen').click(function(){
                 var e = document.getElementById( eid.substring(1) );
-                toggleFullscreen(e);
+                plugin.toggleFullscreen(e);
             });
 
             // commmand count
