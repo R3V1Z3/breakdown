@@ -75,6 +75,7 @@
                                     "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
                                     "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
+                                    "Ye Olde Tavern": "c05dec491e954e53e050c6e9d60d7a25",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
                                     "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
                                     "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
