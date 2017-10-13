@@ -156,8 +156,8 @@ kbd:hover {
 .container .unhide,
 .container .fullscreen {
   position: fixed;
-  right: -50px;
-  top: -50px;
+  right: -75px;
+  top: -75px;
   height: 200px;
   width: 200px;
   z-index: 99;
@@ -165,6 +165,7 @@ kbd:hover {
   background: none;
   cursor: pointer;
   border: none;
+  mix-blend-mode: overlay;
 }
 
 .container .unhide:hover, .container .fullscreen:hover {
