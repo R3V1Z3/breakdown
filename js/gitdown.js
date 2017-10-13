@@ -941,7 +941,7 @@
                         $t.before(c);
                     } else $t.after(c);
                 } else if ( begins( v, '$gd_hide' ) ) {
-                    c = '<a class="hide"><kbd>ESC</kbd> - show/hide this panel.</a>';
+                    c = '<a class="hide"><kbd>Esc</kbd> - show/hide this panel.</a>';
                     $t.html(c);
                 } else if ( begins( v, '$gd_selector_' ) ) {
                     var v_name = v.split('$gd_selector_')[1];
