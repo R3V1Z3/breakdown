@@ -230,6 +230,17 @@
             return -1;
         };
 
+        plugin.get_setting = function(s) {
+            if ( s === 'style' ) {
+                return window.localStorage.getItem('gd_style');
+            } else if ( s === 'content' ) {
+                return window.localStorage.getItem('gd_content');
+            } else if ( s === 'settings' ) {
+                var s = window.localStorage.getItem('gd_settings');
+                return JSON.parse(s);
+            }
+        }
+
         // helper function to provide defaults
         plugin.get_examples = function(c) {
             var examples;
@@ -502,6 +513,9 @@
             register_events();
             handle_options();
 
+            // write settings to browser for easy re-use by apps
+            store_settings();
+
             // hide selectors at start
             $( eid + ' .info .selector' ).hide();
 
@@ -510,6 +524,13 @@
                 plugin.settings.callback.call();
             }
         };
+
+        // store settings in browser
+        var store_settings = function() {
+            var s = JSON.stringify(plugin.settings);
+            window.localStorage.setItem( 'gd_settings', s );
+            // retrieve settings in apps with plugin.get_setting('settings')
+        }
 
         var update_fields = function() {
             // update choice fields
@@ -776,8 +797,10 @@
             var parser = new HtmlWhitelistedSanitizer(true);
             var cleaned = parser.sanitizeString(css);
             $('head').append('<style>' + cleaned + '</style>');
-            // we'll save the css for apps that need it, for example, for transforms
-            // TODO: store this in browser so apps can use it without having to re-load from source
+
+            // store cleaned css in browser
+            window.localStorage.setItem( 'gd_style', cleaned );
+            
             clean_css = cleaned;
         };
 
