@@ -1008,6 +1008,35 @@
                     c += '</select></div>';
                     $t.next('br').remove();
                     $t.html(c);
+                } else if ( begins( v, '$gd_slider_' ) ) {
+                    var v_name = v.split('$gd_slider_')[1];
+                    // return if there's no assignment after variable
+                    if ( v_name.indexOf('=') === -1 ) return;
+                    // remove assignment text from name and ensure it's clean (no malicious HTML)
+                    v_name = plugin.clean_name( v_name.split('=')[0] );
+                    // get the assigned string
+                    var v_items = v.split('=')[1];
+                    // remove parens
+                    v_items = v_items.substring(1);
+                    v_items = v_items.substring( 0, v_items.length - 1 );
+                    // get user assigned string
+                    var items = v_items.split(',');
+                    c = `<div class="field slider ${v_name}">`;
+                    c += `<input name="${v_name}" type="range" `;
+                    // get slider attributes
+                    c += ` value="${items[0]}"`;
+                    c += ` min="${items[1]}"`;
+                    c += ` max="${items[2]}"`;
+                    c += ` step="${items[3]}"`;
+                    // handle suffix
+                    if ( items.length > 4 ) {
+                        c += ` data-suffix="${items[4]}" `;
+                    }
+                    c += '>';
+                    c += '</div>';
+                    // removing the next br removes the next slider comment attached to that br
+                    $t.next('br').remove();
+                    $t.append(c);
                 }
             }
         };
