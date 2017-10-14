@@ -285,10 +285,10 @@
             return '';            
         };
 
-        // shortcut to set param and refresh window with new param
+        // shortcut to set params
         plugin.set_param = function( key, value ) {
             params.set( key, value );
-            window.location.href = plugin.uri();
+            //window.location.href = plugin.uri();
         };
 
         plugin.render = function( content, container, store_markdown ) {
@@ -667,6 +667,15 @@
             link += '.min.css">';
             // add style reference to head to load it
             $('head').append(link);
+
+            // for apps that might need it, change .fx div background to hljs background
+            var $hljs = $( eid + ' .inner .hljs' );
+            if ( $hljs.length > 0 ) {
+                var $fx = $( eid + ' .fx' );
+                if ( $fx.length > 0 ) {
+                    $fx.css( 'backgroundColor', $hljs.css('backgroundColor') );
+                }
+            }
         }
 
         // to help with incorrectly formatted Markdown (which is very common)
@@ -1049,7 +1058,6 @@
                     }
                     v_name = plugin.clean_name(v_name);
                     c = `<div class="field collapsible ${v_name} ${pos}" data-name="${v_name}"></div>`;
-                    // removing the next br removes the next slider comment attached to that br
                     $t.next('br').remove();
                     $t.html(c);
                 }
@@ -1180,6 +1188,16 @@
                 $( eid + ' .panel' ).toggleClass('minimized');
             });
 
+            // add click event to sliders
+            $('.info .field.slider input').on('input change', function(e) {
+                var name = $(this).attr('name');
+                var value = $(this).val();
+                var suffix = $(this).attr('data-suffix');
+                if ( suffix === undefined ) suffix = '';
+                $(this).attr( 'value', value + suffix );
+                plugin.set_param( name, value + suffix );
+            });
+
             // handle toggling of collapsible sections in info panel
             $( eid + ' .field.collapsible .header' ).click(function(e) {
                 if (e.target !== this) return;
@@ -1214,15 +1232,6 @@
                 var v = $(this).val();
                 params.set( 'highlight', plugin.clean_name(v) );
                 get_highlight_style();
-
-                // for apps that might need it, change .fx div background to hljs background
-                var $hljs = $('.inner .hljs');
-                if ( $hljs.length > 0 ) {
-                    var $fx = $(eid + ' .fx');
-                    if ( $fx.length > 0 ) {
-                        $fx.css( 'backgroundColor', $hljs.css('backgroundColor') );
-                    }
-                }
             });
 
             $( eid + ' .info .selector-input' ).keyup(function(e) {
