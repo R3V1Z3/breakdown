@@ -1091,7 +1091,8 @@
             // arrange content within collapsible fields
             $( eid + ' .info .field.collapsible').unwrap();
             var $c = $( eid + ' .info .field.collapsible.start');
-            if ( $c.length > 0 ) {
+            $( eid + ' .info .field.collapsible.start' ).each(function(){
+                var $c = $(this);
                 var data_name = $c.attr('data-name');
                 console.log(data_name);
                 // get all content between the start and end divs
@@ -1104,7 +1105,7 @@
                 var html = `<div class="header" name="${data_name}">${data_name}</div>`;
                 $content.wrap(html);
                 $content.wrap('<div class="contents">');
-            }
+            });
 
             // update TOC
             plugin.update_toc();
@@ -1180,8 +1181,11 @@
             });
 
             // handle toggling of collapsible sections in info panel
-            $( eid + ' .field.collapsible .header' ).click(function() {
+            $( eid + ' .field.collapsible .header' ).click(function(e) {
+                if (e.target !== this) return;
                 $inner = $(this).find('.contents');
+                // we need to detect if user is adjusting slider value
+                // is mouse over sliders?
                 if ( $inner.is(":visible") ) {
                     $inner.hide();
                 } else {
