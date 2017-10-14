@@ -1144,9 +1144,8 @@
             // event handler to toggle info panel
             $( eid + ' .info .field.select select' ).change(function() {
                 var v = $(this).val();
-                params.set( 'highlight', $gd.clean_name(v) );
+                params.set( 'highlight', plugin.clean_name(v) );
                 get_highlight_style();
-                console.log( v );
             });
 
             $( eid + ' .info .selector-input' ).keyup(function(e) {
