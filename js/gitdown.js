@@ -1134,7 +1134,7 @@
             });
 
             // event handler to toggle info panel
-            $( eid + ' .info .field.select select' ).change(function() {
+            $( eid + ' .info .field.select.highlight select' ).change(function() {
                 var v = $(this).val();
                 params.set( 'highlight', plugin.clean_name(v) );
                 get_highlight_style();
