@@ -74,18 +74,5 @@ Highlight Styles <!-- {$gd_select_highlight} -->
 - Xcode
 - Xt 256
 
-<!-- {$gd_collapsible_filter_effects} -->
-
-- <!-- {$gd_slider_blur="0,0,20,1,px"} -->
-- <!-- {$gd_slider_brightness="1,0,3,0.1"} -->
-- <!-- {$gd_slider_contrast="100,0,300,1,%"} -->
-- <!-- {$gd_slider_grayscale="0,0,100,1,%"} -->
-- <!-- {$gd_slider_hue-rotate="0,0,360,1,deg"} -->
-- <!-- {$gd_slider_invert="0,0,100,1,%"} -->
-- <!-- {$gd_slider_saturate="100,0,300,1,%"} -->
-- <!-- {$gd_slider_sepia="0,0,100,1,%"} -->
-
-<!-- {$gd_collapsible_end_filter_effects} -->
-
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->
