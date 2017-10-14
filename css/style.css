@@ -313,6 +313,28 @@ a.selector-source {
   background: white;
 }
 
+.info .field.select select {
+  width: 99%;
+  background: #252525;
+  color: #999;
+  padding: 6px;
+  border-radius: 3px;
+  outline: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.info .field.select select:hover {
+  filter: brightness(1.5);
+}
+
+.info .field.select::before {
+  margin: 4px;
+  margin-top: 1em;
+  content: attr(data-name);
+  display: block;
+}
+
 /* Help Ribbon */
 #wrapper .info a.help-ribbon,
 .info a.help-ribbon {

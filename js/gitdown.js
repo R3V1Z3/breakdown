@@ -998,6 +998,21 @@
                     }
                     c += '</div>';
                     $t.html(c);
+                } else if ( begins( v, '$gd_select_' ) ) {
+                    var v_name = v.split('$gd_select_')[1];
+                    var $list = $t.next();
+                    c = `<div class="field select ${v_name}" data-name="${proper_filename(v_name)}">`;
+                    c += `<select name="${v_name}">`;
+                    if ( $list.length > 0 && $list.is('ul') ) {
+                        $list.find('li').each(function( i, val ){
+                            var li = $(this).text();
+                            c += `<option value="${plugin.clean_name(li)}">${li}</option>`;
+                        });
+                        $list.remove();
+                    }
+                    c += '</select></div>';
+                    $t.next('br').remove();
+                    $t.html(c);
                 }
             }
         };
