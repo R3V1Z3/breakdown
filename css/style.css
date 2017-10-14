@@ -335,6 +335,34 @@ a.selector-source {
   display: block;
 }
 
+#custom .info li:before {
+  content: unset;
+}
+
+.info .field.collapsible {
+  margin: 5px 0;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.5em;
+  border-radius: 3px;
+}
+
+.info .field.collapsible.collapsed {
+  display: none;
+}
+
+.info .field.collapsible:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.info .field.collapsible .header {
+  width: 100%;
+  height: 1.5em;
+  display: inline-block;
+  color: white;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
 /* Help Ribbon */
 #wrapper .info a.help-ribbon,
 .info a.help-ribbon {

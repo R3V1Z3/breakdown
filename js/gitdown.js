@@ -513,6 +513,9 @@
             // hide selectors at start
             $( eid + ' .info .selector' ).hide();
 
+            // toggle collapsible sections at start
+            $( eid + ' .field.collapsible .header' ).click();
+
             // with everything loaded, execute user-provided callback
             if (typeof plugin.settings.callback == 'function') {
                 plugin.settings.callback.call();
@@ -1037,6 +1040,18 @@
                     // removing the next br removes the next slider comment attached to that br
                     $t.next('br').remove();
                     $t.append(c);
+                } else if ( begins( v, '$gd_collapsible_' ) ) {
+                    var v_name = v.split('$gd_collapsible_')[1];
+                    var pos = 'start';
+                    if ( v_name.startsWith('end_') ) {
+                        pos = 'end';
+                        v_name = v_name.split('end_')[1];
+                    }
+                    v_name = plugin.clean_name(v_name);
+                    c = `<div class="field collapsible ${v_name} ${pos}" data-name="${v_name}"></div>`;
+                    // removing the next br removes the next slider comment attached to that br
+                    $t.next('br').remove();
+                    $t.html(c);
                 }
             }
         };
@@ -1072,6 +1087,24 @@
 
             // render all variables in comments
             render_variables( eid + ' .info *', app_title );
+
+            // arrange content within collapsible fields
+            $( eid + ' .info .field.collapsible').unwrap();
+            var $c = $( eid + ' .info .field.collapsible.start');
+            if ( $c.length > 0 ) {
+                var data_name = $c.attr('data-name');
+                console.log(data_name);
+                // get all content between the start and end divs
+                var start = eid + ` .info .field.collapsible.${data_name}.start`;
+                var end =`.field.collapsible.${data_name}.end`;
+                var $content = $(start).nextUntil(end);
+                $(end).remove();
+                $content.appendTo($c);
+                
+                var html = `<div class="header" name="${data_name}">${data_name}</div>`;
+                $content.wrap(html);
+                $content.wrap('<div class="contents">');
+            }
 
             // update TOC
             plugin.update_toc();
@@ -1146,6 +1179,16 @@
                 $( eid + ' .panel' ).toggleClass('minimized');
             });
 
+            // handle toggling of collapsible sections in info panel
+            $( eid + ' .field.collapsible .header' ).click(function() {
+                $inner = $(this).find('.contents');
+                if ( $inner.is(":visible") ) {
+                    $inner.hide();
+                } else {
+                    $inner.show();
+                }
+            });
+
             // to help with mobile, show .panel when container is clicked outside sections
             $( eid + ' .unhide' ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
@@ -1162,11 +1205,20 @@
                 }
             });
 
-            // event handler to toggle info panel
+            // code highlight selector change event
             $( eid + ' .info .field.select.highlight select' ).change(function() {
                 var v = $(this).val();
                 params.set( 'highlight', plugin.clean_name(v) );
                 get_highlight_style();
+
+                // for apps that might need it, change .fx div background to hljs background
+                var $hljs = $('.inner .hljs');
+                if ( $hljs.length > 0 ) {
+                    var $fx = $(eid + ' .fx');
+                    if ( $fx.length > 0 ) {
+                        $fx.css( 'backgroundColor', $hljs.css('backgroundColor') );
+                    }
+                }
             });
 
             $( eid + ' .info .selector-input' ).keyup(function(e) {
