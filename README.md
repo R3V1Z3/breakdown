@@ -60,5 +60,19 @@ Themes <!-- {$gd_css} -->
 - [Deep Blue](https://gist.github.com/51aa23d96f9bd81fe55c47b2d51855a5)
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 
+Highlight Styles <!-- {$gd_select_highlight} -->
+- None
+- Default
+- Androidstudio
+- Dracula
+- Github
+- Monokai
+- Solarized Dark
+- Solarized Light
+- Tomorrow Night
+- Tomorrow
+- Xcode
+- Xt 256
+
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->

@@ -665,8 +665,11 @@
             // get highlight.js style if provided
             var highlight = params.get('highlight');
             if (!highlight) highlight = 'default';
+            var link = '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
+            link += highlight.replace(/[^a-zA-Z0-9-_]+/ig, '');
+            link += '.min.css">';
             // add style reference to head to load it
-            $('head').append('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/' + highlight.replace(/[^a-zA-Z0-9-_]+/ig, '') + '.min.css">');
+            $('head').append(link);
         }
 
         // to help with incorrectly formatted Markdown (which is very common)
@@ -1136,6 +1139,14 @@
                     $( eid + ' .panel' ).toggleClass('minimized');
                     $( eid + ' .selector' ).hide();
                 }
+            });
+
+            // event handler to toggle info panel
+            $( eid + ' .info .field.select select' ).change(function() {
+                var v = $(this).val();
+                params.set( 'highlight', $gd.clean_name(v) );
+                get_highlight_style();
+                console.log( v );
             });
 
             $( eid + ' .info .selector-input' ).keyup(function(e) {
