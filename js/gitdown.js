@@ -86,7 +86,6 @@
                                     "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
         };
         // for access to transform values, we'll make sanitized css available
-        var clean_css = '';
         var info_content = '';
 
         var sections = [];
@@ -270,11 +269,6 @@
         // let user easily get names of sections
         plugin.get_sections = function() {
             return sections;
-        };
-
-        // let user easily get names of sections
-        plugin.get_css = function() {
-            return clean_css;
         };
 
         // let user override toc section list, for cases like Entwine
@@ -803,8 +797,6 @@
 
             // store cleaned css in browser
             window.localStorage.setItem( 'gd_style', cleaned );
-            
-            clean_css = cleaned;
         };
 
         // returns true if n begins with str
