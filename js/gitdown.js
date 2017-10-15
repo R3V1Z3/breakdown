@@ -1238,6 +1238,8 @@
                 var value = $(this).val();
                 var suffix = $(this).attr('data-suffix');
                 if ( suffix === undefined ) suffix = '';
+                // testing suffix removal to shorten url params
+                suffix = '';
                 $(this).attr( 'value', value + suffix );
                 plugin.set_param( name, value + suffix );
             });
