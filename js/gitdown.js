@@ -307,6 +307,12 @@
             return '';            
         };
 
+        // shortcut to get all parameter keys, user can then iterate over them:
+        // for( var key of plugin.get_params() ) { console.log(key); }
+        plugin.get_params = function() {
+        	return params.keys();
+        };
+
         // shortcut to set params
         plugin.set_param = function( key, value ) {
             params.set( key, value );
