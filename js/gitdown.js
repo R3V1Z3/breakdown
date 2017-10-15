@@ -204,16 +204,39 @@
         }
 
         // helper function to ensure section ids are css compatible
-        plugin.clean_name = function(str) {
-            str = str.toLowerCase();
-            // remove non-alphanumerics
-            str = str.replace(/[^a-z0-9_\s-]/g, '-');
-            // clean up multiple dashes or whitespaces
-            str = str.replace(/[\s-]+/g, ' ');
-            // remove leading and trailing spaces
-            str = str.trim();
-            // convert whitespaces and underscore to dash
-            str = str.replace(/[\s_]/g, '-');
+        plugin.clean = function( str, o ) {
+            if ( o === undefined ) o = 'css';
+            if ( o === 'css' ) {
+                str = str.toLowerCase();
+                // remove non-alphanumerics
+                str = str.replace(/[^a-z0-9_\s-]/g, '-');
+                // clean up multiple dashes or whitespaces
+                str = str.replace(/[\s-]+/g, ' ');
+                // remove leading and trailing spaces
+                str = str.trim();
+                // convert whitespaces and underscore to dash
+                str = str.replace(/[\s_]/g, '-');
+            } else if ( o === 'var' ) {
+                // remove non-alphanumerics
+                str = str.replace(/[^a-z0-9_\s-]/g, '-');
+                // clean up multiple dashes or whitespaces
+                str = str.replace(/[\s-]+/g, ' ');
+                // remove leading and trailing spaces
+                str = str.trim();
+                // convert whitespaces and dashes to underscores
+                str = str.replace(/[\s-]/g, '_');
+            } else if ( o === 'value' ) {
+                // send through sanitizer
+                var parser = new HtmlWhitelistedSanitizer(true);
+                str = parser.sanitizeString(str);
+            } else if ( o === 'proper' ) {
+                // return proper name, used only after values previously cleaned
+                // replace dashes and underscores with space
+                f = f.replace(/-/g, ' ');
+                f = f.replace(/_/g, ' ');
+                // capitalize words
+                f = f.replace( /\b\w/g, l => l.toUpperCase() );
+            }
             return str;
         };
 
@@ -346,12 +369,12 @@
             if (sections.length > 1 ) {
                 // iterate section classes and get id name to compose TOC
                 for ( var i = 0; i < sections.length; i++ ) {
-                    var name = plugin.clean_name( sections[i] );
+                    var name = plugin.clean( sections[i] );
                     html += '<a href="#' + name + '" ';
 
                     var classes = '';
                     // add '.current' class if this section is currently selected
-                    if ( plugin.clean_name( sections[i] ) === plugin.get_current_section_id() ) {
+                    if ( plugin.clean( sections[i] ) === plugin.get_current_section_id() ) {
                         classes += "current";
                     }
                     // add '.hidden' class if parent section is hidden
@@ -534,7 +557,7 @@
             // update choice fields
             var $choices = $( eid + ' .info .choices' );
             $choices.each(function(){
-                var v_name = plugin.clean_name( $(this).attr('data-name') );
+                var v_name = plugin.clean( $(this).attr('data-name'), 'value' );
                 // get the parameter if it exists
                 var p = plugin.get_param(v_name);
                 if ( p != '' ) {
@@ -620,7 +643,7 @@
 
             if ( $( eid_inner + ' ' + header ).length ) {
                 $( eid_inner + ' ' + header ).each(function() {
-                    var name = plugin.clean_name( $(this).text() );
+                    var name = plugin.clean( $(this).text() );
                     $(this).addClass('handle-heading');
                     $(this).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
@@ -635,7 +658,7 @@
 
             // create sections
             $( eid_inner + ' ' + heading ).each(function() {
-                var name = plugin.clean_name( $(this).text() );
+                var name = plugin.clean( $(this).text() );
                 $(this).addClass('handle-heading');
                 $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                 $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
@@ -792,7 +815,7 @@
                 if ( tag === 'i' ){
                     $( container + ' i' ).attr('class', function(_, classes) {
                         if( classes.indexOf('fa-') < 0 ){
-                            classes = plugin.clean_name(classes);
+                            classes = plugin.clean(classes);
                             classes = classes.replace(/icon-(.*?)/, "fa-$1");
                         }
                         return classes;
@@ -915,7 +938,7 @@
             var title = plugin.settings.title;
             if ( v != '' ) {
                 if ( begins( v, '$gd_info' ) ) {
-                    $t.text( title ).addClass( plugin.clean_name(title) + ' app-title' );
+                    $t.text( title ).addClass( plugin.clean(title) + ' app-title' );
                 } else if ( begins( v, '$gd_help_ribbon' ) ) {
                     c = '<a class="help-ribbon" href="//github.com' + path;
                     c += '#' + title.toLowerCase() + '">?</a>';
@@ -1014,7 +1037,7 @@
                     if ( $list.length > 0 && $list.is('ul') ) {
                         $list.find('li').each(function( i, val ){
                             var li = $(this).text();
-                            c += `<option value="${plugin.clean_name(li)}">${li}</option>`;
+                            c += `<option value="${plugin.clean(li)}">${li}</option>`;
                         });
                         $list.remove();
                     }
@@ -1026,7 +1049,7 @@
                     // return if there's no assignment after variable
                     if ( v_name.indexOf('=') === -1 ) return;
                     // remove assignment text from name and ensure it's clean (no malicious HTML)
-                    v_name = plugin.clean_name( v_name.split('=')[0] );
+                    v_name = plugin.clean( v_name.split('=')[0] );
                     // get the assigned string
                     var v_items = v.split('=')[1];
                     // remove parens
@@ -1057,7 +1080,7 @@
                         pos = 'end';
                         v_name = v_name.split('end_')[1];
                     }
-                    v_name = plugin.clean_name(v_name);
+                    v_name = plugin.clean(v_name);
                     c = `<div class="field collapsible ${v_name} ${pos}" data-name="${v_name}"></div>`;
                     $t.next('br').remove();
                     $t.html(c);
@@ -1075,6 +1098,7 @@
                         for ( var i = 0; i < comments.length; i++ ) {
                             var v = extract_variable( comments[i] );
                             if ( v != '' ) {
+                                v = plugin.clean( v, 'value' );
                                 variable_html( v, $(this) );
                             }
                         }
@@ -1211,7 +1235,7 @@
             // SLIDER FIELDS
             $('.info .field.slider input').on('input change', function(e) {
                 var name = $(this).attr('name');
-                var value = plugin.clean_name( $(this).val() );
+                var value = $(this).val();
                 var suffix = $(this).attr('data-suffix');
                 if ( suffix === undefined ) suffix = '';
                 $(this).attr( 'value', value + suffix );
@@ -1220,16 +1244,16 @@
 
             // CHOICE FIELDS
             $( eid + ' .info field.choices .choice' ).click(function() {
-                var name = plugin.clean_name( $(this).parent().attr('data-name') );
-                var value = plugin.clean_name( $(this).text() );
+                var name = $(this).parent().attr('data-name');
+                var value = $(this).text();
                 plugin.set_param( name, value );
             });
 
             // SELECT FIELDS
             $( ' .info .field.select select' ).change(function() {
                 var name = $(this).parent().attr('data-name');
-                name = plugin.clean_name(name);
-                var value = plugin.clean_name( $(this).val() );
+                name = plugin.clean(name);
+                var value = $(this).val();
                 plugin.set_param( name, value );
                 // load user provided highlight style
                 if ( name === 'highlight' ) {
