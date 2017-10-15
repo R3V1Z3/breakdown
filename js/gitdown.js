@@ -287,6 +287,8 @@
         // shortcut to set params
         plugin.set_param = function( key, value ) {
             params.set( key, value );
+            // update url state
+            history.replaceState( {}, plugin.settings.title, plugin.uri() );            
             //window.location.href = plugin.uri();
         };
 
