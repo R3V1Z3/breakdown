@@ -325,7 +325,7 @@ a.selector-source {
 }
 
 .info .field.select select:hover {
-  filter: brightness(1.5);
+  background: #555;
 }
 
 .info .field.select::before {
@@ -334,7 +334,8 @@ a.selector-source {
   content: attr(data-name);
   position: absolute;
   right: 0;
-  color: #888;
+  color: #999;
+  pointer-events: none;
 }
 
 #custom .info li:before {

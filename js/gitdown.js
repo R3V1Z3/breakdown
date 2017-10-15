@@ -60,7 +60,6 @@
 
         // get URL parameters
         var params = (new URL(location)).searchParams;
-        console.log(params);
         var path = '/' + window.location.hostname.split('.')[0];
         path += window.location.pathname;
 
@@ -999,7 +998,7 @@
                     v_items = v_items.substring( 0, v_items.length - 1 );
                     // get user assigned string
                     var items = v_items.split(',');
-                    c = `<div data-name="${proper_filename(v_name)}" class="choices ${v_name}">`;
+                    c = `<div data-name="${proper_filename(v_name)}" class="field choices ${v_name}">`;
                     for ( var i = 0; i < items.length; i++ ) {
                         c += `<a class="choice">${items[i]}</a> `;
                     }
@@ -1102,7 +1101,6 @@
             $( eid + ' .info .field.collapsible.start' ).each(function(){
                 var $c = $(this);
                 var data_name = $c.attr('data-name');
-                console.log(data_name);
                 // get all content between the start and end divs
                 var start = eid + ` .info .field.collapsible.${data_name}.start`;
                 var end =`.field.collapsible.${data_name}.end`;
@@ -1188,29 +1186,6 @@
                 $( eid + ' .panel' ).toggleClass('minimized');
             });
 
-            // add click event to sliders
-            $('.info .field.slider input').on('input change', function(e) {
-                var name = $(this).attr('name');
-                var value = $(this).val();
-                var suffix = $(this).attr('data-suffix');
-                if ( suffix === undefined ) suffix = '';
-                $(this).attr( 'value', value + suffix );
-                plugin.set_param( name, value + suffix );
-            });
-
-            // handle toggling of collapsible sections in info panel
-            $( eid + ' .field.collapsible .header' ).click(function(e) {
-                if (e.target !== this) return;
-                $inner = $(this).find('.contents');
-                // we need to detect if user is adjusting slider value
-                // is mouse over sliders?
-                if ( $inner.is(":visible") ) {
-                    $inner.hide();
-                } else {
-                    $inner.show();
-                }
-            });
-
             // to help with mobile, show .panel when container is clicked outside sections
             $( eid + ' .unhide' ).on('click', function (e) {
                 if ( $(e.target).closest(".section").length === 0 ) {
@@ -1227,13 +1202,53 @@
                 }
             });
 
-            // code highlight selector change event
-            $( eid + ' .info .field.select.highlight select' ).change(function() {
-                var v = $(this).val();
-                params.set( 'highlight', plugin.clean_name(v) );
-                get_highlight_style();
+            /*
+                Fields
+            */
+
+            // SLIDER FIELDS
+            $('.info .field.slider input').on('input change', function(e) {
+                var name = $(this).attr('name');
+                var value = plugin.clean_name( $(this).val() );
+                var suffix = $(this).attr('data-suffix');
+                if ( suffix === undefined ) suffix = '';
+                $(this).attr( 'value', value + suffix );
+                plugin.set_param( name, value + suffix );
             });
 
+            // CHOICE FIELDS
+            $( eid + ' .info field.choices .choice' ).click(function() {
+                var name = plugin.clean_name( $(this).parent().attr('data-name') );
+                var value = plugin.clean_name( $(this).text() );
+                plugin.set_param( name, value );
+            });
+
+            // SELECT FIELDS
+            $( ' .info .field.select select' ).change(function() {
+                var name = $(this).parent().attr('data-name');
+                name = plugin.clean_name(name);
+                var value = plugin.clean_name( $(this).val() );
+                plugin.set_param( name, value );
+                // load user provided highlight style
+                if ( name === 'highlight' ) {
+                    get_highlight_style();
+                }
+            });
+
+            // COLLAPSIBLE FIELDS
+            $( eid + ' .field.collapsible .header' ).click(function(e) {
+                if (e.target !== this) return;
+                $inner = $(this).find('.contents');
+                // we need to detect if user is adjusting slider value
+                // is mouse over sliders?
+                if ( $inner.is(":visible") ) {
+                    $inner.hide();
+                } else {
+                    $inner.show();
+                }
+            });
+
+            // SELECTOR KEYPRESS
             $( eid + ' .info .selector-input' ).keyup(function(e) {
                 if( e.which == 13 ) {
                     // get parent class
@@ -1241,6 +1256,28 @@
                     params.set( c, $(this).val() );
                     window.location.href = plugin.uri();
                 }
+            });
+
+            // Gist and CSS selectors
+            $( eid + ' .info .selector-url' ).click(function() {
+                var c = get_selector_class( $(this) );
+                var prefix = '.' + c;
+                $( eid + ' ' + prefix + '-selector' ).toggle();
+                // move focus to text input
+                $( eid + ' ' + prefix + '-input' ).focus();
+
+                // set position
+                var p = $(this).position();
+                $( eid + ' ' + prefix + '-selector' ).css({
+                    top: p.top + $(this).height() - 17,
+                    left: p.left
+                });
+
+                // create click events for links
+                $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
+                    plugin.set_param( c, $(this).attr('data-id') );
+                    window.location.href = plugin.uri();
+                });
             });
 
             // hide selector if it or link not clicked
@@ -1265,34 +1302,6 @@
                         $( eid + ` .${c}-selector` ).hide();
                     }
                 }
-            });
-
-            // Gist and CSS selectors
-            $( eid + ' .info .selector-url' ).click(function() {
-                var c = get_selector_class( $(this) );
-                var prefix = '.' + c;
-                $( eid + ' ' + prefix + '-selector' ).toggle();
-                // move focus to text input
-                $( eid + ' ' + prefix + '-input' ).focus();
-
-                // set position
-                var p = $(this).position();
-                $( eid + ' ' + prefix + '-selector' ).css({
-                    top: p.top + $(this).height() - 17,
-                    left: p.left
-                });
-
-                // create click events for links
-                $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
-                    params.set( c, $(this).attr('data-id') );
-                    window.location.href = plugin.uri();
-                });
-            });
-
-            // Choice selectors
-            $( eid + ' .info .choices .choice' ).click(function() {
-                var c_name = $(this).parent().attr('data-name');
-                plugin.set_param( plugin.clean_name(c_name), $(this).text() );
             });
         };
 

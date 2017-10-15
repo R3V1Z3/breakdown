@@ -72,7 +72,6 @@ Themes <!-- {$gd_css} -->
 - Tomorrow Night
 - Tomorrow
 - Xcode
-- Xt 256
 
 <!-- {$gd_toc="Table of Contents"} -->
 <!-- {$gd_hide} -->
