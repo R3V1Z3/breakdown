@@ -307,11 +307,33 @@
             return '';            
         };
 
-        // shortcut to get all parameter keys, user can then iterate over them:
-        // for( var key of plugin.get_params() ) { console.log(key); }
-        plugin.get_params = function() {
-        	return params.keys();
-        };
+        // update fields based on url parameters
+        plugin.parse_params = function() {
+            var $fields = $('.info .field');
+            $fields.each(function(){
+                var field_class = '';
+                var $f = $(this);
+                if ( $f.hasClass('slider') ) {
+                    var $slider = $f.find('input');
+                    var name = $slider.attr('name');
+                    var p = $gd.get_param(name);
+                    if ( p != '' ) {
+                        $slider.val(p);
+                        $slider.attr( 'value', p );
+                    }
+                } else if ( $f.hasClass('select') ) {
+                    var $select = $f.find('select');
+                    var name = $select.attr('name');
+                    var p = $gd.get_param(name);
+                    if ( p != '' ) {
+                        $select.val(p);
+                        $select.change();
+                    }
+                } else if ( $f.hasClass('choice') ) {
+                    field_class = 'choice';
+                }
+            });
+        }
 
         // shortcut to set params
         plugin.set_param = function( key, value ) {
@@ -527,6 +549,9 @@
 
             // update choice fields
             update_fields();
+
+            // update fields based on params
+            plugin.parse_params();
 
             // set current section and go there
             go_to_hash();
