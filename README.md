@@ -59,6 +59,7 @@ Themes <!-- {$gd_css} -->
 - [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
 - [Deep Blue](https://gist.github.com/51aa23d96f9bd81fe55c47b2d51855a5)
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
+- [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
 
 <!-- {$gd_select_highlight} -->
 - None
