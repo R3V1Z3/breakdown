@@ -329,10 +329,12 @@ a.selector-source {
 }
 
 .info .field.select::before {
-  margin: 4px;
-  margin-top: 1em;
+  margin-right: 2em;
+  margin-top: 4px;
   content: attr(data-name);
-  display: block;
+  position: absolute;
+  right: 0;
+  color: #888;
 }
 
 #custom .info li:before {
