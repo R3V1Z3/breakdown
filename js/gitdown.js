@@ -316,7 +316,7 @@
                 if ( $f.hasClass('slider') ) {
                     var $slider = $f.find('input');
                     var name = $slider.attr('name');
-                    var p = $gd.get_param(name);
+                    var p = plugin.get_param(name);
                     if ( p != '' ) {
                         $slider.val(p);
                         $slider.attr( 'value', p );
@@ -324,7 +324,7 @@
                 } else if ( $f.hasClass('select') ) {
                     var $select = $f.find('select');
                     var name = $select.attr('name');
-                    var p = $gd.get_param(name);
+                    var p = plugin.get_param(name);
                     if ( p != '' ) {
                         $select.val(p);
                         $select.change();
