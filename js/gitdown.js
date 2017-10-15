@@ -550,11 +550,11 @@
             // update choice fields
             update_fields();
 
-            // update fields based on params
-            plugin.parse_params();
-
             // set current section and go there
             go_to_hash();
+            
+            // update fields based on params
+            plugin.parse_params();
 
             // render raw text if user specified
             plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
@@ -1335,11 +1335,14 @@
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
                     plugin.set_param( c, $(this).attr('data-id') );
+                    // todo: fix redirect issue, it doesn't redirect after a hash is added
+                    console.log( plugin.uri() );
                     window.location.href = plugin.uri();
+                    window.location.reload();
                 });
             });
 
-            // hide selector if it or link not clicked
+            // hide selector if anything is clicked outside of it
             $(document).click(function(event) {
                 var $t = $(event.target);
                 // check if any .selector dialog is visiable
