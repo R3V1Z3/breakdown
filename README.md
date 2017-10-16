@@ -33,8 +33,6 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 <!-- {$gd_help_ribbon} -->
 <!-- {$gd_element_count} -->
 
-<!-- {$gd_slider_volume} -->
-
 Example Gists <!-- {$gd_gist} -->
 - [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)

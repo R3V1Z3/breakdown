@@ -331,7 +331,7 @@
                     }
                 } else if ( $f.hasClass('choices') ) {
                     var $choices = $f.find('a');
-                    var name = $choices.attr('data-name');
+                    var name = $choices.parent().attr('data-name');
                     var p = plugin.get_param(name);
                     if ( p != '' ) {
                         var $c = $f.find(`a[data-value="${p}"]`);
@@ -1309,7 +1309,7 @@
                 if( e.which == 13 ) {
                     // get parent class
                     var c = get_selector_class( $(this).parent() );
-                    params.set( c, $(this).val() );
+                    plugin.set_param( c, $(this).val() );
                     window.location.href = plugin.uri();
                 }
             });
