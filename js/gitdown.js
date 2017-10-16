@@ -1273,6 +1273,7 @@
             // CHOICE FIELDS
             $( eid + ' .info .field.choices .choice' ).click(function() {
                 var name = $(this).parent().attr('data-name');
+                name = name.toLowerCase();
                 $(this).parent().find('.selected').removeClass('selected');
                 var value = $(this).attr('data-value');
                 $(this).addClass('selected');
@@ -1282,6 +1283,7 @@
             // SELECT FIELDS
             $( ' .info .field.select select' ).change(function() {
                 var name = $(this).parent().attr('data-name');
+                name = name.toLowerCase();
                 name = plugin.clean(name);
                 var value = $(this).val();
                 plugin.set_param( name, value );
