@@ -329,8 +329,18 @@
                         $select.val(p);
                         $select.change();
                     }
-                } else if ( $f.hasClass('choice') ) {
-                    field_class = 'choice';
+                } else if ( $f.hasClass('choices') ) {
+                    var $choices = $f.find('a');
+                    var name = $choices.attr('data-name');
+                    var p = plugin.get_param(name);
+                    if ( p != '' ) {
+                        var $c = $f.find(`a[data-value="${p}"]`);
+                        if ( $c.length > 0 ) {
+                            // remove previously selected class
+                            $f.find('a.selected').removeClass('selected');
+                            $c.addClass('selected');
+                        }
+                    }
                 }
             });
         }
@@ -339,8 +349,7 @@
         plugin.set_param = function( key, value ) {
             params.set( key, value );
             // update url state
-            history.replaceState( {}, plugin.settings.title, plugin.uri() );            
-            //window.location.href = plugin.uri();
+            history.replaceState( {}, plugin.settings.title, plugin.uri() );
         };
 
         plugin.render = function( content, container, store_markdown ) {
@@ -458,6 +467,7 @@
             }
         };
 
+        // TODO: we'll fix this callback hell with promises
         var load_gist = function (type, gist_id, filename, data){
             var jqxhr = $.ajax({
                 url: 'https://api.github.com/gists/' + gist_id,
@@ -547,9 +557,6 @@
             // render info panel and toc based on current section
             render_info( plugin.settings.title );
 
-            // update choice fields
-            update_fields();
-
             // set current section and go there
             go_to_hash();
             
@@ -582,25 +589,6 @@
             var s = JSON.stringify(plugin.settings);
             window.localStorage.setItem( 'gd_settings', s );
             // retrieve settings in apps with plugin.get_setting('settings')
-        }
-
-        var update_fields = function() {
-            // update choice fields
-            var $choices = $( eid + ' .info .choices' );
-            $choices.each(function(){
-                var v_name = plugin.clean( $(this).attr('data-name'), 'value' );
-                // get the parameter if it exists
-                var p = plugin.get_param(v_name);
-                if ( p != '' ) {
-                    var $c = $(this).find('.choice');
-                    $c.removeClass('selected');
-                    $c.each(function( i, val ){
-                        if ( $(this).text() === p ) {
-                            $(this).addClass('selected');
-                        }
-                    });
-                }
-            });
         }
 
         var handle_options = function() {
@@ -1054,9 +1042,16 @@
                     v_items = v_items.substring( 0, v_items.length - 1 );
                     // get user assigned string
                     var items = v_items.split(',');
-                    c = `<div data-name="${proper_filename(v_name)}" class="field choices ${v_name}">`;
+                    c = `<div data-name="${proper_filename(v_name)}"`;
+                    c += ` class="field choices ${v_name}">`;
                     for ( var i = 0; i < items.length; i++ ) {
-                        c += `<a class="choice">${items[i]}</a> `;
+                        var v = items[i];
+                        var s = '';
+                        if ( v.charAt(0) === '*' ) {
+                            v = v.substr(1);
+                            s = 'selected';
+                        }
+                        c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
                     }
                     c += '</div>';
                     $t.html(c);
@@ -1276,9 +1271,11 @@
             });
 
             // CHOICE FIELDS
-            $( eid + ' .info field.choices .choice' ).click(function() {
+            $( eid + ' .info .field.choices .choice' ).click(function() {
                 var name = $(this).parent().attr('data-name');
-                var value = $(this).text();
+                $(this).parent().find('.selected').removeClass('selected');
+                var value = $(this).attr('data-value');
+                $(this).addClass('selected');
                 plugin.set_param( name, value );
             });
 
@@ -1335,8 +1332,6 @@
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
                     plugin.set_param( c, $(this).attr('data-id') );
-                    // todo: fix redirect issue, it doesn't redirect after a hash is added
-                    console.log( plugin.uri() );
                     window.location.href = plugin.uri();
                     window.location.reload();
                 });
