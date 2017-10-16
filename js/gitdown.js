@@ -1042,7 +1042,7 @@
                     v_items = v_items.substring( 0, v_items.length - 1 );
                     // get user assigned string
                     var items = v_items.split(',');
-                    c = `<div data-name="${proper_filename(v_name)}"`;
+                    c = `<div data-name="${v_name}"`;
                     c += ` class="field choices ${v_name}">`;
                     for ( var i = 0; i < items.length; i++ ) {
                         var v = items[i];
@@ -1058,7 +1058,7 @@
                 } else if ( begins( v, '$gd_select_' ) ) {
                     var v_name = v.split('$gd_select_')[1];
                     var $list = $t.next();
-                    c = `<div class="field select ${v_name}" data-name="${proper_filename(v_name)}">`;
+                    c = `<div class="field select ${v_name}" data-name="${v_name}">`;
                     c += `<select name="${v_name}">`;
                     if ( $list.length > 0 && $list.is('ul') ) {
                         $list.find('li').each(function( i, val ){
@@ -1273,7 +1273,6 @@
             // CHOICE FIELDS
             $( eid + ' .info .field.choices .choice' ).click(function() {
                 var name = $(this).parent().attr('data-name');
-                name = name.toLowerCase();
                 $(this).parent().find('.selected').removeClass('selected');
                 var value = $(this).attr('data-value');
                 $(this).addClass('selected');
@@ -1283,7 +1282,6 @@
             // SELECT FIELDS
             $( ' .info .field.select select' ).change(function() {
                 var name = $(this).parent().attr('data-name');
-                name = name.toLowerCase();
                 name = plugin.clean(name);
                 var value = $(this).val();
                 plugin.set_param( name, value );
