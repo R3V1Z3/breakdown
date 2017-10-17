@@ -1273,11 +1273,6 @@
                 }
             });
 
-            // FONTSIZE SLIDER
-            $('.info .field.slider.fontsize input').on('input change', function(e) {
-                
-            });
-
             // CHOICE FIELDS
             $( eid + ' .info .field.choices .choice' ).click(function() {
                 var name = $(this).parent().attr('data-name');
@@ -1321,6 +1316,7 @@
                     var c = get_selector_class( $(this).parent() );
                     plugin.set_param( c, $(this).val() );
                     window.location.href = plugin.uri();
+                    window.location.reload();
                 }
             });
 
