@@ -251,6 +251,15 @@
             return -1;
         };
 
+        plugin.get_highlight_style = function() {
+            var h = plugin.settings['highlight'];
+            var link = '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
+            link += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
+            link += '.min.css">';
+            // add style reference to head to load it
+            $('head').append(link);
+        }
+
         plugin.get_setting = function(s) {
             if ( s === 'style' ) {
                 return window.localStorage.getItem('gd_style');
@@ -547,7 +556,8 @@
             if ( plugin.settings.fontsize != '' ) {
                 $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
             }
-            get_highlight_style();
+            
+            plugin.get_highlight_style();
 
             // handle special tags we want to allow
             tag_replace( 'kbd', eid );
@@ -700,17 +710,6 @@
                 }
             });
         };
-
-        var get_highlight_style = function() {
-            // get highlight.js style if provided
-            var highlight = params.get('highlight');
-            if (!highlight) highlight = 'default';
-            var link = '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
-            link += highlight.replace(/[^a-zA-Z0-9-_]+/ig, '');
-            link += '.min.css">';
-            // add style reference to head to load it
-            $('head').append(link);
-        }
 
         // to help with incorrectly formatted Markdown (which is very common)
         var preprocess = function(data) {
@@ -1035,11 +1034,13 @@
                     var items = v_items.split(',');
                     c = `<div data-name="${v_name}"`;
                     c += ` class="field choices ${v_name}">`;
+                    plugin.settings['v_name'] = '';
                     for ( var i = 0; i < items.length; i++ ) {
                         var v = items[i];
                         var s = '';
                         if ( v.charAt(0) === '*' ) {
                             v = v.substr(1);
+                            plugin.settings['v_name'] = v;
                             s = 'selected';
                         }
                         c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
@@ -1051,12 +1052,14 @@
                     var $list = $t.next();
                     c = `<div class="field select ${v_name}" data-name="${v_name}">`;
                     c += `<select name="${v_name}">`;
+                    plugin.settings['v_name'] = '';
                     if ( $list.length > 0 && $list.is('ul') ) {
                         $list.find('li').each(function( i, val ){
                             var li = $(this).text();
                             var s = '';
                             if ( li.charAt(0) === '*' ) {
                                 li = li.substr(1);
+                                plugin.settings['v_name'] = li;
                                 s = 'selected';
                             }
                             c += `<option value="${plugin.clean(li)}" ${s}>${li}</option>`;
@@ -1083,6 +1086,7 @@
                     c += `<input name="${v_name}" type="range" `;
                     // get slider attributes
                     c += ` value="${items[0]}"`;
+                    plugin.settings['v_name'] = items[0];
                     c += ` min="${items[1]}"`;
                     c += ` max="${items[2]}"`;
                     c += ` step="${items[3]}"`;
@@ -1260,17 +1264,18 @@
                 var value = $(this).val();
                 var suffix = $(this).attr('data-suffix');
                 if ( suffix === undefined ) suffix = '';
-                // testing suffix removal to shorten url params
-                suffix = '';
                 $(this).attr( 'value', value + suffix );
-                plugin.set_param( name, value + suffix );
+                plugin.settings[name] = value + suffix;
+                plugin.set_param( name, value );
+                // font-size
+                if ( name === 'fontsize' ) {
+                    $(eid_inner).css( 'font-size', plugin.settings['fontsize'] );
+                }
             });
 
             // FONTSIZE SLIDER
             $('.info .field.slider.fontsize input').on('input change', function(e) {
-                var fontsize = $(this).val();
-                console.log(fontsize);
-                $(eid_inner).css( 'font-size', fontsize + '%' );
+                
             });
 
             // CHOICE FIELDS
@@ -1279,6 +1284,7 @@
                 $(this).parent().find('.selected').removeClass('selected');
                 var value = $(this).attr('data-value');
                 $(this).addClass('selected');
+                plugin.settings[name] = value;
                 plugin.set_param( name, value );
             });
 
@@ -1287,10 +1293,11 @@
                 var name = $(this).parent().attr('data-name');
                 name = plugin.clean(name);
                 var value = $(this).val();
+                plugin.settings[name] = value;
                 plugin.set_param( name, value );
                 // load user provided highlight style
                 if ( name === 'highlight' ) {
-                    get_highlight_style();
+                    plugin.get_highlight_style();
                 }
             });
 
