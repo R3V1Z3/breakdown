@@ -1270,6 +1270,13 @@
                 plugin.set_param( name, value + suffix );
             });
 
+            // FONTSIZE SLIDER
+            $('.info .field.slider.fontsize input').on('input change', function(e) {
+                var fontsize = $(this).val();
+                console.log(fontsize);
+                $(eid_inner).css( 'font-size', fontsize + '%' );
+            });
+
             // CHOICE FIELDS
             $( eid + ' .info .field.choices .choice' ).click(function() {
                 var name = $(this).parent().attr('data-name');

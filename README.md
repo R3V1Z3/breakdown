@@ -59,18 +59,10 @@ Themes <!-- {$gd_css} -->
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
 
-<!-- {$gd_select_highlight} -->
-- None
-- Default
-- Androidstudio
-- Dracula
-- Github
-- Monokai
-- Solarized Dark
-- Solarized Light
-- Tomorrow Night
-- Tomorrow
-- Xcode
+<!-- {$gd_collapsible_customization} -->
 
-<!-- {$gd_toc="Table of Contents"} -->
+<!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
+
+<!-- {$gd_collapsible_end_customization} -->
+
 <!-- {$gd_hide} -->
