@@ -710,15 +710,6 @@
             link += '.min.css">';
             // add style reference to head to load it
             $('head').append(link);
-
-            // for apps that might need it, change .fx div background to hljs background
-            var $hljs = $( eid + ' .inner .hljs' );
-            if ( $hljs.length > 0 ) {
-                var $fx = $( eid + ' .fx' );
-                if ( $fx.length > 0 ) {
-                    $fx.css( 'backgroundColor', $hljs.css('backgroundColor') );
-                }
-            }
         }
 
         // to help with incorrectly formatted Markdown (which is very common)
@@ -1063,7 +1054,12 @@
                     if ( $list.length > 0 && $list.is('ul') ) {
                         $list.find('li').each(function( i, val ){
                             var li = $(this).text();
-                            c += `<option value="${plugin.clean(li)}">${li}</option>`;
+                            var s = '';
+                            if ( li.charAt(0) === '*' ) {
+                                li = li.substr(1);
+                                s = 'selected';
+                            }
+                            c += `<option value="${plugin.clean(li)}" ${s}>${li}</option>`;
                         });
                         $list.remove();
                     }
