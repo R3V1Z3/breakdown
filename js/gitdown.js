@@ -1159,9 +1159,8 @@
                 var $content = $(start).nextUntil(end);
                 $(end).remove();
                 $content.appendTo($c);
-                
                 var html = `<div class="header" name="${data_name}">${data_name}</div>`;
-                $content.wrap(html);
+                $content.wrapAll(html);
                 $content.wrap('<div class="contents">');
             });
 

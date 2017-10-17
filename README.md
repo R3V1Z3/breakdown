@@ -42,6 +42,10 @@ Example Gists <!-- {$gd_gist} -->
 - [Markdown resources](https://gist.github.com/eba62d45c82d0767a5a0)
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
 
+<!-- {$gd_collapsible_appearance} -->
+
+<!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
+
 Themes <!-- {$gd_css} -->
 - [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
 - [Console](https://gist.github.com/e9217f4e7ed7c8fa18f13d12def1ad6c)
@@ -59,10 +63,6 @@ Themes <!-- {$gd_css} -->
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
 
-<!-- {$gd_collapsible_customization} -->
-
-<!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
-
-<!-- {$gd_collapsible_end_customization} -->
+<!-- {$gd_collapsible_end_appearance} -->
 
 <!-- {$gd_hide} -->
