@@ -253,11 +253,25 @@
 
         plugin.get_highlight_style = function() {
             var h = plugin.settings['highlight'];
-            var link = '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
-            link += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
-            link += '.min.css">';
-            // add style reference to head to load it
-            $('head').append(link);
+            var $highlight = $('#gd-highlight');
+            if ( h.toLowerCase() === 'none' ) {
+                $highlight.remove();
+            } else {
+                // setup link details
+                var l = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
+                l += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
+                l += '.min.css';
+                // check for existence of highlight link
+                if ( $highlight.length < 1 ) {
+                    // create highlight id
+                    var link = `<link rel="stylesheet" id="gd-highlight" href="${l}">`;
+                    // add style reference to head to load it
+                    $('head').append(link);
+                } else {
+                    // modify existing href
+                    $highlight.attr( 'href', l );
+                }
+            }
         }
 
         plugin.get_setting = function(s) {
