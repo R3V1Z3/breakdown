@@ -251,7 +251,7 @@
             return -1;
         };
 
-        plugin.get_highlight_style = function() {
+        plugin.render_highlight = function() {
             var h = plugin.settings['highlight'];
             var $highlight = $('#gd-highlight');
             if ( h.toLowerCase() === 'none' ) {
@@ -275,8 +275,8 @@
         }
 
         plugin.get_setting = function(s) {
-            if ( s === 'style' ) {
-                return window.localStorage.getItem('gd_style');
+            if ( s === 'theme' ) {
+                return window.localStorage.getItem('gd_theme');
             } else if ( s === 'content' ) {
                 return window.localStorage.getItem('gd_content');
             } else if ( s === 'settings' ) {
@@ -514,7 +514,7 @@
                     objects.push(gistdata.data.files[filename].content);
                 }
                 if ( type === 'css' ) {
-                    render_css(objects[0]);
+                    render_theme_css(objects[0]);
                     su_render(data);
                 } else {
                     // check if css id was provided
@@ -571,7 +571,7 @@
                 $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
             }
             
-            plugin.get_highlight_style();
+            plugin.render_highlight();
 
             // handle special tags we want to allow
             tag_replace( 'kbd', eid );
@@ -848,14 +848,17 @@
             }
         };
 
-        var render_css = function(css) {
+        var render_theme_css = function(css) {
+            // start by removing the existing theme css
+            $('#gd-theme-css').remove();
+
             // attempt to sanitize CSS so hacker don't splode our website
             var parser = new HtmlWhitelistedSanitizer(true);
             var cleaned = parser.sanitizeString(css);
-            $('head').append('<style>' + cleaned + '</style>');
+            $('head').append('<style id+"gd-theme-css">' + cleaned + '</style>');
 
             // store cleaned css in browser
-            window.localStorage.setItem( 'gd_style', cleaned );
+            window.localStorage.setItem( 'gd_theme', cleaned );
         };
 
         // returns true if n begins with str
@@ -1305,7 +1308,7 @@
                 plugin.set_param( name, value );
                 // load user provided highlight style
                 if ( name === 'highlight' ) {
-                    plugin.get_highlight_style();
+                    plugin.render_highlight();
                 }
             });
 
