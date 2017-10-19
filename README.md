@@ -44,6 +44,8 @@ Example Gists <!-- {$gd_gist} -->
 
 <!-- {$gd_collapsible_appearance} -->
 
+-----
+
 <!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
 
 Themes <!-- {$gd_css} -->
@@ -65,5 +67,4 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
 
-<!-- {$gd_toc} -->
 <!-- {$gd_hide} -->

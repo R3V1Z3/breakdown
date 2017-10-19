@@ -1217,7 +1217,8 @@
                         v_name = v_name.split('end_')[1];
                     }
                     v_name = plugin.clean(v_name);
-                    c = `<div class="field collapsible ${v_name} ${pos}" data-name="${v_name}"></div>`;
+                    var classes = `field collapsible ${v_name} ${pos}`;
+                    c = `<div class="${classes}" data-name="${v_name}"></div>`;
                     $t.next('br').remove();
                     $t.html(c);
                 }
@@ -1271,7 +1272,7 @@
                 $content.appendTo($c);
                 var html = `<div class="header" name="${data_name}">${data_name}</div>`;
                 $content.wrapAll(html);
-                $content.wrap('<div class="contents">');
+                $content.wrapAll('<div class="contents">');
             });
 
             // update TOC
@@ -1408,14 +1409,7 @@
             // COLLAPSIBLE FIELDS
             $( eid + ' .field.collapsible .header' ).click(function(e) {
                 if (e.target !== this) return;
-                $inner = $(this).find('.contents');
-                // we need to detect if user is adjusting slider value
-                // is mouse over sliders?
-                if ( $inner.is(":visible") ) {
-                    $inner.hide();
-                } else {
-                    $inner.show();
-                }
+                $(this).parent().toggleClass('collapsed');
             });
 
             // SELECTOR KEYPRESS

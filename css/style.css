@@ -345,11 +345,16 @@ a.selector-source {
 .info .field.collapsible {
   margin: 5px 0;
   background: rgba(255, 255, 255, 0.15);
-  padding: 0.5em;
+  padding: 0.5em 0.5em 1em 0.5em;
   border-radius: 3px;
 }
 
 .info .field.collapsible.collapsed {
+  padding: 0.5em;
+}
+
+.info .field.collapsible.collapsed .contents {
+  height: 0px;
   display: none;
 }
 
@@ -364,6 +369,12 @@ a.selector-source {
   color: white;
   text-transform: capitalize;
   cursor: pointer;
+}
+
+.info hr {
+  height: 6px;
+  border: 0;
+  box-shadow: inset 0 6px 6px -6px rgba(255, 255, 255, 0.5);
 }
 
 /* Help Ribbon */
