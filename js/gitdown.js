@@ -562,6 +562,7 @@
                                 // no gist or CSS provided, so lets just render README
                                 $('html').addClass('gd-default');
                                 su_render(data);
+                                execute_callback();
                             } else {
                                 // no gist provided, but CSS provided, so load CSS along with README
                                 load_gist( 'css', p.css, p.css_filename, data );
@@ -603,6 +604,7 @@
                 if ( type === 'css' ) {
                     render_theme_css(objects[0]);
                     su_render(data);
+                    execute_callback();
                 } else {
                     // check if css id was provided
                     if ( plugin.settings.css != 'default' && plugin.settings.css != '' ) {
@@ -611,6 +613,7 @@
                     } else {
                         // no css provided so let's start rendering
                         su_render(objects[0]);
+                        execute_callback();
                     }
                 }
             }).fail(function( xhr, ajaxOptions, thrownError ) {
@@ -620,6 +623,14 @@
                 }
             });
         };
+
+        // call user-provided callback
+        // this should only be run at initial load
+        var execute_callback = function() {
+            if ( typeof plugin.settings.callback == 'function' ) {
+                plugin.settings.callback.call();
+            }
+        }
 
         // Update settings with URL parameters
         // p = plugin.settings
@@ -688,11 +699,6 @@
 
             // toggle collapsible sections at start
             $( eid + ' .field.collapsible .header' ).click();
-
-            // with everything loaded, execute user-provided callback
-            if (typeof plugin.settings.callback == 'function') {
-                plugin.settings.callback.call();
-            }
         };
 
         // store settings in browser
@@ -1417,9 +1423,9 @@
                 if( e.which == 13 ) {
                     // get parent class
                     var c = get_selector_class( $(this).parent() );
-                    plugin.set_param( c, $(this).val() );
-                    window.location.href = plugin.uri();
-                    window.location.reload();
+                    var id = $(this).val();
+                    plugin.set_param( c, id );
+                    plugin.get_file( id, c );
                 }
             });
 
