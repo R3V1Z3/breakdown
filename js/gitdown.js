@@ -503,6 +503,7 @@
                 } else if ( type === 'gist' ) {
                     url = 'README.md';
                     plugin.get(url).then(function (data) {
+                        sections = [];
                         $( eid + '.info *' ).remove();
                         $( eid + '.inner *' ).remove();
                         data = extract_info_content(data);
@@ -530,6 +531,7 @@
                 if ( type === 'css' ) {
                     render_theme_css(file.content);
                 } else {
+                    sections = [];
                     $( eid + '.info *' ).remove();
                     $( eid + '.inner *' ).remove();
                     var data = file.content;
