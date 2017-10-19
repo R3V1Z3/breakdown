@@ -104,6 +104,7 @@
 
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
+            plugin.settings.loaded = false;
             
             // add container div and inner content
             var content = '<div class="' + plugin.settings.container + '">';
@@ -571,7 +572,6 @@
                                 // no gist or CSS provided, so lets just render README
                                 $('html').addClass('gd-default');
                                 su_render(data);
-                                execute_callback();
                             } else {
                                 // no gist provided, but CSS provided, so load CSS along with README
                                 load_gist( 'css', p.css, p.css_filename, data );
@@ -613,7 +613,6 @@
                 if ( type === 'css' ) {
                     render_theme_css(objects[0]);
                     su_render(data);
-                    execute_callback();
                 } else {
                     // check if css id was provided
                     if ( plugin.settings.css != 'default' && plugin.settings.css != '' ) {
@@ -622,7 +621,6 @@
                     } else {
                         // no css provided so let's start rendering
                         su_render(objects[0]);
-                        execute_callback();
                     }
                 }
             }).fail(function( xhr, ajaxOptions, thrownError ) {
@@ -632,14 +630,6 @@
                 }
             });
         };
-
-        // call user-provided callback
-        // this should only be run at initial load
-        var execute_callback = function() {
-            if ( typeof plugin.settings.callback == 'function' ) {
-                plugin.settings.callback.call();
-            }
-        }
 
         // Update settings with URL parameters
         // p = plugin.settings
@@ -708,6 +698,13 @@
 
             // toggle collapsible sections at start
             $( eid + ' .field.collapsible .header' ).click();
+
+            // send control back to user provided callback if it exists
+            if ( typeof plugin.settings.callback == 'function' ) {
+                plugin.settings.callback.call();
+                // provide a way for user to know that callback has been called already
+                plugin.settings.loaded = true;
+            }
         };
 
         // store settings in browser

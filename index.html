@@ -45,7 +45,13 @@
             // if you need to do stuff after the plugin's
             // ajax methods are completed, add a callback like so:
             function done() {
-                console.log('Plugin loaded.');
+
+                // execute the following code only at app startup
+                if ( !$gd.settings.loaded ) {
+                    console.log('Plugin loaded.');
+                } else {
+                    console.log('Callback executed again.');
+                }
 
                 // get example defaults
                 //console.log( $gd.get_examples('css') );
