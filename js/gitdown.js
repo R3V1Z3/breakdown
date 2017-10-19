@@ -1445,7 +1445,10 @@
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
                     var id = $(this).attr('data-id');
                     plugin.set_param( c, id );
-                    plugin.get_file( id, c );
+                    if ( c === 'gist' || c === 'css' ){
+                        plugin.get_file( id, c );
+                    }
+                    
                 });
             });
 
@@ -1462,9 +1465,7 @@
                             // hide any other open selector dialogs
                             $visible_selector.each(function(){
                                 var b = get_selector_class( $(this) );
-                                if ( b != c ) {
-                                    $(this).hide();
-                                }
+                                if ( b != c ) $(this).hide();
                             });
                         }
                     } else {
