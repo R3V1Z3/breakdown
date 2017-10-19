@@ -260,6 +260,15 @@
             return str;
         };
 
+        // returns true if n begins with str
+        plugin.begins = function( t, str ) {
+            // only return true if str found at start of t
+            if ( t.indexOf(str) === 0 ) {
+                return true;
+            }
+            return false;
+        };
+
         // find first character in str that is not char and return its location
         plugin.find_first_char_not = function(char, str) {
             for (var i = 0; i < str.length; i++){
@@ -960,15 +969,6 @@
             window.localStorage.setItem( 'gd_theme', cleaned );
         };
 
-        // returns true if n begins with str
-        var begins = function( t, str ) {
-            // only return true if str found at start of t
-            if ( t.indexOf(str) === 0 ) {
-                return true;
-            }
-            return false;
-        };
-
         var extract_variable = function( v ) {
             // ensure there's an open paren
             if ( v.indexOf('{') != -1 ) {
@@ -1062,16 +1062,16 @@
             var c = '';
             var title = plugin.settings.title;
             if ( v != '' ) {
-                if ( begins( v, '$gd_info' ) ) {
+                if ( plugin.begins( v, '$gd_info' ) ) {
                     $t.text( title ).addClass( plugin.clean(title) + ' app-title' );
-                } else if ( begins( v, '$gd_help_ribbon' ) ) {
+                } else if ( plugin.begins( v, '$gd_help_ribbon' ) ) {
                     c = '<a class="help-ribbon" href="//github.com' + path;
                     c += '#' + title.toLowerCase() + '">?</a>';
                     $t.html(c);
-                } else if ( begins( v, '$gd_element_count' ) ) {
+                } else if ( plugin.begins( v, '$gd_element_count' ) ) {
                     c = '<div class="element-count">.section total:</div>';
                     $t.append(c);
-                } else if ( begins( v, '$gd_gist' ) ) {
+                } else if ( plugin.begins( v, '$gd_gist' ) ) {
 
                     // first extract contents of list for examples
                     var examples = {};
@@ -1090,7 +1090,7 @@
                     c = selector_html( 'gist', $t, 'Gist ID', example_gist );
                     $t.next('br').remove();
                     $t.html(c);
-                } else if ( begins( v, '$gd_css' ) ) {
+                } else if ( plugin.begins( v, '$gd_css' ) ) {
 
                     // first extract contents of list for examples
                     var examples = {};
@@ -1109,7 +1109,7 @@
                     c = selector_html( 'css', $t, 'Gist ID for CSS theme', example_css );
                     $t.next('br').remove();
                     $t.html(c);
-                } else if ( begins( v, '$gd_toc' ) ) {
+                } else if ( plugin.begins( v, '$gd_toc' ) ) {
                     // handle assignment
                     if ( v.indexOf('=') != -1 ) {
                         var toc = v.split('=')[1];
@@ -1120,10 +1120,10 @@
                     if ( $t.is('p') ) {
                         $t.before(c);
                     } else $t.after(c);
-                } else if ( begins( v, '$gd_hide' ) ) {
+                } else if ( plugin.begins( v, '$gd_hide' ) ) {
                     c = '<a class="hide"><kbd>Esc</kbd> - show/hide this panel.</a>';
                     $t.html(c);
-                } else if ( begins( v, '$gd_selector_' ) ) {
+                } else if ( plugin.begins( v, '$gd_selector_' ) ) {
                     var v_name = v.split('$gd_selector_')[1];
                     // first extract contents of list for examples
                     var items = {};
@@ -1135,7 +1135,7 @@
                     }
                     $t.next('br').remove();
                     $t.html(c);
-                } else if ( begins( v, '$gd_choice_' ) ) {
+                } else if ( plugin.begins( v, '$gd_choice_' ) ) {
                     var v_name = v.split('$gd_choice_')[1];
                     // return if there's no assignment after variable
                     if ( v_name.indexOf('=') === -1 ) return;
@@ -1163,7 +1163,7 @@
                     }
                     c += '</div>';
                     $t.html(c);
-                } else if ( begins( v, '$gd_select_' ) ) {
+                } else if ( plugin.begins( v, '$gd_select_' ) ) {
                     var v_name = v.split('$gd_select_')[1];
                     var $list = $t.next();
                     c = `<div class="field select ${v_name}" data-name="${v_name}">`;
@@ -1185,7 +1185,7 @@
                     c += '</select></div>';
                     $t.next('br').remove();
                     $t.html(c);
-                } else if ( begins( v, '$gd_slider_' ) ) {
+                } else if ( plugin.begins( v, '$gd_slider_' ) ) {
                     var v_name = v.split('$gd_slider_')[1];
                     // return if there's no assignment after variable
                     if ( v_name.indexOf('=') === -1 ) return;
@@ -1215,7 +1215,7 @@
                     // removing the next br removes the next slider comment attached to that br
                     $t.next('br').remove();
                     $t.append(c);
-                } else if ( begins( v, '$gd_collapsible_' ) ) {
+                } else if ( plugin.begins( v, '$gd_collapsible_' ) ) {
                     var v_name = v.split('$gd_collapsible_')[1];
                     var pos = 'start';
                     if ( v_name.startsWith('end_') ) {
