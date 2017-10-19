@@ -53,7 +53,7 @@
             parameters_disallowed: 'title,hide_any',
 
             // GitDown stores a bunch of examples by default
-            // set this to false to not merge them into your app
+            // set these to false to not merge them into your app
             merge_themes: true,
             merge_gists: false,
         };
@@ -104,7 +104,8 @@
 
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
-
+            
+            // add container div and inner content
             var content = '<div class="' + plugin.settings.container + '">';
             content += '<div class="' + plugin.settings.inner + '">';
             content += '</div>';
@@ -176,6 +177,25 @@
             base = base.split('#')[0];
             return base + q + location.hash;
         };
+
+        // promise based get
+        plugin.get = function(url) {
+            return new Promise( function (resolve, reject) {
+                var http = new XMLHttpRequest();
+                http.open('GET', url);
+                http.onload = function () {
+                    if ( http.status === 200 ) {
+                        resolve(http.response);
+                    } else {
+                        reject( Error(http.statusText) );
+                    }
+                };
+                http.onerror = function () {
+                    reject( Error("Error with request.") );
+                };
+                http.send();
+            });
+        }
 
         plugin.toggleFullscreen = function(e) {
             e = e || document.documentElement;
@@ -454,6 +474,71 @@
                 $(eid + ' .info .toc-heading').remove();
                 $(eid + ' .info .toc').remove();
             }
+        };
+
+        // helper function to parse gist response for specified file
+        // @result = parsed JSON response
+        plugin.get_gist_file = function( result, filename ) {
+            var files = result.files;
+            var f = '';
+            if (filename === '') {
+                // check for existence of key with filename
+                var f = files[filename];
+                if (f === undefined) {
+                    // filename doesn't exist so use first element
+                    f = Object.keys(files)[0];
+                }
+            } else {
+                f = Object.keys(files)[0];
+            }
+            return files[f];
+        };
+
+        // we can later use get_file to load files apart from GitHub Gist
+        plugin.get_file = function( id, type ) {
+            if ( id === 'default' ) {
+                if ( type === 'css' ) {
+                    render_theme_css('');
+                    return;
+                } else if ( type === 'gist' ) {
+                    url = 'README.md';
+                    plugin.get(url).then(function (data) {
+                        $( eid + '.info *' ).remove();
+                        $( eid + '.inner *' ).remove();
+                        data = extract_info_content(data);
+                        su_render(data);
+                    }, function (error) {
+                        console.error( "Request failed.", error );
+                    });
+                }
+            } else {
+                // check local folder if files exist there
+                // pull local file contents if they exist
+                var filename = '';
+                plugin.get_gist( id, filename, type );
+            }
+        };
+
+        // custom function for getting importing content
+        plugin.get_gist = function( gist_id, filename, type ) {
+            var url = `https://api.github.com/gists/${gist_id}`;
+
+            // begin promise chain
+            plugin.get(url).then(function (response) {
+                var result = JSON.parse(response);
+                var file = plugin.get_gist_file( result, filename );
+                if ( type === 'css' ) {
+                    render_theme_css(file.content);
+                } else {
+                    $( eid + '.info *' ).remove();
+                    $( eid + '.inner *' ).remove();
+                    var data = file.content;
+                    data = extract_info_content(data);
+                    su_render(data);
+                }
+            }, function (error) {
+                console.error( "Request failed.", error );
+            });
         };
 
         // PRIVATE METHODS -----------------------------------------------------
@@ -851,12 +936,18 @@
         var render_theme_css = function(css) {
             // start by removing the existing theme css
             $('#gd-theme-css').remove();
+            $('html').addClass('gd-default');
+            var cleaned = '';
 
-            // attempt to sanitize CSS so hacker don't splode our website
-            var parser = new HtmlWhitelistedSanitizer(true);
-            var cleaned = parser.sanitizeString(css);
-            $('head').append('<style id+"gd-theme-css">' + cleaned + '</style>');
+            if ( css != '' ) {
+                $('html').removeClass('gd-default');
+                // attempt to sanitize CSS so hacker don't splode our website
+                var parser = new HtmlWhitelistedSanitizer(true);
+                cleaned = parser.sanitizeString(css);
 
+                // create style tag with css content
+                $('head').append('<style id="gd-theme-css">' + cleaned + '</style>');
+            }
             // store cleaned css in browser
             window.localStorage.setItem( 'gd_theme', cleaned );
         };
@@ -1226,7 +1317,7 @@
 
             // fullscreen request
             $( eid + ' .fullscreen').click(function(){
-                var e = document.getElementById( eid.substring(1) );
+                var e = document.getElementById( 'eid.substring(1)' );
                 plugin.toggleFullscreen(e);
             });
 
@@ -1353,9 +1444,9 @@
 
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
-                    plugin.set_param( c, $(this).attr('data-id') );
-                    window.location.href = plugin.uri();
-                    window.location.reload();
+                    var id = $(this).attr('data-id');
+                    plugin.set_param( c, id );
+                    plugin.get_file( id, c );
                 });
             });
 
