@@ -269,6 +269,7 @@
         plugin.render_highlight = function() {
             var h = plugin.settings['highlight'];
             var $highlight = $('#gd-highlight');
+            if ( h === undefined || h === null ) h = 'default';
             if ( h.toLowerCase() === 'none' ) {
                 $highlight.remove();
             } else {
