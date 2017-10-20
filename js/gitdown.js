@@ -378,7 +378,8 @@
                 } else if ( $f.hasClass('choices') ) {
                     var $choices = $f.find('a');
                     var name = $choices.parent().attr('data-name');
-                    var p = plugin.update_parameter( name, $f.attr('data-value') );
+                    var v = $f.find('a.selected').attr('data-value');
+                    var p = plugin.update_parameter( name, v );
                     if ( p != '' ) {
                         var $c = $f.find(`a[data-value="${p}"]`);
                         if ( $c.length > 0 ) {
