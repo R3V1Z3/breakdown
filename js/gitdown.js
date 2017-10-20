@@ -6,7 +6,7 @@
             Options are configurable by 3 means, in the following order:
             1. plugin instantiation
             2. options in README <!-- {options: foo=bar...} -->
-            3. URL parameters
+            3. URL parameters (these correspond with field values linked with url params)
 
             That represents order of precedence. Options provided through
             plugin instantiation code take precedence over those specified by
@@ -106,6 +106,9 @@
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
             plugin.settings.loaded = false;
+
+            // if ( plugin.settings.css === 'default' ) plugin.settings.css_filename = 'style.css';
+            // if ( plugin.settings.gist === 'default' ) plugin.settings.gist_filename = plugin.settings.file;
             
             // add container div and inner content
             var content = '<div class="' + plugin.settings.container + '">';
@@ -159,11 +162,8 @@
                     val = params.get(key);
                     // sanitize strings
                     if ( typeof val === 'string' ) {
-                        // ignore filenames
-                        if ( key.indexOf('filename') === -1 ){
-                            // replace non-alphanumerics with underscore
-                            val = val.replace(/[^a-z0-9_\s-]/g, '_');
-                        }
+                        var parser = new HtmlWhitelistedSanitizer(true);
+                        val = parser.sanitizeString(val);
                     }
                     plugin.settings[key] = val;
                 }
@@ -179,25 +179,6 @@
             base = base.split('#')[0];
             return base + q + location.hash;
         };
-
-        // promise based get
-        plugin.get = function(url) {
-            return new Promise( function (resolve, reject) {
-                var http = new XMLHttpRequest();
-                http.open('GET', url);
-                http.onload = function () {
-                    if ( http.status === 200 ) {
-                        resolve(http.response);
-                    } else {
-                        reject( Error(http.statusText) );
-                    }
-                };
-                http.onerror = function () {
-                    reject( Error("Error with request.") );
-                };
-                http.send();
-            });
-        }
 
         plugin.toggleFullscreen = function(e) {
             e = e || document.documentElement;
@@ -369,15 +350,18 @@
         };
 
         // update fields based on url parameters
-        plugin.parse_params = function() {
-            var $fields = $('.info .field');
+        plugin.update_fields = function(type) {
+            if ( type === '' || type === undefined ) {
+                type = '';
+            }
+            var $fields = $( `${eid} .info .field${type}` );
             $fields.each(function(){
                 var field_class = '';
                 var $f = $(this);
                 if ( $f.hasClass('slider') ) {
                     var $slider = $f.find('input');
                     var name = $slider.attr('name');
-                    var p = plugin.get_param(name);
+                    var p = plugin.update_parameter(name);
                     if ( p != '' ) {
                         $slider.val(p);
                         $slider.attr( 'value', p );
@@ -385,7 +369,7 @@
                 } else if ( $f.hasClass('select') ) {
                     var $select = $f.find('select');
                     var name = $select.attr('name');
-                    var p = plugin.get_param(name);
+                    var p = plugin.update_parameter(name);
                     if ( p != '' ) {
                         $select.val(p);
                         $select.change();
@@ -393,7 +377,7 @@
                 } else if ( $f.hasClass('choices') ) {
                     var $choices = $f.find('a');
                     var name = $choices.parent().attr('data-name');
-                    var p = plugin.get_param(name);
+                    var p = plugin.update_parameter(name);
                     if ( p != '' ) {
                         var $c = $f.find(`a[data-value="${p}"]`);
                         if ( $c.length > 0 ) {
@@ -402,14 +386,39 @@
                             $c.addClass('selected');
                         }
                     }
+                } else if ( $f.hasClass('selector') ) {
+                    var type = get_selector_class($f);
+                    var $display_name = $f.find(`.${type}-url`);
+                    var $source = $f.find('a.selector-source');
+                    var href = '', filename = '';
+                    if ( type === 'gist' ) {
+                        var gist = plugin.settings.gist;
+                        if ( gist === 'default' ) {
+                            plugin.settings.gist_filename = plugin.settings.file;
+                            href = gist_url( plugin.settings.file, false );
+                        } else {
+                            href = '//gist.github.com/' + gist;
+                        }
+                        filename = plugin.settings.gist_filename;
+                    } else if ( type === 'css' ) {
+                        var css = plugin.settings.css;
+                        if ( css === 'default' ) {
+                            plugin.settings.css_filename = 'default';
+                            href = gist_url( 'Default', false );
+                        } else {
+                            href = '//gist.github.com/' + css;
+                        }
+                        filename = plugin.settings.css_filename;
+                    }
+                    $source.attr( 'href', href );
+                    $display_name.text( filename + ' ▾' );
                 }
             });
         }
 
-        // shortcut to set params
+        // set params while also updating url
         plugin.set_param = function( key, value ) {
             params.set( key, value );
-            // update url state
             history.replaceState( {}, plugin.settings.title, plugin.uri() );
         };
 
@@ -494,9 +503,28 @@
             }
         };
 
+        // promise based get
+        plugin.get = function(url) {
+            return new Promise( function (resolve, reject) {
+                var http = new XMLHttpRequest();
+                http.open('GET', url);
+                http.onload = function () {
+                    if ( http.status === 200 ) {
+                        resolve(http.response);
+                    } else {
+                        reject( Error(http.statusText) );
+                    }
+                };
+                http.onerror = function () {
+                    reject( Error("Error with request.") );
+                };
+                http.send();
+            });
+        }
+
         // helper function to parse gist response for specified file
         // @result = parsed JSON response
-        plugin.get_gist_file = function( result, filename ) {
+        plugin.get_gist_filename = function( result, filename ) {
             var files = result.files;
             var f = '';
             if (filename === '') {
@@ -517,11 +545,14 @@
             if ( id === 'default' ) {
                 if ( type === 'css' ) {
                     plugin.settings.css_filename = 'style.css';
+                    plugin.settings.css = 'default';
                     render_theme_css('');
+                    plugin.update_fields();
                     return;
                 } else if ( type === 'gist' ) {
                     url = plugin.settings.file;
                     plugin.get(url).then(function (data) {
+                        plugin.settings.gist = 'default';
                         plugin.settings.gist_filename = url;
                         sections = [];
                         $( eid + '.info *' ).remove();
@@ -547,12 +578,15 @@
             // begin promise chain
             plugin.get(url).then(function (response) {
                 var result = JSON.parse(response);
-                var file = plugin.get_gist_file( result, filename );
+                var file = plugin.get_gist_filename( result, filename );
                 if ( type === 'css' ) {
                     plugin.settings.css_filename = file.filename;
+                    plugin.settings.css = gist_id;
                     render_theme_css(file.content);
+                    plugin.update_fields();
                 } else {
                     plugin.settings.gist_filename = file.filename;
+                    plugin.settings.gist = gist_id;
                     sections = [];
                     $( eid + '.info *' ).remove();
                     $( eid + '.inner *' ).remove();
@@ -567,36 +601,30 @@
 
         // PRIVATE METHODS -----------------------------------------------------
         var main = function() {
-            var load_readme = true;
-            if(load_readme) {
-                // Start by loading README.md file to get options and potentially content
-                $.ajax({
-                    url : "README.md",
-                    dataType: "text",
-                    success : function (data) {
-                        data = extract_info_content(data);
-                        var p = plugin.settings;
-                        extract_parameters( p );
-                        var gist = p.gist;
-                        if ( !gist || gist === 'default' ) {
-                            plugin.settings.gist === 'default';
-                            if ( !p.css || p.css === 'default' ) {
-                                // no gist or CSS provided, so lets just render README
-                                $('html').addClass('gd-default');
-                                su_render(data);
-                            } else {
-                                // no gist provided, but CSS provided, so load CSS along with README
-                                load_gist( 'css', p.css, p.css_filename, data );
-                            }
+            $.ajax({
+                url : plugin.settings.file,
+                dataType: "text",
+                success : function (data) {
+                    data = extract_info_content(data);
+                    var p = plugin.settings;
+                    extract_parameters( p );
+                    var gist = p.gist;
+                    if ( !gist || gist === 'default' ) {
+                        plugin.settings.gist === 'default';
+                        if ( !p.css || p.css === 'default' ) {
+                            // no gist or CSS provided, so lets just render README
+                            $('html').addClass('gd-default');
+                            su_render(data);
                         } else {
-                            // a gist id was provided, test for CSS in callback
-                            load_gist( 'gist', p.gist, p.gist_filename );
+                            // no gist provided, but CSS provided, so load CSS along with README
+                            load_gist( 'css', p.css, p.css_filename, data );
                         }
+                    } else {
+                        // a gist id was provided, test for CSS in callback
+                        load_gist( 'gist', p.gist, p.gist_filename );
                     }
-                });
-            } else {
-
-            }
+                }
+            });
         };
 
         // TODO: we'll fix this callback hell with promises
@@ -694,7 +722,7 @@
             go_to_hash();
             
             // update fields based on params
-            plugin.parse_params();
+            plugin.update_fields();
 
             // render raw text if user specified
             plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
@@ -705,16 +733,11 @@
             // write settings to browser for easy re-use by apps
             store_settings();
 
-            // hide selectors at start
-            $( eid + ' .info .selector' ).hide();
+            // hide selector dialogs at start
+            $( eid + ' .info .field.selector .dialog' ).hide();
 
             // toggle collapsible sections at start
             $( eid + ' .field.collapsible .header' ).click();
-
-            // update gist selector url
-            var filename = plugin.settings.gist_filename;
-            if ( filename === '' ) filename = plugin.settings.file;
-            plugin.update_selector_url( 'gist', filename );
 
             // send control back to user provided callback if it exists
             if ( typeof plugin.settings.callback == 'function' ) {
@@ -981,11 +1004,6 @@
             }
             // store cleaned css in browser
             window.localStorage.setItem( 'gd_theme', cleaned );
-
-            // update css selector url
-            var filename = plugin.settings.css_filename;
-            if ( filename === '' ) filename = 'style.css';
-            plugin.update_selector_url( 'css', filename );
         };
 
         var extract_variable = function( v ) {
@@ -1032,12 +1050,21 @@
             return f;
         }
 
+        // we can later use this function to allow use apart from GitHub
+        function gist_url( file, front_end ){
+            if (front_end) {
+                return `//github.com${path}master/${file}"`;
+            } else {
+                return `//github.com${path}blob/master/${file}`;
+            }
+        }
+
         var selector_html = function( n, $t, placeholder, items ) {
 
             var file = '';
             var is_gist = false;
             if ( n === 'gist' ){
-                file = 'README.md';
+                file = plugin.settings.file;
             } else if ( n === 'css' ) {
                 file = 'css/style.css';
             }
@@ -1045,13 +1072,13 @@
             var proper = proper_filename(file);
             placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
             
-            var c = `<div class="${n}-details">`;
+            var c = `<div class="field selector ${n} ${n}-details">`;
 
             // current item
             if ( n === 'gist' || n === 'css' ) {
                 is_gist = true;
-                c += `<a class="selector-source" href="https://github.com${path}`;
-                c += `master/${file}" target="_blank">${link_symbol}</a>`;
+                var url = gist_url( file, true );
+                c += `<a class="selector-source" href="${url}" target="_blank">${link_symbol}</a>`;
                 c += `<a name="${$t.text()}" class="${n}-url selector-url">${proper} ▾</a>`;
             } else {
                 // other selectors
@@ -1059,14 +1086,16 @@
                 c += `<a name="${$t.text()}" class="${n}-url selector-url">${$t.text()} ▾</a>`;
             }
 
-            c += `<div class="${n}-selector selector" class="selector">`;
+            c += `<div class="${n}-selector dialog">`;
             c += `<input class="${n}-input selector-input" type="text" placeholder="${placeholder}" />`;
 
             c += '<div class="selector-wrapper">';
 
             // first list item
             if ( n === 'gist' || n === 'css' ) {
-                c += `<a href="https://github.com${path}blob/master/${file}" target="_blank">${link_symbol}</a>`;
+                var url = gist_url( file, false );
+                //c += list_html( { 'Default': url }, true);
+                c += `<a href="${url}" target="_blank">${link_symbol}</a>`;
                 c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
             }
 
@@ -1146,10 +1175,10 @@
                     var v_name = v.split('$gd_selector_')[1];
                     // first extract contents of list for examples
                     var items = {};
-                    var $gists = $t.next();
-                    if ( $gists.is('ul') ) {
-                        items = extract_li( $gists, false );
-                        $gists.remove();
+                    var $next = $t.next();
+                    if ( $next.is('ul') ) {
+                        items = extract_li( $next, false );
+                        $next.remove();
                         c = selector_html( v_name, $t, v_name, items );
                     }
                     $t.next('br').remove();
@@ -1271,7 +1300,8 @@
 
         // simple helper to reduce repitition for getting selector class
         var get_selector_class = function ($c) {
-            return $c.parent().attr('class').split('-')[0];
+            var classes = $c.closest('.field.selector').attr('class').split(' ');
+            return classes[2];
         }
 
         var render_info = function(app_title) {
@@ -1307,29 +1337,6 @@
             var c = $( eid + ' .element-count' ).text();
             c = c.split(' total')[0];
             render_count(c);
-
-            // update gist and css urls
-            // other selectors will default to first item
-            var url = '';
-            var p = plugin.settings;
-            var type = 'gist';
-            if ( p.gist != 'default' ) {
-                url = 'https://gist.github.com/' + p.gist;
-                plugin.update_selector_url( 'gist', p.gist_filename );
-                $( eid + ' .info .gist-url' ).text( p.gist_filename + ' ▾');
-            } else {
-                url = 'https://github.com' + path + 'blob/master/README.md';
-            }
-            $( eid + ` .info .${type}-details .selector-source` ).attr('href', url);
-
-            type = 'css';
-            if ( p.css != 'default' ) {
-                url = 'https://gist.github.com/' + p.css;
-                plugin.update_selector_url( 'gist', p.css_filename );
-            } else {
-                url = 'https://github.com' + path + 'blob/master/css/style.css';
-            }
-            $( eid + ` .info .${type}-details .selector-source` ).attr('href', url);
         };
 
         var render_count = function(element) {
@@ -1395,7 +1402,7 @@
             */
 
             // SLIDER FIELDS
-            $('.info .field.slider input').on('input change', function(e) {
+            $ (eid + ' .info .field.slider input' ).on('input change', function(e) {
                 var name = $(this).attr('name');
                 var value = $(this).val();
                 var suffix = $(this).attr('data-suffix');
@@ -1420,7 +1427,7 @@
             });
 
             // SELECT FIELDS
-            $( ' .info .field.select select' ).change(function() {
+            $( eid + ' .info .field.select select' ).change(function() {
                 var name = $(this).parent().attr('data-name');
                 name = plugin.clean(name);
                 var value = $(this).val();
@@ -1453,26 +1460,25 @@
                 if ( type === 'gist' || type === 'css' ){
                     plugin.get_file( id, type );
                 }
-                // todo
             }
 
             // Gist and CSS selectors
             $( eid + ' .info .selector-url' ).click(function() {
                 var c = get_selector_class( $(this) );
                 var prefix = '.' + c;
-                $( eid + ' ' + prefix + '-selector' ).toggle();
+                $( `${eid} ${prefix}-selector` ).toggle();
                 // move focus to text input
-                $( eid + ' ' + prefix + '-input' ).focus();
+                $( `${eid} ${prefix}-input` ).focus();
 
                 // set position
                 var p = $(this).position();
-                $( eid + ' ' + prefix + '-selector' ).css({
+                $( `${eid} ${prefix}-selector` ).css({
                     top: p.top + $(this).height() - 17,
                     left: p.left
                 });
 
                 // create click events for links
-                $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
+                $( `${eid} ${prefix}-selector a.id` ).click(function(event) {
                     var id = $(this).attr('data-id');
                     update_selector(c, id);
                 });
@@ -1482,7 +1488,7 @@
             $(document).click(function(event) {
                 var $t = $(event.target);
                 // check if any .selector dialog is visiable
-                var $visible_selector = $( eid + ' .selector:visible' );
+                var $visible_selector = $( eid + ' .field.selector .dialog:visible' );
                 if ( $visible_selector.length > 0 ) {
                     // get the dialog's class by parent div's class
                     var c = get_selector_class( $visible_selector );
@@ -1504,15 +1510,16 @@
         // helper function to avoid replication of example content
         var list_html = function( items, is_gist_id ) {
             var content = '';
-            //if ( examples.length < 1 ) return content;
+            if ( items.length < 1 ) return content;
             for (var key in items) {
+                var url = '';
                 if (is_gist_id) {
-                    content += '<a href="https://gist.github.com/' + items[key] + '" target="_blank">' + link_symbol + '</a>';
-                    content += '<a class="id" data-id="' + items[key] + '">' + key + '</a><br/>';
+                    url = `https://gist.github.com/${items[key]}`;
                 } else {
-                    content += `<a href="${items[key]}" target="_blank">${link_symbol}</a>`;
-                    content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
+                    url = items[key];
                 }
+                content += `<a href="${url}" target="_blank">${link_symbol}</a>`;
+                content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
             }
             return content;
         };
