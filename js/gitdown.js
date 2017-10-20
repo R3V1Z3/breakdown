@@ -25,6 +25,7 @@
 
             // defaults for url parameters
 
+            file: 'README.md',          // local file parsed for initial options
             header: 'h1',               // element to use for header
             heading: 'h2',              // element to use for sections
             container: 'container',     // class added for container
@@ -257,6 +258,9 @@
                 f = f.replace(/_/g, ' ');
                 // capitalize words
                 f = f.replace( /\b\w/g, l => l.toUpperCase() );
+            } else if ( o === 'proper_file' ) {
+                // capitalize words
+                f = f.replace( /\b\w/g, l => l.toUpperCase() );
             }
             return str;
         };
@@ -330,6 +334,10 @@
             content += '}';
             return content;
         };
+
+        plugin.update_selector_url = function( type, filename ) {
+            $( eid + ` .info .${type}-url` ).text( filename + ' ▾' );
+        }
 
         plugin.get_current_section_id = function() {
             // make the first .section current if no current section is set yet
@@ -508,11 +516,13 @@
         plugin.get_file = function( id, type ) {
             if ( id === 'default' ) {
                 if ( type === 'css' ) {
+                    plugin.settings.css_filename = 'style.css';
                     render_theme_css('');
                     return;
                 } else if ( type === 'gist' ) {
-                    url = 'README.md';
+                    url = plugin.settings.file;
                     plugin.get(url).then(function (data) {
+                        plugin.settings.gist_filename = url;
                         sections = [];
                         $( eid + '.info *' ).remove();
                         $( eid + '.inner *' ).remove();
@@ -539,8 +549,10 @@
                 var result = JSON.parse(response);
                 var file = plugin.get_gist_file( result, filename );
                 if ( type === 'css' ) {
+                    plugin.settings.css_filename = file.filename;
                     render_theme_css(file.content);
                 } else {
+                    plugin.settings.gist_filename = file.filename;
                     sections = [];
                     $( eid + '.info *' ).remove();
                     $( eid + '.inner *' ).remove();
@@ -698,6 +710,11 @@
 
             // toggle collapsible sections at start
             $( eid + ' .field.collapsible .header' ).click();
+
+            // update gist selector url
+            var filename = plugin.settings.gist_filename;
+            if ( filename === '' ) filename = plugin.settings.file;
+            plugin.update_selector_url( 'gist', filename );
 
             // send control back to user provided callback if it exists
             if ( typeof plugin.settings.callback == 'function' ) {
@@ -964,6 +981,11 @@
             }
             // store cleaned css in browser
             window.localStorage.setItem( 'gd_theme', cleaned );
+
+            // update css selector url
+            var filename = plugin.settings.css_filename;
+            if ( filename === '' ) filename = 'style.css';
+            plugin.update_selector_url( 'css', filename );
         };
 
         var extract_variable = function( v ) {
@@ -1293,7 +1315,8 @@
             var type = 'gist';
             if ( p.gist != 'default' ) {
                 url = 'https://gist.github.com/' + p.gist;
-                $( eid + ' .info .gist-url' ).text( proper_filename(p.gist_filename) + ' ▾');
+                plugin.update_selector_url( 'gist', p.gist_filename );
+                $( eid + ' .info .gist-url' ).text( p.gist_filename + ' ▾');
             } else {
                 url = 'https://github.com' + path + 'blob/master/README.md';
             }
@@ -1302,7 +1325,7 @@
             type = 'css';
             if ( p.css != 'default' ) {
                 url = 'https://gist.github.com/' + p.css;
-                $( eid + ' .info .css-url' ).text( proper_filename(p.css_filename) + ' ▾');
+                plugin.update_selector_url( 'gist', p.css_filename );
             } else {
                 url = 'https://github.com' + path + 'blob/master/css/style.css';
             }
@@ -1311,7 +1334,7 @@
 
         var render_count = function(element) {
             var count = $( eid_inner + ' ' + element ).length;
-            $( eid + ' .element-count' ).html('<code>' + element + '</code>' + ' total: ' + count);
+            $( eid + ' .element-count' ).html(`<code>${element}</code> total: ${count}`);
         };
 
         var register_events = function() {
@@ -1421,10 +1444,17 @@
                     // get parent class
                     var c = get_selector_class( $(this).parent() );
                     var id = $(this).val();
-                    plugin.set_param( c, id );
-                    plugin.get_file( id, c );
+                    update_selector(c, id);
                 }
             });
+
+            function update_selector(type, id) {
+                plugin.set_param( type, id );
+                if ( type === 'gist' || type === 'css' ){
+                    plugin.get_file( id, type );
+                }
+                // todo
+            }
 
             // Gist and CSS selectors
             $( eid + ' .info .selector-url' ).click(function() {
@@ -1444,11 +1474,7 @@
                 // create click events for links
                 $( eid + ' ' + prefix + '-selector a.id' ).click(function(event) {
                     var id = $(this).attr('data-id');
-                    plugin.set_param( c, id );
-                    if ( c === 'gist' || c === 'css' ){
-                        plugin.get_file( id, c );
-                    }
-                    
+                    update_selector(c, id);
                 });
             });
 
