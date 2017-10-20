@@ -362,7 +362,7 @@
                 if ( $f.hasClass('slider') ) {
                     var $slider = $f.find('input');
                     var name = $slider.attr('name');
-                    var p = plugin.update_parameter(name);
+                    var p = plugin.update_parameter( name, $slider.val() );
                     if ( p != '' ) {
                         $slider.val(p);
                         $slider.attr( 'value', p );
@@ -370,7 +370,7 @@
                 } else if ( $f.hasClass('select') ) {
                     var $select = $f.find('select');
                     var name = $select.attr('name');
-                    var p = plugin.update_parameter(name);
+                    var p = plugin.update_parameter( name, $select.val() );
                     if ( p != '' ) {
                         $select.val(p);
                         $select.change();
@@ -378,7 +378,7 @@
                 } else if ( $f.hasClass('choices') ) {
                     var $choices = $f.find('a');
                     var name = $choices.parent().attr('data-name');
-                    var p = plugin.update_parameter(name);
+                    var p = plugin.update_parameter( name, $f.attr('data-value') );
                     if ( p != '' ) {
                         var $c = $f.find(`a[data-value="${p}"]`);
                         if ( $c.length > 0 ) {
