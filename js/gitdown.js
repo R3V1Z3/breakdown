@@ -582,11 +582,10 @@
                     su_render(data);
                 }
             }, function (error) {
-                    if ( urls.length > 0 ) {
-                        plugin.get_file( id, type, urls );
-                    }
-                    console.error( "Request failed.", error );
+                if ( urls.length > 0 ) {
+                    plugin.get_file( id, type, urls );
                 }
+                console.error( "Request failed.", error );
             });
         };
 
