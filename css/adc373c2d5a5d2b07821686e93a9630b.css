@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
+
+#gd-beatdown .section .handle-heading {
+  display: none;
+}
+
+#custom .section img {
+  position: relative;
+}
+
+#custom .section {
+  background: none;
+  margin: 20px 10px;
+  border: 3px solid white;
+  box-shadow: inset 0 0 100px white, 0 0 20px lightblue;
+  mix-blend-mode: luminosity;
+}
+
+#custom .content {
+  padding: 0;
+}
+
+#gd-gitdown .section {
+  padding: 0 20px;
+}
+
+/* General */
+* {
+  border: 0;
+  outline: 0;
+  color: rgba(255,255,255,0.8);
+  font-family: 'Share Tech Mono', serif;
+}
+
+#custom .handle-heading {
+  border: none;
+}
+
+#custom .section a {
+  color: white;
+}
+
+#custom #wrapper a:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-transform: uppercase;
+}
+
+#custom .section span.toggle {
+    color: rgba(0,0,0,0.7);
+}
+
+#custom .section .alternate {
+  background: none;
+}
+
+#custom .section a.handle {
+  font-family: 'Share Tech Mono', monospace;
+  vertical-align: -webkit-baseline-middle;
+  color: white;
+  text-decoration: none;
+  border: none;
+}
+
+#custom .handle-heading {
+  border: none;
+}
+
+/* Sections */
+.gd-slides #custom .section {
+  margin: auto;
+  transform: rotateX(0deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
+}
+
+#gd-beatdown .eq {
+  transform: rotateX(-35deg) translateZ(0px) scale(1.5) translateX(443px) translateY(-52px) perspective(587px) rotateY(42deg) scaleZ(1) rotateZ(347deg);
+  position: absolute;
+  max-width: 960px;
+  min-width: 600px;
+  max-height: 600px;
+  min-height: 400px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 100%;
+  height: 50%;
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+#gd-beatdown .eq .band {
+  background: none;
+  box-shadow: inset 0 0 20px white;
+  border: 2px solid white;
+  margin-right: 0.5em;
+}
+
+#custom .section code {
+  padding: 0px 6px;
+  background: rgba(255,255,255,0.25);
+}
+
+#custom .section code:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+#custom .section pre code,
+#custom .section .hljs {
+  background: none;
+}
+
+#custom .section pre code:hover {
+  background: none;
+  filter: none;
+  box-shadow: none;
+}
+
+#custom .section .content {
+  background: rgba(255,255,255,0);
+}
+
+#custom .section p {
+  padding: 2px 6px 10px 6px;
+}
+
+#custom .section ul {
+  list-style: none;
+  padding: 0px;
+}
+
+#custom .section li {
+  border: none;
+  background: none;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+/* Keypress styling */
+#custom kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  vertical-align: middle;
+  background-color: rgba(255,255,255,0.6);
+  border-radius: 3px;
+  color: rgba(0,0,0,0.7);
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  border: none;
+  font-size: 0.6em;
+  border-left: 1px solid white;
+  border-top: 1px solid white;
+  opacity: 0.9;
+}
+
+/* Info panel */
+#custom .info {
+  mix-blend-mode: luminosity;
+}
+
+.info .toc a.current::before {
+  content: "\003e  ";
+}
+
+.gd-slides #custom .info {
+  mix-blend-mode: exclusion;
+}
+
+#custom .info a {
+  color: #dcc196;
+}
+
+#custom .info a:hover {
+  color: white;
+}
+
+#custom .info * {
+  color: white;
+}
+
+#custom .info .selector {
+    background: black;
+    border-radius: 0;
+}
+
+#custom .section a {
+  text-decoration: none;
+}
+
+#custom .inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: none;
+}
+
+#custom .inner::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: slategray;
+  background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+  height: 100%;
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+#custom .inner::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  background-color: #434343;
+  background-image: radial-gradient(ellipse at center, rgba(125,126,125,1) 0%,rgba(14,14,14,1) 100%);
+  box-shadow: inset 0 0 80px black;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* App-specific styles */
+#custom .section a.choice::before {
+  content: "\003e  ";
+}
+
+#custom #wrapper .cheats:after {
+  content: 'heet';
+  padding-left: 2px;
+  color: rgba(0,0,0,0.25);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+connection {
+  border: 7px solid #ccc;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+
+/* Animations */
+
+.gd-slides .section.old,
+.gd-slides .section.old.lo {
+  opacity: 0;
+  animation: out 0.5s ease-in-out;
+}
+
+.gd-slides .section.old.hi {
+  animation: out 0.5s ease;
+  animation-direction: normal;
+}
+
+.gd-slides .section.current,
+.gd-slides .section.current.hi {
+  opacity: 1;
+  z-index: 1;
+  animation: in 0.5s ease;
+}
+
+.gd-slides .section.current.lo {
+  animation: in 0.5s ease-in-out;
+  animation-direction: normal;
+}
+
+@keyframes in {
+    0% {
+        opacity: 0;
+        top: -75%;
+        transform: rotateX(80deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
+    }
+    100% {
+        opacity: 1;
+        top: 0%;
+        transform: rotateX(0deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
+    }
+}
+
+@keyframes out {
+    0% {
+        opacity: 1;
+        top: 0%;
+        transform: rotateX(360deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
+    }
+    100% {
+        opacity: 0;
+        top: 75%;
+        transform: rotateX(280deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
+    }
+}

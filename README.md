@@ -42,8 +42,6 @@ Example Gists <!-- {$gd_gist} -->
 - [Markdown resources](https://gist.github.com/eba62d45c82d0767a5a0)
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
 
-<!-- {$gd_choice_what="1,*2,3,4"} -->
-
 <!-- {$gd_collapsible_appearance} -->
 
 -----

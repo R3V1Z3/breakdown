@@ -140,16 +140,6 @@
 
         };
 
-        // jQuery EXTENSIONS ---------------------------------------------------
-
-        // extend jQuery with getComments
-        // credits: https://stackoverflow.com/questions/22562113/read-html-comments-with-js-or-jquery#22562475
-        $.fn.getComments = function () {
-            return this.contents().map(function () {
-                if (this.nodeType === 8) return this.nodeValue;
-            }).get();
-        };
-
         // PUBLIC METHODS ------------------------------------------------------
 
         // detect specified url parameter, clean and add it to settings
@@ -542,62 +532,63 @@
             return files[f];
         };
 
-        // we can later use get_file to load files apart from GitHub Gist
-        plugin.get_file = function( id, type ) {
-            if ( id === 'default' ) {
-                if ( type === 'css' ) {
-                    plugin.settings.css_filename = 'style.css';
-                    plugin.settings.css = 'default';
-                    render_theme_css('');
-                    plugin.update_fields();
-                    return;
-                } else if ( type === 'gist' ) {
-                    url = plugin.settings.file;
-                    plugin.get(url).then(function (data) {
-                        plugin.settings.gist = 'default';
-                        plugin.settings.gist_filename = url;
-                        sections = [];
-                        $( eid + '.info *' ).remove();
-                        $( eid + '.inner *' ).remove();
-                        data = extract_info_content(data);
-                        su_render(data);
-                    }, function (error) {
-                        console.error( "Request failed.", error );
-                    });
-                }
+        // return a list of urls to try in get_file()
+        plugin.prepare_get = function( id, type ) {
+            var urls = [];
+            if ( id === 'default' && type === 'css' ) {
+                render_theme_css('');
+                return;
+            } else if ( id === 'default' && type === 'gist' ) {
+                urls.push(plugin.settings.file);
             } else {
-                // check local folder if files exist there
-                // pull local file contents if they exist
-                var filename = '';
-                plugin.get_gist( id, filename, type );
+                // first set url to pull local file named with id
+                // if that fails, we'll pull from original gist
+                var css_path = 'css/';
+                var ext = '.md';
+                if ( type === 'css' ) ext = '.css';
+                urls.push( css_path + id + ext );
+                urls.push(`//api.github.com/gists/${id}`);
             }
-        };
+            plugin.get_file( id, type, urls );
+        }
 
-        // custom function for getting importing content
-        plugin.get_gist = function( gist_id, filename, type ) {
-            var url = `https://api.github.com/gists/${gist_id}`;
+        // we can later use get_file to load files apart from GitHub Gist
+        plugin.get_file = function( id, type, urls ) {
+            if ( urls.length < 1 ) return;
+            var url = urls.shift();
+            var filename = plugin.settings[type + '_filename'];
 
             // begin promise chain
-            plugin.get(url).then(function (response) {
-                var result = JSON.parse(response);
-                var file = plugin.get_gist_filename( result, filename );
+            plugin.get(url).then( function (response ) {
+                console.log(url);
+                plugin.settings[type] = id;
+                plugin.settings[type + '_filename'] = url;
+                var data = response;
+                // slight adjustments for files pull from GitHub Gist
+                if ( url.indexOf('api.github.com') != -1 ) {
+                    var parsed = JSON.parse(response);
+                    var file = plugin.get_gist_filename( parsed, filename );
+                    plugin.settings[type + '_filename'] = file.filename;
+                    data = file.content;
+                }
                 if ( type === 'css' ) {
-                    plugin.settings.css_filename = file.filename;
-                    plugin.settings.css = gist_id;
-                    render_theme_css(file.content);
-                    plugin.update_fields();
+                    render_theme_css(data);
                 } else {
-                    plugin.settings.gist_filename = file.filename;
-                    plugin.settings.gist = gist_id;
                     sections = [];
                     $( eid + '.info *' ).remove();
                     $( eid + '.inner *' ).remove();
-                    var data = file.content;
                     data = extract_info_content(data);
                     su_render(data);
                 }
             }, function (error) {
-                console.error( "Request failed.", error );
+                var e = error.toString();
+                if ( e.indexOf('Not Found') != -1 ) {
+                    if ( urls.length > 0 ) {
+                        plugin.get_file( id, type, urls );
+                    }
+                } else {
+                    console.error( "Request failed.", error );
+                }
             });
         };
 
@@ -610,8 +601,7 @@
                     data = extract_info_content(data);
                     var p = plugin.settings;
                     extract_parameters( p );
-                    var gist = p.gist;
-                    if ( !gist || gist === 'default' ) {
+                    if ( !p.gist || p.gist === 'default' ) {
                         plugin.settings.gist === 'default';
                         if ( !p.css || p.css === 'default' ) {
                             // no gist or CSS provided, so lets just render README
@@ -990,22 +980,25 @@
         };
 
         var render_theme_css = function(css) {
-            // start by removing the existing theme css
+            // first remove existing theme
             $('#gd-theme-css').remove();
             $('html').addClass('gd-default');
-            var cleaned = '';
 
-            if ( css != '' ) {
+            if ( css === '' ) {
+                plugin.settings.css_filename = 'style.css';
+                plugin.settings.css = 'default';
+            } else {
                 $('html').removeClass('gd-default');
                 // attempt to sanitize CSS so hacker don't splode our website
                 var parser = new HtmlWhitelistedSanitizer(true);
-                cleaned = parser.sanitizeString(css);
+                css = parser.sanitizeString(css);
 
                 // create style tag with css content
-                $('head').append('<style id="gd-theme-css">' + cleaned + '</style>');
+                $('head').append(`<style id="gd-theme-css">${css}</style>`);
             }
+            plugin.update_fields();
             // store cleaned css in browser
-            window.localStorage.setItem( 'gd_theme', cleaned );
+            window.localStorage.setItem( 'gd_theme', css );
         };
 
         var extract_variable = function( v ) {
@@ -1395,7 +1388,7 @@
                 if( e.which == 27 ) {
                     // ESC key to hide/unhide info panel
                     $( eid + ' .panel' ).toggleClass('minimized');
-                    $( eid + ' .selector' ).hide();
+                    $( eid + ' .selector .dialog' ).hide();
                 }
             });
 
@@ -1460,7 +1453,7 @@
             function update_selector(type, id) {
                 plugin.set_param( type, id );
                 if ( type === 'gist' || type === 'css' ){
-                    plugin.get_file( id, type );
+                    plugin.prepare_get( id, type );
                 }
             }
 
@@ -1541,6 +1534,16 @@
                 $(this).data( 'gitdown', plugin );
             }
         });
+    };
+
+    // Extra jQuery EXTENSIONS ----------------------------------------------
+
+    // extend jQuery with getComments
+    // credits: https://stackoverflow.com/questions/22562113/read-html-comments-with-js-or-jquery#22562475
+    $.fn.getComments = function () {
+        return this.contents().map(function () {
+            if (this.nodeType === 8) return this.nodeValue;
+        }).get();
     };
 
 })(jQuery);
