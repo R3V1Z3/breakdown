@@ -582,12 +582,9 @@
                     su_render(data);
                 }
             }, function (error) {
-                var e = error.toString();
-                if ( e.indexOf('Not Found') != -1 ) {
                     if ( urls.length > 0 ) {
                         plugin.get_file( id, type, urls );
                     }
-                } else {
                     console.error( "Request failed.", error );
                 }
             });
