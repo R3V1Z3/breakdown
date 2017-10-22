@@ -557,10 +557,11 @@
             if ( urls.length < 1 ) return;
             var url = urls.shift();
             var filename = plugin.settings[type + '_filename'];
+            
+            console.log(url);
 
             // begin promise chain
             plugin.get(url).then( function (response ) {
-                console.log(url);
                 plugin.settings[type] = id;
                 plugin.settings[type + '_filename'] = url;
                 var data = response;
