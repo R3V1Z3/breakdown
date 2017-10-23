@@ -617,6 +617,9 @@
 
             // get user-specified local file (default: README.md)
             // execution is then passed to plugin.get_file() where css is loaded
+            if ( plugin.settings.file === '' || plugin.settings.file === undefined ) {
+                plugin.settings.file = 'README.md';
+            }
             plugin.prepare_get( plugin.settings.file, 'gist' );
 
         };
