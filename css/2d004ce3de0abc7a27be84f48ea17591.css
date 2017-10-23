@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css?family=Orbitron');
+
+.section * {
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: none;
+    mix-blend-mode: overlay;
+    color: rgba(255,255,255,0.7);
+}
+
+.section a {
+    color: rgba(255,255,255,0.7);
+}
+
+.section a:hover {
+    background: rgba(0,0,0,0.2);
+}
+
+.section .content,
+.section .alternate {
+    background: none;
+}
+
+#custom li {
+    background: none;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+.section code {
+    box-shadow: inset 0 0 60px rgba(255,255,255,0.2);
+}
+
+.section a.handle {
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: none;
+    color: currentcolor;
+}
+
+#custom .section {
+    background-color: #687d67;
+    border: 20px solid black;
+    box-shadow: inset 2px 2px 10px black, 0 0 20px 2px rgba(0,0,0,0.5);
+    padding: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%239C92AC' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    background-color: #687d67;
+    background-blend-mode: color-burn;
+    mix-blend-mode: normal;
+}
+
+.gd-glory #custom .section {
+    position: relative;
+}
+
+@keyframes scan {
+    0% { background-position-x: 0px; background-position-y: 96px; }
+    100% { background-position-x: 96px; background-position-y: 0px; }
+}
+
+#custom .section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: linear-gradient(#687d67 1px, transparent 1px), linear-gradient(90deg, #687d67 1px, transparent 1px);
+    background-size: 96px 96px, 96px 96px;
+    mix-blend-mode: color-dodge;
+    box-shadow: inset 0 0 10px black;
+    opacity: 0.25;
+}
+
+.gd-animated #custom .section::before {
+    animation: scan 12s linear infinite;
+}
+
+#custom .section::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    background-image: linear-gradient(rgba(104, 125, 103, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(104, 125, 103, 0.3) 1px, transparent 1px);
+    background-size: 12px 12px, 12px 12px;
+    mix-blend-mode: screen;
+    opacity: 0.7;
+}
+
+.gd-animated #custom .section::after {
+    animation: scan 8s linear infinite;
+    animation-direction: reverse;
+}
+
+.inner {
+    background: none;
+}
+
+.inner::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: url(https://ugotsta.github.io/gitdown/assets/wood-surface.jpg), linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+    box-shadow: inset 0 0 200px black;
+}
+
+.inner::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    background: none;
+    box-shadow: inset 0 0 200px black;
+}
+
+#gd-emphases a.handle {
+    color: white;
+}
+
+.gd-animated .inner::after {
+    mix-blend-mode: color-burn;
+}
+
+ul li {
+    border-left: 6px solid rgba(0,0,0,0.05);
+    margin: 0;
+}
+
+/* App-specific */
+.section.note {
+    filter: hue-rotate(320deg);
+    box-shadow: inset 0 0 10px black;
+}
+
+connection {
+    border: 3px solid #687d67;
+    opacity: 0.7;
+    mix-blend-mode: color-dodge;
+}
+
+.section.note,
+.section.referent {
+    filter: invert(100%);
+    box-shadow: inset 0 0 100px rgba(255,255,255,0.5);
+}
+
+.section a.n-reference {
+    color: rgba(255,255,255,0.8);
+    border: 3px double rgba(255,255,255,0.8);
+}
+
+#custom .eq {
+    position: absolute;
+    max-width: 960px;
+    min-width: 600px;
+    max-height: 600px;
+    min-height: 400px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2px 0px;
+    margin: auto;
+    width: 50%;
+    height: 30%;
+    background: none;
+    mix-blend-mode: soft-light;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+#custom .eq .band {
+    background: black;
+    margin-right: 0.25em;
+}
+
+#custom kbd {
+    color: black;
+    background-color: unset;
+    border: none;
+    border-radius: 3px;
+    box-shadow: inset 0 0 30px white;
+}
+
+/* Animations */
+
+/* Content animations */
+.section.old .content,
+.section.old.lo .content,
+.section.old.hi .handle-heading {
+  animation: out 0.5s ease;
+}
+
+.section.old.hi .content,
+.section.old .handle-heading,
+.section.old.lo .handle-heading {
+  animation: in-reverse 0.5s ease;
+}
+
+.section.current .content,
+.section.current.hi .content,
+.section.current.lo .handle-heading {
+  opacity: 1;
+  z-index: 1;
+  animation: in 0.5s ease;
+}
+
+.section.current.lo .content,
+.section.current .handle-heading,
+.section.current.hi .handle-heading {
+  animation: out-reverse 0.5s ease;
+}
+
+/* Section animation */
+@keyframes section-anim {
+    0% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+.section.old,
+.section.old.lo,
+.section.old.hi,
+.section.current,
+.section.current.lo,
+.section.current.hi {
+    opacity: 1;
+    animation: section-anim 0.5s ease;
+}
+
+.section.current,
+.section.current.hi {
+  z-index: 1;
+}
+
+@keyframes in {
+    0% { clip-path: inset(0 100% 0 0); filter: blur(12px); }
+    100% { clip-path: inset(0 0 0 0); filter: blur(0px); }
+}
+
+@keyframes out {
+    0% { clip-path: inset(0 0 0 0); filter: blur(0px); }
+    100% { clip-path: inset(0 100% 0 0); filter: blur(12px); }
+}
+
+@keyframes in-reverse {
+    100% { clip-path: inset(0 0 0 100%); filter: blur(12px); }
+    0% { clip-path: inset(0 0 0 0); filter: blur(0px); }
+}
+
+@keyframes out-reverse {
+    100% { clip-path: inset(0 0 0 0); filter: blur(0px); }
+    0% { clip-path: inset(0 0 0 100%); filter: blur(12px); }
+}
+
+#custom pre.hljs {
+    background: #646464;
+    box-shadow: none;
+}
+
+.gd-glory .inner pre.hljs {
+    background: none;
+}
+
+#custom pre.hljs code {
+    background: none;
+    box-shadow: none;
+}

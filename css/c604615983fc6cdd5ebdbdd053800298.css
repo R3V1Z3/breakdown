@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css?family=Baloo|Lobster');
+
+#wrapper * {
+  font-family: 'Baloo', cursive;
+}
+
+.container {
+  height: 100%;
+  width: 100%;
+}
+
+.inner {
+  width: 100%;
+  background: none;
+}
+
+.inner::before {
+  position: fixed;
+  content: "";
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(109,84,70,0.2) 0%,rgba(91,40,1,1) 100%), url("https://ugotsta.github.io/gitdown/assets/rough-wood-vertical.jpg");
+  box-shadow: inset 0 0 150px black, inset 0 0 50px black;
+  background-blend-mode: color-dodge;
+  pointer-events: none;
+}
+
+.inner::after {
+  position: unset;
+}
+
+.container .section {
+  background: #FFF9ED;
+  border: 10px solid white;
+  box-shadow: 0 10px 60px rgba(0,0,0,0.5);
+  margin: 40px 10px;
+  padding-top: 4px;
+  overflow: initial;
+  position: relative;
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%,rgba(0,0,0,0.05) 24%,rgba(0,0,0,0) 56%,rgba(0,0,0,0.1) 76%,rgba(0,0,0,0.1) 100%);
+  mix-blend-mode: normal;
+}
+
+.gd-slides #custom .section {
+  margin: auto;
+  position: absolute;
+}
+
+#gd-gitdown .inner {
+  padding: 20px 0;
+}
+
+#custom .content,
+#custom .alternate {
+  background: none;
+}
+
+#custom .content {
+  margin-top: 10px;
+}
+
+.section span.toggle {
+  float: right;
+  font-size: 0.4em;
+  padding: 0 8px;
+}
+
+#custom .section a.handle {
+  font-family: 'Lobster', cursive;
+  font-weight: bold;
+  color: white;
+  font-size: 2em;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  z-index: 100;
+  width: 100%;
+}
+
+#custom .section .handle-heading {
+  top: -1.75em;
+  position: absolute;
+  width: 100%;
+}
+
+#gd-gitdown .section .handle-heading {
+  top: -2.5em;
+}
+
+#gd-downslide .section a.handle {
+  text-align: center;
+}
+
+#custom a {
+  color: #767994;
+  text-shadow: none;
+}
+
+/* App-specific styles */
+#custom .section a.choice::before {
+  content: "...";
+  color: #AE9372;
+}
+
+#custom .section a.choice {
+  font-family: 'Baloo', cursive;
+  color: #AE9372;
+}
+
+#custom a#back {
+  font-size: 1.75em;
+  color: #AE9372;
+}
+
+#custom .cheats {
+  text-shadow: 1px 1px 1px black, 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+connection {
+    border: 7px solid #ccc;
+    opacity: 0.5;
+    z-index: 1;
+    border-radius: 100%;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+.gd-slides .eq {
+    position: absolute;
+    max-width: 960px;
+    min-width: 600px;
+    max-height: 600px;
+    min-height: 400px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 50%;
+    height: 30%;
+  z-index: 1;
+    padding: 10px;
+    mix-blend-mode: overlay;
+}
+
+.gd-slides .eq .band {
+    background: rgba(255,255,255,0.75);
+}

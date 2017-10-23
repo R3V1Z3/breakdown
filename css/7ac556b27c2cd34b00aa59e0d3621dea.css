@@ -1,0 +1,365 @@
+/* Based on styling from Eerie CSS: https://ugotsta.github.io/eerie-css/ */
+@import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do|Special+Elite';
+
+/* Info styles */
+#custom .info a:hover {
+  color: white;
+}
+
+#custom .info .selector {
+  background-color: rgba(0,0,0,0.85);
+  border: 1px solid red;
+  border-radius: 0;
+  box-shadow: inset 0 0 40px red;
+}
+
+#custom .info .selector input {
+  border: 1px solid red;
+  box-shadow: inset 0 0 40px red;
+  color: black;
+  outline: none;
+}
+
+#custom .info .selector input::-webkit-input-placeholder {
+  color: red;
+}
+
+/* General */
+#custom * {
+  font-family: 'Special Elite';
+  color: #888;
+}
+
+html {
+  height: 100%;
+  min-height: 100%;
+  background: #444;
+}
+
+.inner::after {
+  position: unset;
+}
+
+#custom .inner::before {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgb(94, 94, 94);
+  background: radial-gradient(ellipse at center, rgba(94, 94, 94, 1) 0%, rgba(0, 0, 0, 1) 100%);
+  mix-blend-mode: multiply;
+}
+
+#gd-beatdown #custom .inner::before {
+  background: linear-gradient(to bottom, rgba(81,81,81,1) 0%,rgba(122,122,122,1) 17%,rgba(155,155,155,1) 47%,rgba(0,0,0,1) 53%,rgba(0,0,0,1) 100%);
+}
+
+#custom .inner {
+  background: none;
+}
+
+#custom * {
+  line-height: 120%;
+}
+
+#custom a {
+  font-family: 'Nothing You Could Do';
+  color: #a00;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#custom .section a {
+  display: inline-block;
+  transition: color 0.25s, background 0.25s, background-color 0.25s, text-shadow 0.25s;
+  transform: translate(0px, 0px) rotate(0deg);
+}
+
+#custom .section a:hover {
+  background: none;
+  box-shadow: none;
+  text-shadow: 0px 0px 8px rgba(255, 0, 0, 0.25);
+  animation: shakes 0.1s linear infinite;
+}
+
+#custom span.toggle {
+  margin-left: 20px;
+  color: rgba(0,0,0,0.4);
+  font-size: 14px;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Header */
+
+#custom .section {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+#custom .section a.handle {
+  position: relative;
+  bottom: -8px;
+  left: 8px;
+  color: #000;
+  text-decoration: none;
+  text-shadow: 0 0 12px #fff;
+  padding: 0;
+  margin: 0;
+  font-size: 1.5em;
+}
+
+#custom #wrapper .section a.handle:hover {
+  animation: none;
+}
+
+/* Adjustment for rare cases where code is included in headers */
+#custom #wrapper a.handle code {
+    background: transparent;
+    color: #000;
+}
+
+#custom #wrapper code {
+  background: rgba(255,255,255,0.15);
+  box-shadow: none;
+  padding: 4px;
+  border-radius: 2px;
+}
+
+#custom #wrapper pre code,
+#custom #wrapper pre.hljs {
+  background: none;
+}
+
+#custom #wrapper .section p,
+#custom #wrapper .section .alternate {
+  background: none;
+}
+
+#custom .section .content {
+  background: #000;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.5);  
+}
+
+#gd-beatdown .section .content {
+  box-shadow: none;
+  background: none;
+}
+
+#custom .section ul {
+  list-style: none;
+  padding: 0px;
+  padding: 0 10px 4px 10px;
+}
+
+#custom .section li {
+  border-left: 2px solid #333;
+  background: none;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+/* Keypress styling */
+kbd {
+  padding: 6px 10px;
+  vertical-align: middle;
+  color: #ccc;
+  vertical-align: middle;
+  background-color: #444;
+  border-radius: 3px;
+  box-shadow: inset 0 -2px 0 #777;
+  font-size: 0.6em;
+  border: none;
+}
+
+/* Animations */
+
+@keyframes shakes {
+    0% {
+        transform: translate(2px, 1px) rotate(1deg);
+    }
+    50% {
+        transform: translate(-1px, 1px) rotate(0deg);
+    }
+    100% {
+        transform: translate(1px, -2px) rotate(0deg);
+    }
+}
+
+@keyframes bigshakes {
+    0% {
+        transform: translate(2px, -8px) rotate(-1deg);
+    }
+    50% {
+        transform: translate(-9px, 10px) rotate(-18deg);
+    }
+    100% {
+        transform: translate(6px, -2px) rotate(1deg);
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.35);
+    }
+    100% {
+        box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* App-specific styles */
+
+.gd-slides .section ul {
+  padding: 0;
+}
+
+.gd-slides .section li {
+  border-left: none;
+}
+
+.gd-slides .section li a:before {
+  content: "--[------- ";
+  color: red;
+  font-size: 0.3em;
+  vertical-align: text-top;
+  text-shadow: 0 0 2px red;
+}
+
+.gd-fullscreen .section .content,
+.gd-slides .section .content {
+  animation: glow 3s linear infinite;
+}
+
+#gd-beatdown .section .content {
+  animation: none;
+}
+
+.gd-slides .section a.handle {
+    bottom: -18px;
+    left: 8px;
+}
+
+.gd-slides .inner:after {
+    z-index: 1;
+    pointer-events: none;
+    animation: bigshakes 0.1s linear infinite;
+    opacity: 0.35;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 1) 100%);
+    position: fixed;
+    top: -40%;
+    bottom: -100px;
+    left: -100px;
+    right: -100px;
+    content: '';
+    width: 110%;
+}
+
+#custom .cheats a {
+  font-weight: bold;
+  font-family: 'Special Elite';
+}
+
+#custom .cheats:after {
+  content: 'heet';
+  padding-left: 2px;
+  color: rgba(255,255,255,0.25);
+}
+
+@keyframes in {
+    0% { opacity: 0; filter: brightness(0); }
+    100% { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes out {
+    0% { opacity: 1; filter: brightness(1); }
+    100% { opacity: 0; filter: brightness(0); }
+}
+
+@keyframes in-reverse {
+    100% { opacity: 0; filter: brightness(0); }
+    0% { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes out-reverse {
+    100% { opacity: 1; filter: brightness(1); }
+    0% { opacity: 0; filter: brightness(0); }
+}
+
+#custom .eq {
+    position: absolute;
+    max-width: unset;
+    min-width: unset;
+    max-height: unset;
+    min-height: unset;
+    top: 0;
+    bottom: 35%;
+    left: 0;
+    right: 0;
+    padding: 0;
+    margin: auto;
+    width: 85vw;
+    height: 40vh;
+    background: none;
+    mix-blend-mode: normal;
+    opacity: 1;
+    z-index: 1;
+}
+
+#custom .eq .band {
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+}
+
+#gd-beatdown #custom .section {
+    position: fixed;
+    max-width: unset;
+    min-width: unset;
+    max-height: unset;
+    min-height: unset;
+    top: 0;
+    bottom: -40%;
+    left: 0;
+    right: 0;
+    padding: 0;
+    margin: auto;
+    width: 85vw;
+    height: 40vh;
+    background: none;
+    mix-blend-mode: normal;
+    box-shadow: none;
+}
+
+#gd-beatdown .handle-heading {
+    display: none;
+}
+
+@keyframes in {
+    0% { opacity: 0; left: -50%; filter: brightness(0); }
+    100% { opacity: 1; left: 0%; filter: brightness(1); }
+}
+
+@keyframes out {
+    0% { opacity: 1; right: 0%; filter: brightness(1); }
+    100% { opacity: 0; right: -50%; filter: brightness(0); }
+}
+
+@keyframes in-reverse {
+    100% { opacity: 0; left: -50%; filter: brightness(0); }
+    0% { opacity: 1; left: 0%; filter: brightness(1); }
+}
+
+@keyframes out-reverse {
+    100% { opacity: 1; right: 0%; filter: brightness(1); }
+    0% { opacity: 0; right: -50%; filter: brightness(0); }
+}

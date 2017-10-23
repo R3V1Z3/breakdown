@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css?family=Homemade+Apple|Waiting+for+the+Sunrise');
+
+#gd-code-glorify $custom .section {
+    mix-blend-mode: multiply;
+}
+
+#gd-code-glorify #custom .inner * {
+    color: unset;
+    text-shadow: 0 0 2px currentColor;
+}
+
+.info {
+    mix-blend-mode: luminosity;
+}
+
+.gd-slides #custom .container {
+  overflow: hidden;
+}
+
+.gd-modular #custom a.n-reference {
+    border: none;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.85);
+    background: burlywood;
+}
+
+#custom .editor textarea {
+    color: white;
+}
+
+#custom .editor {
+    mix-blend-mode: overlay;
+}
+
+#custom * {
+  font-family: 'Waiting for the Sunrise', cursive;
+}
+
+#custom .inner * {
+  text-shadow: 0 0 2px rgba(0,0,0,0.65);
+  font-weight: bold;
+  color: rgba(0,0,0,0.75);
+}
+
+#custom .inner {
+  background: none;
+  font-size: 140%;
+}
+
+#custom .section {
+    box-shadow: inset 0 0 20px black, 0 0 10px;
+    mix-blend-mode: overlay;
+    border: none;
+    background: bisque;
+}
+
+#gd-code-glorify .section {
+    box-shadow: none;
+    background: none;
+}
+
+.gd-slides #custom .section {
+    mix-blend-mode: multiply;
+    background: none;
+    box-shadow: none;
+}
+
+.gd-modular #custom .section.reference {
+    mix-blend-mode: multiply;
+}
+
+.section a {
+  color: unset;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(0,0,0,0.15);
+}
+
+#custom .section a.handle {
+  font-family: 'Homemade Apple';
+  font-weight: 100;
+  border: none;
+}
+
+.section .content,
+.section .content .alternate {
+  background: none;
+}
+
+#custom .inner::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    background: url(https://ugotsta.github.io/gitdown/assets/wet-stone-night.jpg);
+    background-size: 800px;
+    background: linear-gradient(45deg, rgb(79, 20, 2) 0%,rgb(101, 95, 139) 30%,rgb(158, 145, 145) 72%,rgb(121, 98, 65) 100%), url(https://ugotsta.github.io/gitdown/assets/wet-stone-night.jpg);
+    background-blend-mode: color-dodge;
+    box-shadow: inset 0 0 50px black, inset 0 0 100px black;
+    filter: contrast(75%) brightness(75%);
+}
+
+.gd-animated #custom .inner::before {
+    animation: lighting 5s infinite;
+}
+
+@keyframes lighting {
+    0% { filter: contrast(75%) brightness(75%); }
+    4% { filter: contrast(90%) brightness(90%); }
+    10% { filter: contrast(75%) brightness(75%); }
+    50% { filter: contrast(80%) brightness(80%); }
+    60% { filter: contrast(90%) brightness(80%); }
+    65% { filter: contrast(80%) brightness(75%); }
+    80% { filter: contrast(80%) brightness(80%); }
+    90% { filter: contrast(80%) brightness(60%); }
+    97% { filter: contrast(75%) brightness(80%); }
+    100% { filter: contrast(75%) brightness(75%); }
+}
+
+#custom .inner::after {
+    content: "";
+    position: fixed;
+    pointer-events: none;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(-20deg, rgba(0,0,0,1) 0%, rgba(255,255,255,0) 30%,rgba(255,255,255,1) 51%, rgba(255,255,255,1) 80%,rgba(0,0,0,1) 100%);
+    box-shadow: inset 0 0 300px black, inset 0 0 50px black;
+    mix-blend-mode: overlay;
+}
+
+#custom .section code {
+  box-shadow: none;
+  color: unset;
+  padding: 0px 12px;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+kbd {
+    display: inline-block;
+    padding: 3px 5px;
+    line-height: 50%;
+    color: rgba(0,0,0,0.25);
+    font-size: 1em;
+    font-weight: bold;
+    background: rgba(255,220,200,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    box-shadow: 0 0 10px rgba(255,220,200,0.95);
+}
+
+/* Animations */
+.gd-slides #custom .section.old,
+.gd-slides #custom .section.current {
+  animation-duration: 1.5s;
+}
+
+@keyframes in {
+    0% { opacity: 0; transform: scale(1); filter: contrast(0%) brightness(150%) blur(8px); }
+    100% { opacity: 1; transform: scale(1); filter: contrast(100%) brightness(100%) blur(0px); }
+}
+
+@keyframes out {
+    0% { opacity: 1; filter: contrast(100%) brightness(100%) blur(0px); }
+    100% { opacity: 0; filter: contrast(0%) brightness(150%) blur(8px); }
+}
+
+@keyframes in-reverse {
+    100% { opacity: 0; transform: scale(1); filter: contrast(0%) brightness(150%) blur(8px); }
+    0% { opacity: 1; transform: scale(1); filter: contrast(100%) brightness(100%) blur(0px); }
+}
+
+@keyframes out-reverse {
+    100% { opacity: 1; filter: contrast(100%) brightness(100%)  blur(0px); }
+    0% { opacity: 0; filter: contrast(0%) brightness(150%) blur(8px); }
+}
+
+.eq {
+    position: fixed;
+    pointer-events: none;
+    margin: auto;
+    height: 70%;
+    width: 100%;
+    background: none;
+    mix-blend-mode: overlay;
+    bottom: 0;
+}
+
+.eq .band {
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.4) 10%,rgba(0,0,0,0.6) 25%,rgba(0,0,0,0.5) 48%,rgba(0,0,0,0.3) 72%,rgba(0,0,0,0.65) 100%);
+    border-radius: 0;
+      margin-right: 0;
+}
+
+connection {
+    mix-blend-mode: overlay;
+    border: 3px solid black;
+    opacity: 0.5;
+}

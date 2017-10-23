@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css?family=Anonymous+Pro|Cousine');
+
+* {
+    font-family: 'Cousine', monospace;
+    text-shadow: 0 0 13px rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.8);
+}
+
+pre code, pre, .hljs, pre.hljs {
+  background: none;
+}
+
+.info .app-title {
+    color: white;
+    text-shadow: 0px 1px 2px darkseagreen, 0 0 20px darkseagreen;
+    text-transform: uppercase;
+}
+
+.section a {
+    color: white;
+}
+
+.section .content,
+.section .alternate {
+    background: none;
+}
+
+#custom li {
+    background: none;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+.inner * {
+  mix-blend-mode: overlay;
+}
+
+.section code {
+    box-shadow: inset 0 0 60px rgba(255,255,255,0.2);
+    filter: invert(100%);
+}
+
+.section a.handle {
+    font-family: 'Cousine', monospace;
+    text-shadow: 0 0 8px rgba(255,255,255,0.95);
+    color: white;
+}
+
+.section {
+    background: none;
+    border: none;
+    box-shadow: none;
+    z-index: 1;
+}
+
+#custom .section.current {
+    z-index: 2;
+}
+
+
+.inner::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0.1) 47%,rgba(255,255,255,0.7) 50%,rgba(255,255,255,0.1) 53%,rgba(255,255,255,0) 100%);
+    mix-blend-mode: hard-light;
+    opacity: 0.1;
+}
+
+#gd-entwine .inner::before,
+#gd-downslide .inner::before,
+.gd-animated .inner::before {
+    animation: line 3s linear infinite;
+}
+
+.gd-modular a.handle {
+    color: black;
+}
+
+@keyframes line {
+    0% {
+        background-position-y: -400px;
+    }
+    50% {
+        background-position-y: 0px;
+    }
+    100% {
+        background-position-y: 400px;
+    }
+}
+
+.inner {
+    background: none;
+}
+
+.inner::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 150px black;
+    background: linear-gradient( to bottom, #5d9634, #5d9634 50%, #538c2b 50%, #538c2b );
+    background-size: 100% 6px;
+    mix-blend-mode: hard-light;
+    background-position-y: 0px;
+    background-color: darkgreen;
+    background-blend-mode: hard-light;
+}
+
+#gd-entwine .inner::after,
+#gd-downslide .inner::after,
+.gd-animated .inner::after {
+    mix-blend-mode: color-burn;
+}
+
+#gd-entwine .inner::after,
+#gd-downslide .inner::after,
+.gd-animated .inner::after {
+    animation: scan 1s linear infinite;
+}
+
+#gd-gitdown #custom .section {
+    margin-top: 0;
+    padding-top: 50px;
+}
+
+@keyframes scan {
+    0% {
+        background-position-y: 0px;
+    }
+    50% {
+        background-position-y: 100px;
+    }
+    100% {
+        background-position-y: 0px;
+    }
+}
+
+.container::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    background: linear-gradient(45deg, rgba(14,14,14,1) 0%,rgba(78,92,90,1) 18%,rgba(130,157,152,1) 33%,rgba(142,166,162,1) 50%,rgba(153,175,171,1) 67%,rgba(174,191,188,1) 78%,rgba(216,224,222,1) 100%);
+    box-shadow: inset 0 0 200px black;
+    mix-blend-mode: overlay;
+}
+
+.info {
+    background: rgba(0,0,0,0.7);
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 300px;
+    box-shadow: -2px 2px 8px rgba(0,0,0,0.5);
+    padding: 10px;
+    z-index: 100;
+    mix-blend-mode: luminosity;
+}
+
+ul li {
+    border-left: 6px solid rgba(0,0,0,0.05);
+    margin: 0;
+}
+
+/* Animations */
+@keyframes in {
+    0% {
+        opacity: 1;
+        filter: blur(6px);
+        mix-blend-mode: overlay;
+        top: -50%;
+        transform: perspective(300px) translateZ(100px) rotateX(280deg);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        mix-blend-mode: overlay;
+        top: 0%;
+        transform: perspective(300px) translateZ(0px) rotateX(360deg);
+    }
+}
+
+@keyframes out {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+        mix-blend-mode: overlay;
+        top: 0%;
+        transform: perspective(300px) translateZ(0px) rotateX(0deg);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(6px);
+        mix-blend-mode: overlay;
+        top: 100%;
+        transform: perspective(200px) translateZ(100px) rotateX(80deg);
+    }
+}
+
+@keyframes in-reverse {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+        mix-blend-mode: overlay;
+        top: 0%;
+        transform: perspective(300px) translateZ(0px) rotateX(360deg);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(6px);
+        mix-blend-mode: overlay;
+        top: -50%;
+        transform: perspective(300px) translateZ(100px) rotateX(280deg);
+    }
+}
+
+@keyframes out-reverse {
+    0% {
+        opacity: 1;
+        filter: blur(6px);
+        mix-blend-mode: overlay;
+        top: 100%;
+        transform: perspective(200px) translateZ(100px) rotateX(80deg);
+
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        mix-blend-mode: overlay;
+        top: 0%;
+        transform: perspective(300px) translateZ(0px) rotateX(0deg);
+    }
+}
+
+connection {
+    mix-blend-mode: multiply;
+}
+
+.section.note {
+    filter: invert(100%);
+    box-shadow: inset 0 0 100px rgba(255,255,255,0.5);
+}
+
+.section a.n-reference {
+    color: black;
+}
+
+#gd-beatdown .eq {
+    mix-blend-mode: soft-light;
+    z-index: 1;
+}
+
+.eq .band {
+    border-top: 3px solid rgba(255,255,255,0.65);
+}

@@ -1,0 +1,322 @@
+@import url('https://fonts.googleapis.com/css?family=Calligraffitti|IM+Fell+Double+Pica|Alex+Brush');
+
+* {
+  font-family: 'Alex Brush', cursive;
+  color: rgba(0,0,0,0.8);
+}
+
+.container::after {
+    content: "★";
+    pointer-events: none;
+    left: -300px;
+    bottom: -50px;
+    color: darkblue;
+    font-size: 50em;
+    text-align: inherit;
+    position: fixed;
+    mix-blend-mode: color-burn;
+    opacity: 0.1;
+  z-index: -1;
+}
+
+code {
+    background: rgba(0,0,0,0.25);
+    color: rgba(0,0,0,0.7);
+    font-family: 'IM Fell Double Pica', cursive;
+}
+
+#custom .info .element-count,
+#custom .info .element-count code{
+  font-family: 'IM Fell Double Pica', cursive;
+}
+
+#custom .content,
+#custom .section .content .alternate {
+  background: none;
+}
+
+#custom .inner .section {
+  background: url(https://www.transparenttextures.com/patterns/natural-paper.png);
+  border: 3px double white;
+  box-shadow: 0 0 10px white;
+  border-radius: 0px;
+  mix-blend-mode: normal;
+}
+
+#custom .note {
+  filter: saturate(0%);
+}
+
+#custom .inner .section::before {
+  background: none;
+}
+
+#custom .section::after {
+  position: absolute;
+  content: ".";
+  color: rgba(255,255,255,0.5);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: url(https://ugotsta.github.io/gitdown/assets/paper-onion-skin.jpg);
+  pointer-events: none;
+  background-blend-mode: luminosity;
+  mix-blend-mode: overlay;
+  box-shadow: inset 0 0 20px black;
+}
+
+#custom .info a,
+#custom .info .toc a,
+#custom .gist-url, .css-url,
+#custom .info .hide {
+  font-family: 'IM Fell Double Pica';
+  font-weight: bold;
+  color: lightsteelblue;
+}
+
+.info .app-title .em {
+    background-color: lightsteelblue;
+    border-radius: 50%;
+    font-family: 'IM Fell Double Pica', serif;
+}
+
+#custom .info a:hover,
+#custom .info .toc a:hover {
+  color: white;
+}
+
+#custom tr, #custom th {
+  background: none;
+}
+
+ul li {
+  padding: 2px 6px;
+  border: none;
+  margin: 0;
+}
+
+ul li::before {
+  content: "\1f65d  ";
+  color: rgba(0,0,0,0.5);
+  font-size: 0.75em;
+  padding-right: 8px;
+}
+
+#custom li,
+#custom li:nth-child(odd) {
+  background: none;
+}
+
+#wrapper .section h1,
+#wrapper .section h2 {
+    font-size: 1em;
+    width: 100%;
+}
+
+#custom #wrapper h1 a.handle,
+#custom .info h1 {
+  font-family: 'IM Fell Double Pica', serif;
+  font-weight: bolder;
+  text-shadow: 1px 1px 2px white, 3px 3px 2px grey;
+  letter-spacing: inherit;
+}
+
+#custom #wrapper h1 a.handle {
+  font-size: 1.5em;
+}
+
+#custom #wrapper a.handle {
+  color: rgba(0,0,0,0.8);
+}
+
+a.handle::after {
+  content: "  \1f663";
+  font-size: 0.85em;
+}
+
+a.handle::before {
+  content: "\1f660  ";
+  font-size: 0.85em;
+}
+
+#custom .cheats::after {
+  content: 'cheat  \1f663';
+  color: inherit;
+}
+
+#gd-cheats .section {
+  padding: 2px 6px;
+}
+
+#custom .info .cheats::after {
+  content: 'cheat';
+  font-size: 0.6em;
+  color: inherit;
+}
+
+#custom h2, 
+#custom h3, 
+#custom h4, 
+#custom h5, 
+#custom h6,
+#custom .section a.handle {
+  font-family: 'IM Fell Double Pica', cursive;
+}
+
+#custom .info::after {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  content: "";
+  background: repeating-linear-gradient( 45deg, #c11, #f00 40px, #eee 40px, #fff 80px ), url(https://www.transparenttextures.com/patterns/natural-paper.png);
+  mix-blend-mode: darken;
+  opacity: 0.5;
+  background-blend-mode: overlay;
+}
+
+#custom h1.glory:before {
+  content: "\2605";
+  color: blue;
+  position: absolute;
+  top: -30px;
+  font-size: 2em;
+  z-index: -1;
+  left: 30px;
+}
+
+a {
+  color: rgba(0,0,0,0.7);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(0,0,0,0.3);
+}
+
+a:hover {
+  color: rgba(0,0,0,1);
+  border-bottom: 1px dotted rgba(0,0,0,0.5);
+}
+
+h1 {
+  text-transform: uppercase;
+  font-size: 1.3em;
+}
+
+#custom .inner {
+  font-size: 140%;
+  box-shadow: none;
+  background: none;
+}
+
+#custom .inner::before {
+    position: fixed;
+    content: "";
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    /* background: radial-gradient(ellipse at center, rgba(252,255,244,1) 0%,rgb(36, 36, 36) 50%,rgba(133,142,131,1) 100%), url(https://www.transparenttextures.com/patterns/natural-paper.png); */
+    background: radial-gradient(ellipse at center, rgba(252,255,244,1) 0%,rgba(223,229,215,1) 50%,rgba(133,142,131,1) 100%), url(https://www.transparenttextures.com/patterns/natural-paper.png);
+    pointer-events: none;
+    box-shadow: inset 0 0 60px black;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    background-color: whitesmoke;
+    mix-blend-mode: overlay;
+    background-blend-mode: exclusion;
+}
+
+#custom .inner::after {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  content: "";
+  background: repeating-linear-gradient( 99deg, #ccc, #aaa 80px, #eee 80px, #fff 160px );
+  mix-blend-mode: overlay;
+  opacity: 0.2;
+  box-shadow: inset 0 0 200px black;
+}
+
+.inner h1:before {
+  content: ".";
+  position: absolute;
+  top: -50px;
+  left: 180px;
+  font-size: 15em;
+  text-shadow: 0px 0px 20px rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.15);
+  mix-blend-mode: hard-light;
+  pointer-events: none;
+}
+
+kbd, .info kbd {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  line-height: 0.75em;
+  color: #444d56;
+  vertical-align: middle;
+  background-color: #fafbfc;
+  border-bottom-color: #959da5;
+  border-radius: 0;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.12);
+  cursor: pointer;
+  mix-blend-mode: luminosity;
+  filter: invert(70%);
+  margin: 2px;
+  font-family: 'IM Fell Double Pica', cursive;
+}
+
+#custom .info kbd {
+  font-family: 'IM Fell Double Pica', serif;
+  font-weight: bolder;
+  color: black;
+  text-shadow: 1px 1px 1px white, 2px 2px 3px rgba(0,0,0,0.75);
+  border-radius: 3px;
+}
+
+/* App-specific */
+connection {
+  mix-blend-mode: overlay;
+}
+
+/* Animations */
+
+@keyframes in {
+    0% { opacity: 1; filter: brightness(3); box-shadow: 0 0 2px antiquewhite, inset 0 0 30px black; }
+    100% { opacity: 1; filter: brightness(1); box-shadow: 0 0 100px white; }
+}
+
+@keyframes out {
+    0% { opacity: 1; filter: blur(0px); }
+    100% { opacity: 0; filter: blur(8px); }
+}
+
+@keyframes in-reverse {
+    100% { opacity: 1; filter: brightness(3);  box-shadow: 0 0 2px antiquewhite, inset 0 0 30px black; }
+    0% { opacity: 1; filter: brightness(1);  box-shadow: 0 0 150px antiquewhite; }
+}
+
+@keyframes out-reverse {
+    100% { opacity: 1; filter: blur(0px); }
+    0% { opacity: 0; filter: blur(8px); }
+}
+
+#custom .eq {
+    transform: rotate(9deg) scale(1.5);
+    mix-blend-mode: normal;
+}
+
+#custom .eq .band {
+    background: rgba(70,0,0,0.2);
+}
+
+#custom .eq .band::nth-child(even) {
+    background: rgba(255,255,255,0.2);
+    opacity: 0.5;
+}

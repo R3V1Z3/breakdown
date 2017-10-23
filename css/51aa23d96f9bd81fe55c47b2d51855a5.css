@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css?family=Poiret+One|Great+Vibes');
+
+* {
+  font-family: 'Poiret One', sans-serif;
+  font-weight: bold;
+}
+
+#custom a.handle {
+  font-family: 'Great Vibes', cursive;
+  text-shadow: 0px 1px 1px white, 0px 2px 2px grey;
+}
+
+a.choice {
+    font-family: 'Great Vibes', cursive;
+    color: darkred;
+}
+
+a.choice:hover {
+    background: rgba(240, 128, 128, 0.25);
+    box-shadow: 0 0 10px rgba(240, 128, 128, 0.25);
+}
+
+.section {
+    mix-blend-mode: luminosity;
+    padding: 50px;
+    border: 0px;
+    border-style: outset;
+    position: relative;
+    box-shadow: 0 10px 80px rgba(0,0,0,0.5);
+    background: #eee;
+}
+
+.gd-slides .section {
+  position: absolute;
+}
+
+#gd-cheats .section {
+  padding: 16px;
+}
+
+#gd-cheats .handle-heading {
+    background: rgba(0,0,0,0.5);
+}
+
+#custom .section::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    border: none;
+    border-width: 15px;
+    border-image: url(https://ugotsta.github.io/gitdown/assets/svg/Border49-A4--Arvin61r58.svg) 90;
+    border-style: outset;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+.inner::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    background-image: url(https://ugotsta.github.io/gitdown/assets/paper-set-textured.jpg);
+    background-color: deepskyblue;
+    background-blend-mode: multiply;
+    box-shadow: inset 0 0 100px black;
+    mix-blend-mode: multiply;
+}
+
+.inner {
+  background: none;
+}
+
+.inner::after {
+    position: fixed;
+    content: "";
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(45deg, rgba(240,183,161,1) 0%,rgba(140,51,16,1) 18%,rgba(206,56,2,1) 48%,rgba(142,1,50,1) 75%,rgba(191,110,78,1) 100%);
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    box-shadow: none;
+}
+
+/* Animations */
+@keyframes in {
+    0% { opacity: 0; filter: blur(6px) contrast(0%); transform: scale(3); }
+    100% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+}
+
+@keyframes out {
+    0% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+    100% { opacity: 0; filter: blur(6px) contrast(0%); transform: scale(3); }
+}
+
+@keyframes in-reverse {
+    100% { opacity: 0; filter: blur(6px) contrast(0%); transform: scale(3); }
+    0% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+}
+
+@keyframes out-reverse {
+    100% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+    0% { opacity: 0; filter: blur(6px) contrast(0%); transform: scale(3); }
+}
+
+.eq {
+    mix-blend-mode: overlay;
+}
+
+.eq .band {
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+}

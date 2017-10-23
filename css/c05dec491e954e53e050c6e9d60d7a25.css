@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
+
+/* BeatDown styling */
+.gd-slides #custom .inner {
+    position: fixed;
+    transform: scale(1.1) translateX(-120px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
+    padding: 10%;
+}
+
+#custom .inner * {
+    font-family: 'UnifrakturMaguntia', sans-serif;
+    font-weight: bold;
+    background: black;
+    text-shadow: 2px 2px 6px rgba(255,255,255,0.45);
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+#custom .section {
+    box-shadow: none;
+    background: rgba(169, 169, 169, 0.75);
+    border-radius: 0;
+    box-shadow: inset 0 0 2px 2px rgba(0,0,0,0.75), inset 2px 2px 2px 2px white, 0 0 2px 9px rgba(0,0,0,0.65), 0 0 1px 11px white, 0 0 2px 13px rgba(0,0,0,0.9), 0 0 0px 12px white, 0 0 2px 10px rgba(0,0,0,0.45), 0 0 2px 15px rgba(98, 98, 98, 0.85), 0 0 4px 10px cornsilk;
+    mix-blend-mode: hard-light;
+    border: none;
+    filter: brightness(85%);
+}
+
+#custom .inner::before {
+    pointer-events: none;
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url(https://ugotsta.github.io/gitdown/assets/more-rough-wood-planks.jpg);
+    box-shadow: inset 0 0 100px black, inset 0 0 50px black;
+    background-size: 700px;
+}
+
+#custom .inner::after {
+    pointer-events: none;
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgb(0, 0, 0) 0%,rgb(145, 101, 94) 15%,rgb(192, 171, 167) 33%,rgb(168, 135, 135) 62%,rgb(71, 22, 12) 100%);
+    box-shadow: inset 0 0 200px black;
+    mix-blend-mode: color-dodge;
+}
+
+#custom .section {
+    padding: 0.5em;
+}
+
+.gd-columns #custom .section {
+    padding: 0.25em;
+    margin: 40px 20px;
+}
+
+.gd-slides #custom .container {
+  overflow: hidden;
+}
+
+.gd-modular #custom a.n-reference {
+    border: none;
+    box-shadow: inset 0 0 12px black;
+    background: whitesmoke;
+    color: black;
+}
+
+#custom .editor textarea {
+    color: white;
+}
+
+#custom .editor {
+    mix-blend-mode: overlay;
+}
+
+#custom .inner {
+  background: none;
+  font-size: 140%;
+}
+
+.section a {
+  color: unset;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(0,0,0,0.15);
+}
+
+#custom .section a:hover {
+    border-radius: 3px;
+    box-shadow: inset 0 0 40px darkred, 0 0 10px red;
+}
+
+#custom a.choice::before {
+    font-weight: bold;
+    color: black;
+}
+
+#custom .section a.handle {
+  font-family: 'UnifrakturMaguntia';
+  font-weight: 900;
+  border: none;
+}
+
+.section .content,
+.section .content .alternate {
+  background: none;
+}
+
+#custom .section code {
+  box-shadow: none;
+  color: unset;
+  padding: 0px 12px;
+}
+
+#custom .section table,
+#custom .section tr,
+#custom .section th {
+  background: none;
+}
+
+kbd {
+    display: inline-block;
+    padding: 3px 5px;
+    line-height: 50%;
+    color: rgba(0,0,0,0.25);
+    font-size: 1em;
+    font-weight: bold;
+    background: rgba(255,220,200,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    box-shadow: 0 0 10px rgba(255,220,200,0.95);
+}
+
+.eq {
+    position: fixed;
+    pointer-events: none;
+    margin: auto;
+    height: 70%;
+    width: 100%;
+    background: none;
+    mix-blend-mode: overlay;
+    bottom: 0;
+}
+
+.eq .band {
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.4) 10%,rgba(0,0,0,0.6) 25%,rgba(0,0,0,0.5) 48%,rgba(0,0,0,0.3) 72%,rgba(0,0,0,0.65) 100%);
+  border-radius: 0;
+  margin-right: 0;
+}
+
+connection {
+    mix-blend-mode: color-burn;
+    border: 3px solid black;
+    opacity: 0.5;
+}
+
+#custom .inner kbd {
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.75), 0 0 2px black;
+    padding: 0.35em;
+}
+
+/* Info styling */
+#custom .info * {
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+
+#custom .info {
+    box-shadow: -2px 2px 8px rgba(0,0,0,0.45), inset 0 0 20px black;
+    mix-blend-mode: normal;
+    background-image: url(https://ugotsta.github.io/gitdown/assets/more-rough-wood-planks.jpg);
+    background-size: 800px;
+}
+
+#custom .info a:hover,
+#custom .toc a:hover {
+    color: burlywood;
+    background: rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 8px white;
+}
+
+#custom .info .toc {
+    background-color: rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 10px black;
+}
+
+#custom .info .selector {
+    border-radius: 0;
+    background: black;
+}
+
+#custom .eq {
+    position: absolute;
+    max-width: unset;
+    min-width: unset;
+    max-height: unset;
+    min-height: unset;
+    top: 0;
+    bottom: 20%;
+    left: 0;
+    right: 0;
+    padding: 0;
+    margin: auto;
+    width: 85vw;
+    height: 40vh;
+    background: none;
+    opacity: 1;
+    z-index: 1;
+    mix-blend-mode: hard-light;
+}
+
+#custom .eq .band {
+    background: none;
+    margin-right: 1.7em;
+    box-shadow: inset 0 0 2px 2px rgba(0,0,0,0.75), inset 2px 2px 2px 2px white, 0 0 2px 9px rgba(0,0,0,0.65), 0 0 1px 11px white, 0 0 2px 13px rgba(0,0,0,0.9);
+}
+
+#gd-beatdown #custom .inner {
+    transform: scale(1) translateX(-100px) translateY(10px) perspective(900px) rotateX(15deg) rotateY(4deg) rotateZ(0deg);
+}
+
+#gd-beatdown #custom .section {
+    position: absolute;
+    max-width: unset;
+    min-width: unset;
+    max-height: unset;
+    min-height: unset;
+    top: 40%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0;
+    margin: auto;
+    width: 85vw;
+    height: 30%;
+    overflow: hidden;
+    background: none;
+    box-shadow: none;
+    border: none;
+}
+
+#gd-beatdown .handle-heading {
+    display: none;
+}
