@@ -504,7 +504,7 @@
                     if ( http.status === 200 ) {
                         resolve(http.response);
                     } else {
-                        reject( Error(http.statusText) );
+                        reject( Error(http.status) );
                     }
                 };
                 http.onerror = function () {
@@ -547,6 +547,7 @@
                 var ext = '.md';
                 if ( type === 'css' ) ext = '.css';
                 urls.push( css_path + id + ext );
+                urls.push( '//github.com/ugotsta/gitdown/' + css_path + id + ext );
                 urls.push(`//api.github.com/gists/${id}`);
             }
             plugin.get_file( id, type, urls );
@@ -582,8 +583,10 @@
                     su_render(data);
                 }
             }, function (error) {
-                if ( urls.length > 0 ) {
-                    plugin.get_file( id, type, urls );
+                if ( error.toString().indexOf('404') ) {
+                    if ( urls.length > 0 ) {
+                        plugin.get_file( id, type, urls );
+                    }
                 }
                 console.error( "Request failed.", error );
             });
