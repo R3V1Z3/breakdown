@@ -214,6 +214,14 @@ kbd:hover {
 }
 
 /* Selector  styling */
+
+.info a.selector-url {
+  width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .info .field.selector .dialog {
   position: absolute;
   top: 10px;

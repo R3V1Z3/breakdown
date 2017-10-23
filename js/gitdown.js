@@ -1466,7 +1466,7 @@
                 $( `${eid} ${prefix}-input` ).focus();
 
                 // set position
-                var p = $(this).position();
+                var p = $(this).parent().position();
                 $( `${eid} ${prefix}-selector` ).css({
                     top: p.top + $(this).height() - 17,
                     left: p.left
