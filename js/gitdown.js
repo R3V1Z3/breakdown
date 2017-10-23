@@ -544,6 +544,8 @@
                 var file_path = '';
                 var ext = '';
                 // add markdown extension if file has no extension
+                // todo ensure id has a value
+                console.log(id);
                 if ( id.indexOf('.') === -1 ) ext = '.md';
                 // add css extension and css/ file path if this is a css file
                 if ( type === 'css' ) {
@@ -588,7 +590,7 @@
                         plugin.prepare_get( plugin.settings.css, 'css' );
                         // now load any user-specific content
                         var gist = plugin.update_parameter('gist');
-                        if ( gist !== 'default' ) {
+                        if ( gist !== undefined && gist !== 'default' ) {
                             plugin.prepare_get( gist, 'gist' );
                             su_render(data);
                             // return since su_render() is executed above
@@ -617,9 +619,6 @@
 
             // get user-specified local file (default: README.md)
             // execution is then passed to plugin.get_file() where css is loaded
-            if ( plugin.settings.file === '' || plugin.settings.file === undefined ) {
-                plugin.settings.file = 'README.md';
-            }
             plugin.prepare_get( plugin.settings.file, 'gist' );
 
         };
