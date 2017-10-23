@@ -106,9 +106,6 @@
             // merge defaults and user-provided options into plugin settings
             plugin.settings = $.extend({}, defaults, options);
             plugin.settings.loaded = false;
-
-            // if ( plugin.settings.css === 'default' ) plugin.settings.css_filename = 'style.css';
-            // if ( plugin.settings.gist === 'default' ) plugin.settings.gist_filename = plugin.settings.file;
             
             // add container div and inner content
             var content = '<div class="' + plugin.settings.container + '">';
@@ -150,6 +147,7 @@
                 // ensure the parameter is allowed
                 if ( plugin.settings.parameters_disallowed.indexOf(key) === -1 ) {
                     val = params.get(key);
+                    
                     // sanitize strings
                     if ( typeof val === 'string' ) {
                         var parser = new HtmlWhitelistedSanitizer(true);
@@ -543,12 +541,18 @@
             } else {
                 // first set url to pull local file named with id
                 // if that fails, we'll pull from original gist
-                var css_path = 'css/';
-                var ext = '.md';
-                if ( type === 'css' ) ext = '.css';
-                urls.push( css_path + id + ext );
-                urls.push( '//ugotsta.github.io/gitdown/' + css_path + id + ext );
-                urls.push(`//api.github.com/gists/${id}`);
+                var file_path = '';
+                var ext = '';
+                // add markdown extension if file has no extension
+                if ( id.indexOf('.') === -1 ) ext = '.md';
+                // add css extension and css/ file path if this is a css file
+                if ( type === 'css' ) {
+                    file_path = 'css/';
+                    ext = '.css';
+                }
+                urls.push( file_path + id + ext );
+                urls.push( '//ugotsta.github.io/gitdown/' + file_path + id + ext );
+                urls.push( `//api.github.com/gists/${id}` );
             }
             plugin.get_file( id, type, urls );
         }
@@ -558,15 +562,13 @@
             if ( urls.length < 1 ) return;
             var url = urls.shift();
             var filename = plugin.settings[type + '_filename'];
-            
-            console.log(url);
 
             // begin promise chain
             plugin.get(url).then( function (response ) {
                 plugin.settings[type] = id;
                 plugin.settings[type + '_filename'] = url;
                 var data = response;
-                // slight adjustments for files pull from GitHub Gist
+                // slight adjustments for files pulled from GitHub Gist
                 if ( url.indexOf('api.github.com') != -1 ) {
                     var parsed = JSON.parse(response);
                     var file = plugin.get_gist_filename( parsed, filename );
@@ -580,6 +582,19 @@
                     $( eid + '.info *' ).remove();
                     $( eid + '.inner *' ).remove();
                     data = extract_info_content(data);
+                    // extra routine for initial load (occurs only at first run)
+                    if ( !plugin.settings.loaded ) {
+                        // we'll load any user-specified css first
+                        plugin.prepare_get( plugin.settings.css, 'css' );
+                        // now load any user-specific content
+                        var gist = plugin.update_parameter('gist');
+                        if ( gist !== 'default' ) {
+                            plugin.prepare_get( gist, 'gist' );
+                            su_render(data);
+                            // return since su_render() is executed above
+                            return;
+                        }
+                    }
                     su_render(data);
                 }
             }, function (error) {
@@ -594,92 +609,28 @@
 
         // PRIVATE METHODS -----------------------------------------------------
         var main = function() {
-            $.ajax({
-                url : plugin.settings.file,
-                dataType: "text",
-                success : function (data) {
-                    data = extract_info_content(data);
-                    var p = plugin.settings;
-                    extract_parameters( p );
-                    if ( !p.gist || p.gist === 'default' ) {
-                        plugin.settings.gist === 'default';
-                        if ( !p.css || p.css === 'default' ) {
-                            // no gist or CSS provided, so lets just render README
-                            $('html').addClass('gd-default');
-                            su_render(data);
-                        } else {
-                            // no gist provided, but CSS provided, so load CSS along with README
-                            load_gist( 'css', p.css, p.css_filename, data );
-                        }
-                    } else {
-                        // a gist id was provided, test for CSS in callback
-                        load_gist( 'gist', p.gist, p.gist_filename );
-                    }
-                }
-            });
-        };
 
-        // TODO: we'll fix this callback hell with promises
-        var load_gist = function (type, gist_id, filename, data){
-            var jqxhr = $.ajax({
-                url: 'https://api.github.com/gists/' + gist_id,
-                type: 'GET',
-                dataType: 'jsonp'
-            }).done(function(gistdata) {
-                var objects = [];
-                if ( filename === '' || filename == null ) {
-                    for (var file in gistdata.data.files) {
-                        if (gistdata.data.files.hasOwnProperty(file)) {
-                            // save filename in settings
-                            plugin.settings[ type + '_filename' ] = gistdata.data.files[file].filename;
-                            // get file contents
-                            var o = gistdata.data.files[file].content;
-                            if (o) {
-                                objects.push(o);
-                            }
-                        }
-                    }
-                } else {
-                    objects.push(gistdata.data.files[filename].content);
-                }
-                if ( type === 'css' ) {
-                    render_theme_css(objects[0]);
-                    su_render(data);
-                } else {
-                    // check if css id was provided
-                    if ( plugin.settings.css != 'default' && plugin.settings.css != '' ) {
-                        // css id provided so lets load it
-                        load_gist( 'css', plugin.settings.css, plugin.settings.css_filename, objects[0] );
-                    } else {
-                        // no css provided so let's start rendering
-                        su_render(objects[0]);
-                    }
-                }
-            }).fail(function( xhr, ajaxOptions, thrownError ) {
-                console.log(xhr.status);
-                if ( xhr.status === 404 ) {
-                    console.log('404 error, .');
-                }
-            });
-        };
-
-        // Update settings with URL parameters
-        // p = plugin.settings
-        var extract_parameters = function( p ) {
-            for (var key in p) {
-                // check key against URL parameters
+            // update settings with URL parameters
+            for (var key in plugin.settings) {
                 plugin.update_parameter(key);
             }
+
+            // get user-specified local file (default: README.md)
+            // execution is then passed to plugin.get_file() where css is loaded
+            plugin.prepare_get( plugin.settings.file, 'gist' );
+
         };
 
         // Start content rendering process
         var su_render = function(data) {
 
+            var p = plugin.settings;
+
             // best practice, files should end with newline, we'll ensure it.
             data += '\n';
 
             // preprocess data if user specified
-            if( plugin.settings.preprocess ) {
+            if( p.preprocess ) {
                 data = preprocess(data);
             }
 
@@ -693,11 +644,14 @@
             plugin.render( data, eid_inner, true );
             plugin.render( info_content, eid + ' .info', false );
 
+            // add gd-default class if using default theme
+            if ( p.css === 'default' ) $('html').addClass('gd-default');
+
             // arrange content in sections based on headings
             sectionize();
 
-            if ( plugin.settings.fontsize != '' ) {
-                $( eid_inner ).css('font-size', plugin.settings.fontsize + '%');
+            if ( p.fontsize != '' ) {
+                $( eid_inner ).css('font-size', p.fontsize + '%');
             }
             
             plugin.render_highlight();
@@ -708,7 +662,7 @@
             tag_replace( '<!--', eid );
 
             // render info panel and toc based on current section
-            render_info( plugin.settings.title );
+            render_info( p.title );
 
             // set current section and go there
             go_to_hash();
@@ -717,7 +671,7 @@
             plugin.update_fields();
 
             // render raw text if user specified
-            plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
+            plugin.render_raw( raw_data, eid_inner, p.markdownit );
 
             register_events();
             handle_options();
@@ -732,10 +686,10 @@
             $( eid + ' .field.collapsible .header' ).click();
 
             // send control back to user provided callback if it exists
-            if ( typeof plugin.settings.callback == 'function' ) {
-                plugin.settings.callback.call();
+            if ( typeof p.callback == 'function' ) {
+                p.callback.call();
                 // provide a way for user to know that callback has been called already
-                plugin.settings.loaded = true;
+                p.loaded = true;
             }
         };
 
@@ -783,6 +737,10 @@
             return info;
         };
 
+        // extra info panel contents if they exist
+        // does nothing if no info content is found
+        // this allows users to create a custom info panel for their files
+        // useful for apps like Entwine so users can create a panel that fits their game
         var extract_info_content = function(content) {
             var n = '\n';
             var info = '';
