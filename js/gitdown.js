@@ -547,7 +547,7 @@
                 var ext = '.md';
                 if ( type === 'css' ) ext = '.css';
                 urls.push( css_path + id + ext );
-                urls.push( '//github.com/ugotsta/gitdown/' + css_path + id + ext );
+                urls.push( '//ugotsta.github.io/gitdown/' + css_path + id + ext );
                 urls.push(`//api.github.com/gists/${id}`);
             }
             plugin.get_file( id, type, urls );
