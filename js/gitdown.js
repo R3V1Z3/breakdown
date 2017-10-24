@@ -544,8 +544,6 @@
                 var file_path = '';
                 var ext = '';
                 // add markdown extension if file has no extension
-                // todo ensure id has a value
-                console.log(id);
                 if ( id.indexOf('.') === -1 ) ext = '.md';
                 // add css extension and css/ file path if this is a css file
                 if ( type === 'css' ) {
@@ -864,7 +862,8 @@
                 $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
                 // scroll to specified hash position
                 $( eid ).animate({
-                    scrollTop: $(hash).offset().top
+                    scrollTop: $(hash).offset().top,
+                    scrollLeft: $(hash).offset().left
                 });
             } else {
                 // hash has changed since start so we'll just remove/add relevant classes
