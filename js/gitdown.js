@@ -861,10 +861,10 @@
                 // update toc with current hash
                 $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
                 // scroll to specified hash position
-                $( eid ).animate({
-                    scrollTop: $(hash).offset().top,
-                    scrollLeft: $(hash).offset().left
-                });
+                // $( eid ).animate({
+                //     scrollTop: $(hash).offset().top,
+                //     scrollLeft: $(hash).offset().left
+                // });
             } else {
                 // hash has changed since start so we'll just remove/add relevant classes
                 $( eid + ' .section.current' ).addClass('old').removeClass('current');
