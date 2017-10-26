@@ -1261,8 +1261,10 @@
         var render_info = function(app_title) {
 
             // first create .unhide div used to unhide the panel on mobile
-            $( eid + ' .container' ).append('<div class="unhide"></div>');
-            $( eid + ' .container' ).append('<div class="fullscreen"></div>');
+            if ( $( eid + ' .fullscreen' ).length < 1 ) {
+                $( eid + ' .container' ).append('<div class="unhide"></div>');
+                $( eid + ' .container' ).append('<div class="fullscreen"></div>');
+            }
 
             // render all variables in comments
             render_variables( eid + ' .info *', app_title );
@@ -1333,13 +1335,6 @@
             // event handler to toggle info panel
             $( eid + ' .hide' ).click(function() {
                 $( eid + ' .panel' ).toggleClass('minimized');
-            });
-
-            // to help with mobile, show .panel when container is clicked outside sections
-            $( eid + ' .unhide' ).on('click', function (e) {
-                if ( $(e.target).closest(".section").length === 0 ) {
-                    $( eid + ' .panel' ).removeClass('minimized');
-                }
             });
 
             // Key events
