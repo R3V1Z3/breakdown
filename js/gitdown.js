@@ -1337,6 +1337,13 @@
                 $( eid + ' .panel' ).toggleClass('minimized');
             });
 
+            // hide/unhide panel
+            $( eid + ' .unhide' ).on('click', function (e) {
+                if ( $(e.target).closest(".section").length === 0 ) {
+                    $( eid + ' .panel' ).removeClass('minimized');
+                }
+            });
+
             // Key events
             $(document).keyup(function(e) {
                 if( e.which == 27 ) {
