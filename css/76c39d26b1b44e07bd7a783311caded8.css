@@ -1,3 +1,10 @@
+/*
+  Theme name: Saint Billy
+*/
+
+$primary-color: tan;
+$secondary-color: brown;
+
 @import url('https://fonts.googleapis.com/css?family=Rye|Sancreek');
 
 /* App-specific styles */
@@ -302,7 +309,7 @@ connection {
 .inner::before {
   content: "";
   pointer-events: none;
-  background-color: tan;
+  background-color: $primary-color;
   background-image: url(https://www.transparenttextures.com/patterns/natural-paper.png);
   position: fixed;
   top: 0;

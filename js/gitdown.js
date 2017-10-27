@@ -82,7 +82,7 @@
                                     "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
                                     "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
                                     "Ghastly": "d1a6d5621b883bf6af886855d853d502",
-                                    "Deep Blue": "51aa23d96f9bd81fe55c47b2d51855a5",
+                                    "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
                                     "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
         };
         // for access to transform values, we'll make sanitized css available
@@ -94,6 +94,7 @@
         // simplify plugin name with this and declare settings
         var plugin = this;
         plugin.settings = {};
+        plugin.css_vars = {};
 
         var $element = $(element);
         var eid = '#' + $element.attr('id');
@@ -307,6 +308,19 @@
 
         plugin.update_selector_url = function( type, filename ) {
             $( eid + ` .info .${type}-url` ).text( filename + ' ▾' );
+            var $source = $( eid + ` .info .field.selector.${type} a.selector-source` );
+
+            var id = plugin.settings[`${type}`];
+            var filename = plugin.settings[`${type}_filename`];
+
+            var href = '';
+            if ( id === 'default' ) {
+                href = gist_url( plugin.settings.file, false );
+            } else {
+                href = '//gist.github.com/' + id;
+            }
+
+            $source.attr( 'href', href );
         }
 
         plugin.get_current_section_id = function() {
@@ -332,11 +346,53 @@
         // shortcut to get url params
         plugin.get_param = function(key) {
             if ( params.has(key) ) {
-                return params.get(key);
+                // return cleaned value
+                var value = params.get(key);
+                var parser = new HtmlWhitelistedSanitizer(true);
+                return parser.sanitizeString(value);
             }
             // return empty string if key doesn't exist
             return '';            
         };
+
+        // returns true
+        plugin.get_css_var = function(k) {
+            value = '';
+            for ( key in plugin.css_vars ) {
+                if ( key === k ) {
+                    return plugin.css_vars[k];
+                }
+            }
+            return value;
+        }
+
+        plugin.preprocess_css = function(css) {
+            // setup vars to store css variables
+            var vars = {};
+            // iterate over css to get variables
+            var lines = css.split('\n');
+            var pre_css = '';
+            for ( var i = 0; i < lines.length; i++ ) {
+                var re = lines[i].match(/\$(.*?):(.*?);/);
+                if (re) {
+                    var key = re[1];
+                    var value = re[2];
+                    // check for existence of url parameter
+                    var v = plugin.update_parameter(key);
+                    if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
+                        value = v;
+                    }
+                    plugin.css_vars[key] = value;
+                } else {
+                    pre_css += lines[i];
+                }
+            }
+            // iterate over vars and replace occurences in css
+            for ( key in plugin.css_vars ) {
+                pre_css = pre_css.split( '$' + key ).join(plugin.css_vars[key]);
+            }
+            return pre_css;
+        }
 
         // update fields based on url parameters
         plugin.update_fields = function(type) {
@@ -379,29 +435,8 @@
                 } else if ( $f.hasClass('selector') ) {
                     var type = get_selector_class($f);
                     var $display_name = $f.find(`.${type}-url`);
-                    var $source = $f.find('a.selector-source');
-                    var href = '', filename = '';
-                    if ( type === 'gist' ) {
-                        var gist = plugin.settings.gist;
-                        if ( gist === 'default' ) {
-                            plugin.settings.gist_filename = plugin.settings.file;
-                            href = gist_url( plugin.settings.file, false );
-                        } else {
-                            href = '//gist.github.com/' + gist;
-                        }
-                        filename = plugin.settings.gist_filename;
-                    } else if ( type === 'css' ) {
-                        var css = plugin.settings.css;
-                        if ( css === 'default' ) {
-                            plugin.settings.css_filename = 'default';
-                            href = gist_url( 'Default', false );
-                        } else {
-                            href = '//gist.github.com/' + css;
-                        }
-                        filename = plugin.settings.css_filename;
-                    }
-                    $source.attr( 'href', href );
-                    $display_name.text( filename + ' ▾' );
+                    var filename = plugin.settings[`${type}_filename`];
+                    plugin.update_selector_url( type, filename );
                 }
             });
         }
@@ -952,10 +987,22 @@
                 var parser = new HtmlWhitelistedSanitizer(true);
                 css = parser.sanitizeString(css);
 
+                // preprocess css is our sissy lttle sass wannabe :)
+                var preprocessed = plugin.preprocess_css(css);
+
+                // when using a local css file, get the theme name
+                var id = plugin.settings.css;
+                for ( key in example_css_default ) {
+                    if ( example_css_default[key] === id ) {
+                        plugin.settings.css_filename = key;
+                    }
+                }
+
                 // create style tag with css content
-                $('head').append(`<style id="gd-theme-css">${css}</style>`);
+                $('head').append(`<style id="gd-theme-css">${preprocessed}</style>`);
             }
-            plugin.update_fields();
+            // update theme selector field
+            plugin.update_selector_url( 'css', plugin.settings.css_filename );
             // store cleaned css in browser
             window.localStorage.setItem( 'gd_theme', css );
         };
@@ -1392,6 +1439,12 @@
                 // load user provided highlight style
                 if ( name === 'highlight' ) {
                     plugin.render_highlight();
+                }
+                // update css_vars with key
+                if ( plugin.get_css_var(name) !== '' ) {
+                    var val = plugin.update_parameter(name);
+                    var css = window.localStorage.getItem( 'gd_theme', css );
+                    render_theme_css(css);
                 }
             });
 

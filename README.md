@@ -46,8 +46,6 @@ Example Gists <!-- {$gd_gist} -->
 
 -----
 
-<!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
-
 Themes <!-- {$gd_css} -->
 - [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
 - [Console](https://gist.github.com/e9217f4e7ed7c8fa18f13d12def1ad6c)
@@ -64,6 +62,18 @@ Themes <!-- {$gd_css} -->
 - [Deep Blue](https://gist.github.com/51aa23d96f9bd81fe55c47b2d51855a5)
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
+
+<!-- {$gd_slider_fontsize="110,50,300,1,%"} -->
+
+<!-- {$gd_select_primary-color} -->
+- Default
+- Slategrey
+- Burlywood
+- Green
+- Magenta
+- Brown
+- Red
+- Dodgerblue
 
 <!-- {$gd_collapsible_end_appearance} -->
 

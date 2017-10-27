@@ -1,3 +1,9 @@
+/*
+    Theme name: Gradient Deep
+*/
+
+$primary-color: deepskyblue;
+
 @import url('https://fonts.googleapis.com/css?family=Poiret+One|Great+Vibes');
 
 * {
@@ -66,7 +72,7 @@ a.choice:hover {
     right: 0;
     pointer-events: none;
     background-image: url(https://ugotsta.github.io/gitdown/assets/paper-set-textured.jpg);
-    background-color: deepskyblue;
+    background-color: $primary-color;
     background-blend-mode: multiply;
     box-shadow: inset 0 0 100px black;
     mix-blend-mode: multiply;
