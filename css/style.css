@@ -362,6 +362,10 @@ a.selector-source {
   padding: 0.5em;
 }
 
+.info .field.collapsible .contents {
+  margin-top: 0.5em;
+}
+
 .info .field.collapsible.collapsed .contents {
   height: 0px;
   display: none;
