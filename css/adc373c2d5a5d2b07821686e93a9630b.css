@@ -1,5 +1,6 @@
 /*
   Theme name: Technology
+  Gist URL: https://gist.github.com/Ugotsta/adc373c2d5a5d2b07821686e93a9630b/
 */
 
 $primary-color: slategrey;
@@ -202,6 +203,10 @@ h1, h2, h3, h4, h5, h6 {
 #custom .inner {
   position: relative;
   background: none;
+}
+
+.gd-slides #custom .inner {
+  position: fixed;
 }
 
 #custom .inner::before {
