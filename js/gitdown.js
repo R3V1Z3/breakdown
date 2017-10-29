@@ -650,14 +650,27 @@
                 plugin.update_parameter(key);
             }
 
-            // get user-specified local file (default: README.md)
-            // execution is then passed to plugin.get_file() where css is loaded
-            plugin.prepare_get( plugin.settings.file, 'gist' );
+            // check for 'storage' as gist parameter
+            if ( plugin.settings.gist === 'storage' ) {
+                if ( plugin.settings.css === 'storage' ) {
+                    var css = plugin.get_setting('theme');
+                    render_theme_css(css);
+                }
+                var data = plugin.get_setting('content');
+                su_render(data);
+            } else {
+                // get user-specified local file (default: README.md)
+                // execution is then passed to plugin.get_file() where css is loaded
+                plugin.prepare_get( plugin.settings.file, 'gist' );
+            }
 
         };
 
         // Start content rendering process
         var su_render = function(data) {
+
+            // beging by storing content
+            window.localStorage.setItem( 'gd_content', data );
 
             var p = plugin.settings;
 
