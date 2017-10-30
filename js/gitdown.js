@@ -1349,15 +1349,14 @@
 
                 // send Ready message to whatever window opened this app
                 // todo
-                var opener = window.opener;
-                if ( opener != null ) {
-                    console.log(window.parent);
-                    console.log(window.opener);
-                    opener.postMessage( 'Ready.', '*' );
+                if ( window.opener != null ) {
+                    console.log(opener);
+                    window.opener.postMessage( 'Ready.', '*');
                 }
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
+                    console.log('Message received from:');
                     console.log(event.origin);
                     if ( event.origin === 'https://ugotsta.github.io/' ) {
                         console.log('Received data from GitHub.');
