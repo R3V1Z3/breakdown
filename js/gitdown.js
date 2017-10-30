@@ -57,6 +57,8 @@
                 // set these to false to not merge them into your app
                 merge_themes: true,
                 merge_gists: false,
+
+                origin: 'https://ugotsta.github.io',
             };
     
             // get URL parameters
@@ -1354,18 +1356,23 @@
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
-                    if ( event.origin === 'https://ugotsta.github.io' ) {
+                    console.log(plugin.settings.origin);
+                    if ( event.origin === plugin.settings.origin ) {
                         if ( event.data === 'Ready.') {
                             //
                         } else {
+                            var css = event.data.css;
+                            if ( css != '' ) {
+                                render_theme_css(css);
+                            }
                             // we've received content so su_render it
                             console.log('Received data from GitHub.');
                             sections = [];
                             $( eid + '.info *' ).remove();
                             $( eid + '.inner *' ).remove();
-                            var data = extract_info_content(event.data);
-                            window.localStorage.setItem( 'gd_content', data );
-                            su_render(data);
+                            var content = extract_info_content(event.data.content);
+                            window.localStorage.setItem( 'gd_content', content );
+                            su_render(content);
                         }
                     }
                 }, false);
