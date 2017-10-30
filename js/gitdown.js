@@ -1351,7 +1351,7 @@
 
                 // send Ready message to whatever window opened this app
                 if ( !plugin.settings.loaded && window.opener != null ) {
-                    window.opener.postMessage( 'Ready.', $gd.settings.origin );
+                    window.opener.postMessage( 'Ready.', plugin.settings.origin );
                 }
                 
                 // listen for return messages from parent window
