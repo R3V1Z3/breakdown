@@ -1349,8 +1349,12 @@
 
                 // send Ready message to whatever window opened this app
                 // todo
-                window.parent.postMessage( 'Ready.', '*' );
-                console.log(window.parent);
+                var opener = window.opener;
+                if ( opener != null ) {
+                    console.log(window.parent);
+                    console.log(window.opener);
+                    opener.postMessage( 'Ready.', '*' );
+                }
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
