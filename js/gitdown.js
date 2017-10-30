@@ -1350,6 +1350,7 @@
                 // send Ready message to whatever window opened this app
                 // todo
                 window.parent.postMessage( 'Ready.', '*' );
+                console.log(window.parent);
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
