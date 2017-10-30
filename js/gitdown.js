@@ -649,20 +649,11 @@
                 for (var key in plugin.settings) {
                     plugin.update_parameter(key);
                 }
-    
-                // check for 'storage' as gist parameter
-                if ( plugin.settings.gist === 'storage' ) {
-                    if ( plugin.settings.css === 'storage' ) {
-                        var css = plugin.get_setting('theme');
-                        render_theme_css(css);
-                    }
-                    var data = plugin.get_setting('content');
-                    su_render(data);
-                } else {
-                    // get user-specified local file (default: README.md)
-                    // execution is then passed to plugin.get_file() where css is loaded
-                    plugin.prepare_get( plugin.settings.file, 'gist' );
-                }
+
+                // get ready to receive messages from editor apps like TraversED
+                window.addEventListener('message', receiveMessage, false);
+
+                plugin.prepare_get(plugin.settings.file, 'gist');
     
             };
     
@@ -1527,6 +1518,22 @@
                         }
                     }
                 });
+            };
+
+            var receiveMessage = function(event) {
+                console.log(event.origin);
+                if (event.origin !== 'https://ugotsta.github.io/treversed/') {
+                    console.log('Received data from TraversED');
+                    console.log(event.data);
+                    // if ( plugin.settings.gist === 'storage' ) {
+                    //     if ( plugin.settings.css === 'storage' ) {
+                    //         var css = plugin.get_setting('theme');
+                    //         render_theme_css(css);
+                    //     }
+                    //     var data = plugin.get_setting('content');
+                    //     su_render(data);
+                    // }
+                }
             };
     
             // helper function to avoid replication of example content
