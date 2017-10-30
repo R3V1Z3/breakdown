@@ -1348,21 +1348,25 @@
             var register_events = function() {
 
                 // send Ready message to whatever window opened this app
-                // todo
                 if ( window.opener != null ) {
-                    console.log(opener);
                     window.opener.postMessage( 'Ready.', '*');
                 }
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
-                    console.log('Message received from:');
-                    console.log(event.origin);
-                    if ( event.origin === 'https://ugotsta.github.io/' ) {
-                        console.log('Received data from GitHub.');
-                        console.log(event.data);
-                        //su_render(event.data);
-                        window.localStorage.setItem( 'gd_content', event.data );
+                    if ( event.origin === 'https://ugotsta.github.io' ) {
+                        if ( event.data === 'Ready.') {
+                            //
+                        } else {
+                            // we've received content so su_render it
+                            console.log('Received data from GitHub.');
+                            sections = [];
+                            $( eid + '.info *' ).remove();
+                            $( eid + '.inner *' ).remove();
+                            var data = extract_info_content(event.data);
+                            su_render(data);
+                            window.localStorage.setItem( 'gd_content', data );
+                        }
                     }
                 }, false);
     
