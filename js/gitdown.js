@@ -1351,7 +1351,7 @@
 
                 // send Ready message to whatever window opened this app
                 if ( !plugin.settings.loaded && window.opener != null ) {
-                    window.opener.postMessage( 'Ready.', 'https://ugotsta.github.io');
+                    window.opener.postMessage( 'Ready.', $gd.settings.origin );
                 }
                 
                 // listen for return messages from parent window
@@ -1361,12 +1361,8 @@
                         if ( event.data === 'Ready.') {
                             //
                         } else {
-                            var data = JSON.parse(event.data);
-                            var css = data.css;
-                            if ( css != '' ) {
-                                render_theme_css(css);
-                            }
                             // we've received content so su_render it
+                            var data = JSON.parse(event.data);
                             console.log('Received data from GitHub.');
                             sections = [];
                             $( eid + '.info *' ).remove();
