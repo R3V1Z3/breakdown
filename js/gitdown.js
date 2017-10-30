@@ -1356,7 +1356,7 @@
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
-                    if ( event.origin === plugin.settings.origin ) {
+                    //if ( event.origin === plugin.settings.origin ) {
                         if ( event.data === 'Ready.') {
                             //
                         } else {
@@ -1375,7 +1375,7 @@
                             window.localStorage.setItem( 'gd_content', content );
                             su_render(content);
                         }
-                    }
+                    //}
                 }, false);
     
                 // handle history
