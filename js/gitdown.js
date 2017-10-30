@@ -1348,8 +1348,8 @@
             var register_events = function() {
 
                 // send Ready message to whatever window opened this app
-                if ( window.opener != null ) {
-                    window.opener.postMessage( 'Ready.', '*');
+                if ( !plugin.settings.loaded && window.opener != null ) {
+                    window.opener.postMessage( 'Ready.', 'https://ugotsta.github.io');
                 }
                 
                 // listen for return messages from parent window
@@ -1364,8 +1364,8 @@
                             $( eid + '.info *' ).remove();
                             $( eid + '.inner *' ).remove();
                             var data = extract_info_content(event.data);
-                            su_render(data);
                             window.localStorage.setItem( 'gd_content', data );
+                            su_render(data);
                         }
                     }
                 }, false);
