@@ -1354,8 +1354,8 @@
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
                     console.log(event.origin);
-                    if ( event.origin === 'https://ugotsta.github.io/treversed/' ) {
-                        console.log('Received data from TraversED');
+                    if ( event.origin === 'https://ugotsta.github.io/' ) {
+                        console.log('Received data from GitHub.');
                         console.log(event.data);
                         //su_render(event.data);
                         window.localStorage.setItem( 'gd_content', event.data );
