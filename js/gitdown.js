@@ -133,7 +133,7 @@
                 eid_inner = eid_container + ' .' + plugin.settings.inner;
     
                 // setup default info content
-                info_content = default_info_content();
+                info_content = plugin.default_info_content();
     
                 // call main() based on options
                 main();
@@ -497,6 +497,18 @@
                     $clone.hide();
                 }
             };
+
+            plugin.default_info_content = function() {
+                var n = '\n';
+                var info = '# Info <!-- {$gd_info} -->' + n;
+                info += '<!-- {$gd_help_ribbon} -->' + n;
+                info += '<!-- {$gd_element_count} -->' + n;
+                info += 'GIST <!-- {$gd_gist} -->' + n;
+                info += 'CSS <!-- {$gd_css} -->' + n;
+                info += '## Table of Contents <!-- {$gd_toc} -->' + n;
+                info += '<!-- {$gd_hide} -->' + n;
+                return info;
+            };
     
             plugin.update_toc = function() {
                 var html = '';
@@ -758,18 +770,6 @@
                     $( eid + ' .toc' ).remove();
                     $( eid + ' .info h3' ).remove();
                 }
-            };
-    
-            var default_info_content = function() {
-                var n = '\n';
-                var info = '# Info <!-- {$gd_info} -->' + n;
-                info += '<!-- {$gd_help_ribbon} -->' + n;
-                info += '<!-- {$gd_element_count} -->' + n;
-                info += 'GIST <!-- {$gd_gist} -->' + n;
-                info += 'CSS <!-- {$gd_css} -->' + n;
-                info += '## Table of Contents <!-- {$gd_toc} -->' + n;
-                info += '<!-- {$gd_hide} -->' + n;
-                return info;
             };
     
             // extra info panel contents if they exist
@@ -1370,7 +1370,8 @@
                             sections = [];
                             $( eid + '.info *' ).remove();
                             $( eid + '.inner *' ).remove();
-                            var content = extract_info_content(event.data.content);
+                            var content = event.data.content + '\n' + plugin.default_info_content();
+                            content = extract_info_content(content);
                             window.localStorage.setItem( 'gd_content', content );
                             su_render(content);
                         }
