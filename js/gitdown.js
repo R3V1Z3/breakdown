@@ -1360,8 +1360,8 @@
                         if ( event.data === 'Ready.') {
                             //
                         } else {
-                            console.log(event.data);
-                            var css = event.data.css;
+                            var data = JSON.parse(event.data);
+                            var css = data.css;
                             if ( css != '' ) {
                                 render_theme_css(css);
                             }
@@ -1370,7 +1370,7 @@
                             sections = [];
                             $( eid + '.info *' ).remove();
                             $( eid + '.inner *' ).remove();
-                            var content = event.data.content + '\n' + plugin.default_info_content();
+                            var content = data.content + '\n' + plugin.default_info_content();
                             content = extract_info_content(content);
                             window.localStorage.setItem( 'gd_content', content );
                             su_render(content);
