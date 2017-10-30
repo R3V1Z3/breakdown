@@ -58,7 +58,7 @@
                 merge_themes: true,
                 merge_gists: false,
 
-                origin: 'https://ugotsta.github.io',
+                origin: '*'//'https://ugotsta.github.io',
             };
     
             // get URL parameters
@@ -1356,11 +1356,11 @@
                 
                 // listen for return messages from parent window
                 window.addEventListener( 'message', function(event) {
-                    console.log(plugin.settings.origin);
                     if ( event.origin === plugin.settings.origin ) {
                         if ( event.data === 'Ready.') {
                             //
                         } else {
+                            console.log(event.data);
                             var css = event.data.css;
                             if ( css != '' ) {
                                 render_theme_css(css);
