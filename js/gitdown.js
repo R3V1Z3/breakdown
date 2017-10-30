@@ -103,23 +103,6 @@
     
             // CONSTRUCTOR --------------------------------------------------------
             plugin.init = function() {
-
-                window.addEventListener( 'message', function(event) {
-                    console.log(event.origin);
-                    if (event.origin !== 'https://ugotsta.github.io/treversed/') {
-                        console.log('Received data from TraversED');
-                        console.log(event.data);
-                        //event.source.postMessage('Ready.');
-                        // if ( plugin.settings.gist === 'storage' ) {
-                        //     if ( plugin.settings.css === 'storage' ) {
-                        //         var css = plugin.get_setting('theme');
-                        //         render_theme_css(css);
-                        //     }
-                        //     var data = plugin.get_setting('content');
-                        //     su_render(data);
-                        // }
-                    }
-                }, false);
     
                 // merge defaults and user-provided options into plugin settings
                 plugin.settings = $.extend({}, defaults, options);
@@ -1363,6 +1346,21 @@
             };
     
             var register_events = function() {
+
+                // send Ready message to whatever window opened this app
+                // todo
+                window.parent.postMessage( 'Ready.', '*' );
+                
+                // listen for return messages from parent window
+                window.addEventListener( 'message', function(event) {
+                    console.log(event.origin);
+                    if ( event.origin === 'https://ugotsta.github.io/treversed/' ) {
+                        console.log('Received data from TraversED');
+                        console.log(event.data);
+                        //su_render(event.data);
+                        window.localStorage.setItem( 'gd_content', event.data );
+                    }
+                }, false);
     
                 // handle history
                 $(window).on('popstate', function (e) {
