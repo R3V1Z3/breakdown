@@ -118,6 +118,7 @@
                         //     var data = plugin.get_setting('content');
                         //     su_render(data);
                         // }
+                    }
                 }, false);
     
                 // merge defaults and user-provided options into plugin settings
