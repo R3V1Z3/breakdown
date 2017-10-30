@@ -103,6 +103,22 @@
     
             // CONSTRUCTOR --------------------------------------------------------
             plugin.init = function() {
+
+                window.addEventListener( 'message', function(event) {
+                    console.log(event.origin);
+                    if (event.origin !== 'https://ugotsta.github.io/treversed/') {
+                        console.log('Received data from TraversED');
+                        console.log(event.data);
+                        //event.source.postMessage('Ready.');
+                        // if ( plugin.settings.gist === 'storage' ) {
+                        //     if ( plugin.settings.css === 'storage' ) {
+                        //         var css = plugin.get_setting('theme');
+                        //         render_theme_css(css);
+                        //     }
+                        //     var data = plugin.get_setting('content');
+                        //     su_render(data);
+                        // }
+                }, false);
     
                 // merge defaults and user-provided options into plugin settings
                 plugin.settings = $.extend({}, defaults, options);
@@ -650,18 +666,12 @@
                     plugin.update_parameter(key);
                 }
 
-                // get ready to receive messages from editor apps like TraversED
-                window.addEventListener('message', receiveMessage, false);
-
                 plugin.prepare_get(plugin.settings.file, 'gist');
     
             };
     
             // Start content rendering process
             var su_render = function(data) {
-    
-                // beging by storing content
-                window.localStorage.setItem( 'gd_content', data );
     
                 var p = plugin.settings;
     
@@ -1518,22 +1528,6 @@
                         }
                     }
                 });
-            };
-
-            var receiveMessage = function(event) {
-                console.log(event.origin);
-                if (event.origin !== 'https://ugotsta.github.io/treversed/') {
-                    console.log('Received data from TraversED');
-                    console.log(event.data);
-                    // if ( plugin.settings.gist === 'storage' ) {
-                    //     if ( plugin.settings.css === 'storage' ) {
-                    //         var css = plugin.get_setting('theme');
-                    //         render_theme_css(css);
-                    //     }
-                    //     var data = plugin.get_setting('content');
-                    //     su_render(data);
-                    // }
-                }
             };
     
             // helper function to avoid replication of example content
