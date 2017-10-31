@@ -149,7 +149,6 @@
                     // ensure the parameter is allowed
                     if ( plugin.settings.parameters_disallowed.indexOf(key) === -1 ) {
                         val = params.get(key);
-                        
                         // sanitize strings
                         if ( typeof val === 'string' ) {
                             var parser = new HtmlWhitelistedSanitizer(true);
@@ -397,9 +396,7 @@
     
             // update fields based on url parameters
             plugin.update_fields = function(type) {
-                if ( type === '' || type === undefined ) {
-                    type = '';
-                }
+                if ( type === '' || type === undefined ) type = '';
                 var $fields = $( `${eid} .info .field${type}` );
                 $fields.each(function(){
                     var field_class = '';
@@ -407,11 +404,13 @@
                     if ( $f.hasClass('slider') ) {
                         var $slider = $f.find('input');
                         var name = $slider.attr('name');
+                        // get parameter value if user specified
                         var p = plugin.update_parameter( name, $slider.val() );
                         if ( p != '' ) {
                             $slider.val(p);
                             $slider.attr( 'value', p );
                         }
+                        plugin.settings[name] = $slider.val();
                     } else if ( $f.hasClass('select') ) {
                         var $select = $f.find('select');
                         var name = $select.attr('name');
@@ -420,6 +419,7 @@
                             $select.val(p);
                             $select.change();
                         }
+                        plugin.settings[name] = $select.val();
                     } else if ( $f.hasClass('choices') ) {
                         var $choices = $f.find('a');
                         var name = $choices.parent().attr('data-name');
@@ -433,6 +433,7 @@
                                 $c.addClass('selected');
                             }
                         }
+                        plugin.settings[name] = v;
                     } else if ( $f.hasClass('selector') ) {
                         var type = get_selector_class($f);
                         var $display_name = $f.find(`.${type}-url`);
@@ -670,14 +671,11 @@
     
             // Start content rendering process
             var su_render = function(data) {
-    
-                var p = plugin.settings;
-    
                 // best practice, files should end with newline, we'll ensure it.
                 data += '\n';
     
                 // preprocess data if user specified
-                if( p.preprocess ) {
+                if( plugin.settings.preprocess ) {
                     data = preprocess(data);
                 }
     
@@ -692,14 +690,10 @@
                 plugin.render( info_content, eid + ' .info', false );
     
                 // add gd-default class if using default theme
-                if ( p.css === 'default' ) $('html').addClass('gd-default');
+                if ( plugin.settings.css === 'default' ) $('html').addClass('gd-default');
     
                 // arrange content in sections based on headings
                 sectionize();
-    
-                if ( p.fontsize != '' ) {
-                    $( eid_inner ).css('font-size', p.fontsize + '%');
-                }
                 
                 plugin.render_highlight();
     
@@ -709,16 +703,20 @@
                 tag_replace( '<!--', eid );
     
                 // render info panel and toc based on current section
-                render_info( p.title );
+                render_info( plugin.settings.title );
     
                 // set current section and go there
                 go_to_hash();
                 
                 // update fields based on params
                 plugin.update_fields();
-    
+
+                // where are we updating parameters based on fields like sliders?
+                var fontsize = plugin.settings.fontsize;
+                if ( fontsize != '' ) $( eid_inner ).css('font-size', fontsize + '%');
+
                 // render raw text if user specified
-                plugin.render_raw( raw_data, eid_inner, p.markdownit );
+                plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
     
                 register_events();
                 handle_options();
@@ -733,10 +731,10 @@
                 $( eid + ' .field.collapsible .header' ).click();
     
                 // send control back to user provided callback if it exists
-                if ( typeof p.callback == 'function' ) {
-                    p.callback.call();
-                    // provide a way for user to know that callback has been called already
-                    p.loaded = true;
+                if ( typeof plugin.settings.callback == 'function' ) {
+                    plugin.settings.callback.call();
+                    // provide a way for user to know callback has been called already
+                    plugin.settings.loaded = true;
                 }
             };
     
