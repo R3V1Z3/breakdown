@@ -671,6 +671,7 @@
     
             // Start content rendering process
             var su_render = function(data) {
+
                 // best practice, files should end with newline, we'll ensure it.
                 data += '\n';
     
@@ -691,6 +692,9 @@
     
                 // add gd-default class if using default theme
                 if ( plugin.settings.css === 'default' ) $('html').addClass('gd-default');
+
+                // add gd-lyrics class when using lyrics mode: heading=lyrics
+                if ( plugin.settings.heading === 'lyrics' ) $(eid).addClass('gd-lyrics');
     
                 // arrange content in sections based on headings
                 sectionize();
@@ -805,6 +809,7 @@
                 // header section
                 var header = plugin.settings.header;
                 var heading = plugin.settings.heading;
+                if ( heading === 'lyrics' ) heading = 'p';
     
                 if ( $( eid_inner + ' ' + header ).length ) {
                     $( eid_inner + ' ' + header ).each(function() {
@@ -829,6 +834,16 @@
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
                     $(this).nextUntil(heading).wrapAll('<div class="content"/>');
                 });
+
+                // for lyrics mode, add heading content to .content div
+                if ( plugin.settings.heading === 'lyrics' ) {
+                    $(eid_inner + ' .section.heading').each(function() {
+                        var heading = $(this).find('a.handle').html();
+                        var $c = $(this).find('.handle-heading');
+                        heading = `<div class="content">${heading}</div>`;
+                        $c.after(heading);
+                    });
+                }
     
                 // add section names to sections array for use with toc
                 $( eid_inner + ' .section a.handle' ).each(function(){

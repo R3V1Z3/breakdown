@@ -69,10 +69,13 @@ Themes <!-- {$gd_css} -->
 - Default
 - Slategrey
 - Burlywood
+- Antiquewhite
 - Green
 - Magenta
 - Brown
 - Red
+- Organe
+- Blue
 - Dodgerblue
 
 <!-- {$gd_collapsible_end_appearance} -->

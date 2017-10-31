@@ -390,6 +390,11 @@ a.selector-source {
   box-shadow: inset 0 6px 6px -6px rgba(255, 255, 255, 0.5);
 }
 
+/* Lyric mode styling */
+#custom .gd-lyrics .inner .section.heading .handle-heading {
+  display: none;
+}
+
 /* Help Ribbon */
 #wrapper .info a.help-ribbon,
 .info a.help-ribbon {

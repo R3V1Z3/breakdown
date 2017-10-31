@@ -30,6 +30,17 @@ $secondary-color: brown;
   transform: scale(1.75) translateX(-310px) translateY(-70px) perspective(300px) rotateX(0deg) rotateY(339deg) scaleZ(1) rotateZ(0deg) translateZ(0);
 }
 
+#custom .gd-lyrics .section {
+  filter: brightness(7) blur(0px);
+  background: none;
+  box-shadow: none;
+  border: none;
+}
+
+#custom .gd-lyrics .section.current {
+  filter: brightness(1) blur(0px);
+}
+
 /* General */
 * {
   border: 0;
