@@ -58,7 +58,7 @@
                 merge_themes: true,
                 merge_gists: false,
 
-                origin: '*'//'https://ugotsta.github.io',
+                origin: 'https://ugotsta.github.io',
             };
     
             // get URL parameters
