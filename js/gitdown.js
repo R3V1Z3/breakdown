@@ -87,7 +87,6 @@
                                         "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
                                         "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
             };
-            // for access to transform values, we'll make sanitized css available
             var info_content = '';
     
             var sections = [];
@@ -628,8 +627,8 @@
                         render_theme_css(data);
                     } else {
                         sections = [];
-                        $( eid + '.info *' ).remove();
-                        $( eid + '.inner *' ).remove();
+                        $( eid + ' .info *' ).remove();
+                        $( eid + ' .inner *' ).remove();
                         data = extract_info_content(data);
                         // extra routine for initial load (occurs only at first run)
                         if ( !plugin.settings.loaded ) {
@@ -639,7 +638,8 @@
                             var gist = plugin.update_parameter('gist');
                             if ( gist !== undefined && gist !== 'default' ) {
                                 plugin.prepare_get( gist, 'gist' );
-                                su_render(data);
+                                // render user provided Info panel default content
+                                su_render(info_content);
                                 // return since su_render() is executed above
                                 return;
                             }
