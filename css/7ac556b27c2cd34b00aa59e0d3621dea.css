@@ -1,5 +1,12 @@
-/* Based on styling from Eerie CSS: https://ugotsta.github.io/eerie-css/ */
+/*
+  Theme name: Eerie
+  URL: https://gist.github.com/Ugotsta/7ac556b27c2cd34b00aa59e0d3621dea
+  Based on styling from Eerie CSS: https://ugotsta.github.io/eerie-css/
+*/
+
 @import 'https://fonts.googleapis.com/css?family=Nothing+You+Could+Do|Special+Elite';
+
+$primary-color: red;
 
 /* Info styles */
 #custom .info a:hover {
@@ -8,20 +15,20 @@
 
 #custom .info .selector {
   background-color: rgba(0,0,0,0.85);
-  border: 1px solid red;
-  border-radius: 0;
-  box-shadow: inset 0 0 40px red;
+  border: 1px solid rgb(80, 80, 80);
+  border-radius: 3px;
+  box-shadow: inset 0 0 40px rgb(80, 80, 80);
 }
 
 #custom .info .selector input {
-  border: 1px solid red;
-  box-shadow: inset 0 0 40px red;
+  border: 1px solid $primary-color;
+  box-shadow: inset 0 0 40px $primary-color;
   color: black;
   outline: none;
 }
 
 #custom .info .selector input::-webkit-input-placeholder {
-  color: red;
+  color: $primary-color;
 }
 
 /* General */
@@ -67,7 +74,7 @@ html {
 
 #custom a {
   font-family: 'Nothing You Could Do';
-  color: #a00;
+  color: $primary-color;
   font-weight: bold;
   text-decoration: none;
 }
@@ -81,7 +88,7 @@ html {
 #custom .section a:hover {
   background: none;
   box-shadow: none;
-  text-shadow: 0px 0px 8px rgba(255, 0, 0, 0.25);
+  text-shadow: 0px 0px 8px $primary-color;
   animation: shakes 0.1s linear infinite;
 }
 
@@ -231,10 +238,10 @@ kbd {
 
 .gd-slides .section li a:before {
   content: "--[------- ";
-  color: red;
+  color: $primary-color;
   font-size: 0.3em;
   vertical-align: text-top;
-  text-shadow: 0 0 2px red;
+  text-shadow: 0 0 2px $primary-color;
 }
 
 .gd-fullscreen .section .content,

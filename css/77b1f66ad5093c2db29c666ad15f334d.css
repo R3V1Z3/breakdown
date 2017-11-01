@@ -1,3 +1,8 @@
+/*
+    Theme name: Graph Paper
+    URL: https://gist.github.com/Ugotsta/77b1f66ad5093c2db29c666ad15f334d
+*/
+
 @import url('https://fonts.googleapis.com/css?family=Cabin+Sketch|Caveat');
 
 #custom * {
@@ -114,11 +119,6 @@ connection {
     opacity: 1;
 }
 
-/* #custom pre.hljs {
-    border: 1px solid rgba(0,0,0,0.3);
-    background-image: url(https://ugotsta.github.io/gitdown/assets/paper-set.jpg);
-    background-blend-mode: luminosity;
-} */
 
 #custom kbd {
     font-family: 'Cabin Sketch',cursive;

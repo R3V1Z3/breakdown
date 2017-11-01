@@ -1,4 +1,15 @@
+/*
+    Theme name: Writing on the Wall
+    URL: https://gist.github.com/Ugotsta/241b47680c730c7162cb5f82d6d788fa
+*/
+
 @import url('https://fonts.googleapis.com/css?family=Homemade+Apple|Waiting+for+the+Sunrise');
+
+#custom .gd-lyrics .section {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
 
 #gd-code-glorify $custom .section {
     mix-blend-mode: multiply;
