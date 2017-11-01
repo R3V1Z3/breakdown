@@ -6,6 +6,14 @@ $primary-color: green;
 
 @import url('https://fonts.googleapis.com/css?family=Anonymous+Pro|Cousine');
 
+#custom .gd-lyrics .section {
+    filter: blur(6px);
+}
+
+#custom .gd-lyrics .section.current {
+    filter: blur(0px);
+}
+
 * {
     font-family: 'Cousine', monospace;
     text-shadow: 0 0 13px rgba(255,255,255,0.5);

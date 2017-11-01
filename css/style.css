@@ -35,6 +35,12 @@ p {
   position: relative;
 }
 
+.section .content img {
+  width: -webkit-fill-available;
+  min-width: 50px;
+  max-width: 100%;
+}
+
 /* General styles */
 ul {
   padding-left: 0;
