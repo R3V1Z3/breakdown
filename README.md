@@ -80,4 +80,6 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
 
+<!-- {$gd_toc} -->
+
 <!-- {$gd_hide} -->

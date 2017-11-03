@@ -369,7 +369,7 @@
             plugin.unique_name = function(prefix) {
                 var x = 1;
                 do {
-                    var n = prefix + ' ' + x;
+                    var n = prefix + '-' + x;
                     // check if id already exists
                     if ($('#' + $gd.clean(n)).length === 0) {
                         return n;
@@ -523,28 +523,28 @@
                 return info;
             };
     
-            plugin.update_toc = function() {
+            plugin.update_toc = function(s) {
                 var html = '';
-                if (sections.length > 1 ) {
+                if (s.length > 1 ) {
                     // iterate section classes and get id name to compose TOC
-                    for ( var i = 0; i < sections.length; i++ ) {
-                        var name = plugin.clean( sections[i] );
-                        html += '<a href="#' + name + '" ';
+                    for ( var i = 0; i < s.length; i++ ) {
+                        var id = s[i];
+                        html += '<a href="#' + id + '" ';
     
                         var classes = '';
                         // add '.current' class if this section is currently selected
-                        if ( plugin.clean( sections[i] ) === plugin.get_current_section_id() ) {
+                        if ( id === plugin.get_current_section_id() ) {
                             classes += "current";
                         }
                         // add '.hidden' class if parent section is hidden
-                        if ( $('#' + name).is(':hidden') ) {
+                        if ( $(eid + ' #' + id).is(':hidden') ) {
                             classes += " hidden";
                         }
                         if ( classes != '' ) {
                             html += 'class="' + classes + '"';
                         }
                         html += '>';
-                        html += sections[i];
+                        html += $(`${eid_inner} .section#${id} a.handle`).text();
                         html += '</a>';
                     }
                     $( eid + ' .info .toc' ).html( html );
@@ -847,8 +847,11 @@
                         var $exists = $( eid_inner + ' .section#' + name );
                         if ( $exists.length > 0 ) {
                             // name already exists so give it a new suffix
-                            name = plugin.unique_name( name + '-' );
+                            name = plugin.unique_name( name );
                         }
+                    } else {
+                        // name is empty so assign it blank with suffix
+                        name = plugin.unique_name( 'blank' );
                     }
                     $(this).addClass('handle-heading');
                     $(this).wrapInner('<a class="handle" name="' + name + '"/>');
@@ -870,9 +873,11 @@
                 $( eid_inner + ' .section a.handle' ).each(function(){
                     var t = $(this).text();
                     if ( t.indexOf( 'gd_info' ) === -1 ) {
-                        sections.push( t );
+                        var id = $(this).closest('.section').attr('id');
+                        sections.push( id );
                     }
                 });
+                console.log(sections);
     
                 // if section's parent is not eid_inner, then move it there
                 $( eid_inner + ' .section' ).each(function() {
@@ -1368,7 +1373,7 @@
                 });
     
                 // update TOC
-                plugin.update_toc();
+                plugin.update_toc( plugin.get_sections() );
     
                 // element count
                 var c = $( eid + ' .element-count' ).text();
