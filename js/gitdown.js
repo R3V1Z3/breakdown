@@ -1452,13 +1452,15 @@
                 });
     
                 // Key events
-                $(document).keyup(function(e) {
-                    if( e.which == 27 ) {
-                        // ESC key to hide/unhide info panel
-                        $( eid + ' .panel' ).toggleClass('minimized');
-                        $( eid + ' .selector .dialog' ).hide();
-                    }
-                });
+                if ( !plugin.settings.loaded ) {
+                    $(document).keyup(function(e) {
+                        if( e.which == 27 ) {
+                            // ESC key to hide/unhide info panel
+                            $( eid + ' .panel' ).toggleClass('minimized');
+                            $( eid + ' .selector .dialog' ).hide();
+                        }
+                    });
+                }
     
                 /*
                     Fields
