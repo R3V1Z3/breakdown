@@ -365,6 +365,19 @@
                 }
                 return value;
             }
+
+            plugin.unique_name = function(prefix) {
+                var x = 1;
+                do {
+                    var n = prefix + ' ' + x;
+                    // check if id already exists
+                    if ($('#' + $gd.clean(n)).length === 0) {
+                        return n;
+                    }
+                    x++;
+                }
+                while (x < 200);
+            }
     
             plugin.preprocess_css = function(css) {
                 // setup vars to store css variables
@@ -829,6 +842,14 @@
                 // create sections
                 $( eid_inner + ' ' + heading ).each(function() {
                     var name = plugin.clean( $(this).text() );
+                    // ensure section name/id is unique
+                    if ( name !== '' ) {
+                        var $exists = $( eid_inner + ' .section#' + name );
+                        if ( $exists.length > 0 ) {
+                            // name already exists so give it a new suffix
+                            name = plugin.unique_name( name + '-' );
+                        }
+                    }
                     $(this).addClass('handle-heading');
                     $(this).wrapInner('<a class="handle" name="' + name + '"/>');
                     $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
