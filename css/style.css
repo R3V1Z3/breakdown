@@ -325,7 +325,7 @@ a.selector-source {
 .info .choices .choice.selected,
 .info .choices .choice:hover {
   background: white;
-  color: white;
+  color: black;
 }
 
 .info .field.select select {

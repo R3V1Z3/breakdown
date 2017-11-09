@@ -4,7 +4,7 @@
 
 $primary-color: green;
 
-@import url('https://fonts.googleapis.com/css?family=Anonymous+Pro|Cousine');
+@import url('https://fonts.googleapis.com/css?family=Cousine');
 
 #custom .gd-lyrics .section {
     filter: blur(6px);

@@ -58,7 +58,7 @@
                 merge_themes: true,
                 merge_gists: false,
 
-                origin: 'https://ugotsta.github.io',
+                origin: '//ugotsta.github.io',
             };
     
             // get URL parameters
@@ -1544,7 +1544,9 @@
                     var prefix = '.' + c;
                     $( `${eid} ${prefix}-selector` ).toggle();
                     // move focus to text input
-                    $( `${eid} ${prefix}-input` ).focus();
+                    $( `${eid} ${prefix}-input` ).focus().select();
+                    //$( `${eid} ${prefix}-input` ).focus();
+                    //this.setSelectionRange(0, this.value.length)
     
                     // set position
                     var p = $(this).parent().position();
@@ -1590,7 +1592,7 @@
                 for (var key in items) {
                     var url = '';
                     if (is_gist_id) {
-                        url = `https://gist.github.com/${items[key]}`;
+                        url = `//gist.github.com/${items[key]}`;
                     } else {
                         url = items[key];
                     }
