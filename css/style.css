@@ -219,7 +219,11 @@ kbd:hover {
   border-bottom: 1px solid black;
 }
 
-/* Selector  styling */
+/* Fields */
+
+.info .field {
+  margin-bottom: 0.5em;
+}
 
 .info a.selector-url {
   width: 80%;
@@ -259,7 +263,7 @@ kbd:hover {
   background: rgba(255,255,255,0.15);
 }
 
-a.selector-url::after {
+.info a.selector-url::after {
   position: absolute;
   color: rgba(255,255,255,0.25);
   font-family: monospace;
@@ -267,7 +271,7 @@ a.selector-url::after {
   right: 2em;
 }
 
-.selector-wrapper {
+.info .selector-wrapper {
   overflow-y: scroll;
   max-height: 11em;
 }
@@ -276,11 +280,11 @@ a.selector-url::after {
   filter: brightness(0.5);
 }
 
-a.selector-url::after {
+.info a.selector-url::after {
   content: attr(name);
 }
 
-a.selector-source {
+.info a.selector-source {
   float: left;
   padding: 6px 10px;
   margin-right: 6px;
@@ -318,7 +322,7 @@ a.selector-source {
 .info .choices .choice {
   padding: 5px;
   color: black;
-  background: rgba(255,255,255,0.25);
+  background: white;
   border-radius: 3px;
 }
 
@@ -402,7 +406,7 @@ a.selector-source {
 }
 
 /* Help Ribbon */
-#wrapper .info a.help-ribbon,
+.info a.help-ribbon,
 .info a.help-ribbon {
   position: absolute;
   transform: rotate(45deg);
@@ -423,7 +427,7 @@ a.selector-source {
   line-height: normal;
 }
 
-#wrapper .info a.help-ribbon::before,
+.info a.help-ribbon::before,
 .info a.help-ribbon::before {
   background: white;
   width: 200px;
@@ -438,7 +442,7 @@ a.selector-source {
   mix-blend-mode: soft-light;
 }
 
-#wrapper .info a.help-ribbon:hover,
+.info a.help-ribbon:hover,
 .info a.help-ribbon:hover {
   background: burlywood;
   color: black;

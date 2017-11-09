@@ -624,7 +624,6 @@
                 if ( urls.length < 1 ) return;
                 var url = urls.shift();
                 var filename = plugin.settings[type + '_filename'];
-    
                 // begin promise chain
                 plugin.get(url).then( function (response ) {
                     plugin.settings[type] = id;
@@ -640,25 +639,7 @@
                     if ( type === 'css' ) {
                         render_theme_css(data);
                     } else {
-                        sections = [];
-                        $( eid + ' .info *' ).remove();
-                        $( eid + ' .inner *' ).remove();
-                        data = extract_info_content(data);
-                        // extra routine for initial load (occurs only at first run)
-                        if ( !plugin.settings.loaded ) {
-                            // we'll load any user-specified css first
-                            plugin.prepare_get( plugin.settings.css, 'css' );
-                            // now load any user-specific content
-                            var gist = plugin.update_parameter('gist');
-                            if ( gist !== undefined && gist !== 'default' ) {
-                                plugin.prepare_get( gist, 'gist' );
-                                // render user provided Info panel default content
-                                su_render(info_content);
-                                // return since su_render() is executed above
-                                return;
-                            }
-                        }
-                        su_render(data);
+                        render_gist(data);
                     }
                 }, function (error) {
                     if ( error.toString().indexOf('404') ) {
@@ -681,6 +662,30 @@
                 plugin.prepare_get(plugin.settings.file, 'gist');
     
             };
+
+            var render_gist = function(data) {
+                sections = [];
+                $( eid + ' .info *' ).remove();
+                $( eid + ' .inner *' ).remove();
+                data = extract_info_content(data);
+                // extra routine for initial load (occurs only at first run)
+                if ( !plugin.settings.loaded ) {
+                    // we'll load any user-specified css first
+                    plugin.prepare_get( plugin.settings.css, 'css' );
+                    // now load any user-specific content
+                    var gist = plugin.update_parameter('gist');
+                    if ( gist !== undefined && gist !== 'default' ) {
+                        plugin.prepare_get( gist, 'gist' );
+                        // render user provided Info panel default content
+                        // todo: currently rendering README content in su_render()
+                        // needs to be optimized using separate, simplified function
+                        su_render(info_content);
+                        // return since su_render() is executed above
+                        return;
+                    }
+                }
+                su_render(data);
+            }
     
             // Start content rendering process
             var su_render = function(data) {
@@ -877,7 +882,6 @@
                         sections.push( id );
                     }
                 });
-                console.log(sections);
     
                 // if section's parent is not eid_inner, then move it there
                 $( eid_inner + ' .section' ).each(function() {
@@ -1545,8 +1549,6 @@
                     $( `${eid} ${prefix}-selector` ).toggle();
                     // move focus to text input
                     $( `${eid} ${prefix}-input` ).focus().select();
-                    //$( `${eid} ${prefix}-input` ).focus();
-                    //this.setSelectionRange(0, this.value.length)
     
                     // set position
                     var p = $(this).parent().position();
