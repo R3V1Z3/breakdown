@@ -325,12 +325,11 @@
     
             plugin.get_current_section_id = function() {
                 // make the first .section current if no current section is set yet
-                var $current = $( eid + ' .section.current' );
-                if ( $current.length < 1) {
-                    $current = $( eid + ' .section:first-child');
-                    $current.addClass('current');
+                var current = document.querySelector( eid_inner + ' .section.current' );
+                if ( current !== null ) {
+                    return current.getAttribute('id');
                 }
-                return $current.attr('id');
+                return '';
             };
     
             // let user easily get names of sections
@@ -371,9 +370,8 @@
                 do {
                     var n = prefix + '-' + x;
                     // check if id already exists
-                    if ($('#' + $gd.clean(n)).length === 0) {
-                        return n;
-                    }
+                    var name = document.querySelector( '#' + $gd.clean(n) );
+                    if ( name === null ) return n;
                     x++;
                 }
                 while (x < 200);
@@ -390,6 +388,8 @@
                     if (re) {
                         var key = re[1];
                         var value = re[2];
+                        // todo: ensure css variable name isn't already used in settings
+
                         // check for existence of url parameter
                         var v = plugin.update_parameter(key);
                         if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
@@ -461,6 +461,27 @@
                 params.set( key, value );
                 history.replaceState( {}, plugin.settings.title, plugin.uri() );
             };
+
+            plugin.remove_class_by_prefix = function(e, prefix) {
+                var classes = e.classList;
+                for( var c of classes ) {
+                    if ( c.startsWith(prefix) ) e.classList.remove(c);
+                }
+            }
+
+            plugin.scroll_to = function(element){
+                var top = element.offsetTop;
+                var container = element.parentElement;
+                container.scrollTop = top-container.offsetTop;
+            }
+
+            plugin.find_index = function(node) {
+                var i = 1;
+                while ( node = node.previousSibling ) {
+                    if ( node.nodeType === 1 ) { ++i }
+                }
+                return i;
+            }
     
             plugin.render = function( content, container, store_markdown ) {
     
@@ -677,8 +698,10 @@
                     if ( gist !== undefined && gist !== 'default' ) {
                         plugin.prepare_get( gist, 'gist' );
                         // render user provided Info panel default content
+
                         // todo: currently rendering README content in su_render()
                         // needs to be optimized using separate, simplified function
+                        // that only renders info panel content
                         su_render(info_content);
                         // return since su_render() is executed above
                         return;
@@ -919,54 +942,72 @@
             };
     
             var go_to_hash = function() {
-                var $old = $( eid + ' .section.old' );
-                var $current = $( eid + ' .section.current' );
-                // remove hi and lo classes
-                $old.removeClass('hi lo');
-                $current.removeClass('hi lo');
-                // remove prior 'old' class
-                $old.removeClass('old');
-                // add 'old' class to current section
-                $current.addClass('old');
+
+                // first remove .current classes from wrapper
+                var wrapper = document.querySelector(eid);
+                if ( wrapper != null ) plugin.remove_class_by_prefix(wrapper, 'current-');
+
+                // remove prior .old classes from old section
+                var old = document.querySelector(eid_inner + ' .section.old');
+                if (old !== null) {
+                    old.classList.remove('old', 'hi', 'lo');
+                }
+                
+                // remove .current class from current section
+                var current = document.querySelector(eid_inner + ' .section.current');
+                if (current !== null) {
+                    current.classList.add('old');
+                    current.classList.remove('hi', 'lo', 'current');
+                }
+
                 // now remove 'current' class from previously selected section and toc
-                $current.removeClass('current');
-                $( eid + ' .toc a.current').removeClass('current');
-                var hash = location.hash;
-                var header_hash = '#' + $('.section.header').attr('id');
+                var current_toc = document.querySelector( eid + ' .toc a.current' );
+                if (current_toc !== null) current_toc.classList.remove('current');
+                
                 // check if this is the first time handling url hash
-                if( hash && $(hash).length > 0 && hash != header_hash ) {
-                    $( eid + ' .section' + hash ).removeClass('old').addClass('current');
-                    // update toc with current hash
-                    $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
-                    // scroll to specified hash position
-                    $( eid ).animate({
-                        scrollTop: $(hash).offset().top,
-                        scrollLeft: $(hash).offset().left
-                    });
+                var hash = location.hash;
+                var header = document.querySelector( eid_inner + ' .section.header' );
+                if ( header === null ) {
+                    header = '';
                 } else {
-                    // hash has changed since start so we'll just remove/add relevant classes
-                    $( eid + ' .section.current' ).addClass('old').removeClass('current');
-                    $( eid + ' .section.header' ).removeClass('old').addClass('current');
-    
+                    header = header.getAttribute('id');
                 }
-                // update toc link with current
-                $( '.toc a[href="#' + plugin.get_current_section_id() + '"]' ).addClass('current');
-                // add .next or .prev to .old class so user can style based on index
-                $old = $( eid + ' .section.old' );
-                $current = $( eid + ' .section.current' );
-                if ( $old.index() > $current.index() ) {
-                    $current.addClass('lo');
-                    $old.addClass('hi');
+                var header_hash = '#' + header;
+                var section = document.querySelector( eid_inner + ' .section' + hash );
+                if( hash && section !== null && hash != header_hash ) {
+                    section.classList.remove('old');
+                    section.classList.add('current');
+                    section.scrollIntoView();
                 } else {
-                    $current.addClass('hi');
-                    $old.addClass('lo');
+                    // make header the current section
+                    var header = document.querySelector( eid + ' .section.header' );
+                    if ( header !== null ){
+                        header.classList.remove('old');
+                        header.classList.add('current');
+                    }
                 }
-    
-                // scroll to top of current link in toc
-                var t = $(eid + ' .toc');
-                var c = $(eid + ' .toc a.current');
-                if ( c.length > 0 ) {
-                    t.animate({scrollTop: t.scrollTop() + (c.offset().top - t.offset().top)});
+                // add .hi or .lo to .old class so user can style based on index
+                old = document.querySelector(eid_inner + ' .section.old');
+                current = document.querySelector(eid_inner + ' .section.current');
+                if ( old !== null && current !== null ) {
+                    if ( plugin.find_index(old) > plugin.find_index(current) ) {
+                        current.classList.add('lo');
+                        old.classList.add('hi');
+                    } else {
+                        current.classList.add('hi');
+                        old.classList.add('lo');
+                    }
+                }
+
+                // add new current id to wrapper
+                if ( current !== null ) {
+                    var id = current.getAttribute('id');
+                    wrapper.classList.add( 'current-' + id );
+                    var c = document.querySelector( `${eid} .toc a[href="#${id}"]` );
+                    if ( c !== null ) {
+                        c.classList.add('current');
+                        plugin.scroll_to(c);
+                    }
                 }
             };
     
@@ -1392,6 +1433,13 @@
     
             var register_events = function() {
 
+                // handle history
+                if ( !plugin.settings.loaded ) {
+                    window.addEventListener('popstate', function(e) {
+                        go_to_hash();
+                    });
+                }
+
                 // send Ready message to whatever window opened this app
                 if ( !plugin.settings.loaded && window.opener != null ) {
                     window.opener.postMessage( 'Ready.', plugin.settings.origin );
@@ -1417,11 +1465,6 @@
                         }
                     }
                 }, false);
-    
-                // handle history
-                $(window).on('popstate', function (e) {
-                    go_to_hash();
-                });
     
                 // fullscreen request
                 $( eid + ' .fullscreen').click(function(){
@@ -1520,7 +1563,7 @@
                 });
     
                 // COLLAPSIBLE FIELDS
-                $( eid + ' .field.collapsible .header' ).click(function(e) {
+                $( eid + ' .info .field.collapsible .header' ).click(function(e) {
                     if (e.target !== this) return;
                     $(this).parent().toggleClass('collapsed');
                 });
