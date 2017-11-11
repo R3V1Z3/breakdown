@@ -96,9 +96,17 @@
             var plugin = this;
             plugin.settings = {};
             plugin.css_vars = {};
-    
-            var $element = $(element);
-            var eid = '#' + $element.attr('id');
+            
+            // ensure element has an id, then store it in eid
+            var eid = '#' + element.getAttribute('id');
+            if ( eid === '#' ) {
+                var new_id = document.querySelector('#wrapper');
+                // ensure another id doesn't already exist in page
+                if( new_id === null ) {
+                    eid = new_id;
+                    element.setAttribute( 'id', eid.substr(1) );
+                }
+            }
             var eid_container;
             var eid_inner;
     
@@ -114,18 +122,7 @@
                 content += '<div class="' + plugin.settings.inner + '">';
                 content += '</div>';
                 content += '<div class="info panel"></div>';
-                $element.append(content);
-    
-                // ensure $element has an id
-                if ( eid === '#' ) {
-                    var new_id = '#wrapper';
-                    // ensure another id doesn't already exist in page
-                    if( $( new_id ).length ){
-                    } else {
-                        eid = new_id;
-                        $element.attr( 'id', eid.substr(1) );
-                    }
-                }
+                element.innerHTML += content;
     
                 // helper variables to simplify access to container elements
                 eid_container = eid + ' .' + plugin.settings.container;
