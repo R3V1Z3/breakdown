@@ -253,25 +253,26 @@
             };
     
             plugin.render_highlight = function() {
+                // todo: remove jquery references
                 var h = plugin.settings['highlight'];
-                var $highlight = $('#gd-highlight');
+                var highlight = document.querySelector('#gd-highlight');
                 if ( h === undefined || h === null ) h = 'default';
                 if ( h.toLowerCase() === 'none' ) {
-                    $highlight.remove();
+                    highlight.parentNode.removeChild(highlight);
                 } else {
                     // setup link details
                     var l = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
                     l += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
                     l += '.min.css';
                     // check for existence of highlight link
-                    if ( $highlight.length < 1 ) {
+                    if ( highlight === null ) {
                         // create highlight id
                         var link = `<link rel="stylesheet" id="gd-highlight" href="${l}">`;
                         // add style reference to head to load it
                         $('head').append(link);
                     } else {
                         // modify existing href
-                        $highlight.attr( 'href', l );
+                        highlight.setAttribute( 'href', l );
                     }
                 }
             }
@@ -304,8 +305,10 @@
             };
     
             plugin.update_selector_url = function( type, filename ) {
-                $( eid + ` .info .${type}-url` ).text( filename + ' ▾' );
-                var $source = $( eid + ` .info .field.selector.${type} a.selector-source` );
+                
+                // update url field with filanem
+                var url_field = document.querySelector( `${eid} .info .${type}-url` );
+                if ( url_field !== null ) url_field.textContent = filename + ' ▾';
     
                 var id = plugin.settings[`${type}`];
                 var filename = plugin.settings[`${type}_filename`];
@@ -317,7 +320,8 @@
                     href = '//gist.github.com/' + id;
                 }
     
-                $source.attr( 'href', href );
+                var source = document.querySelector( `${eid} .info .field.selector.${type} a.selector-source` );
+                if ( source !== null ) source.setAttribute( 'href', href );
             }
     
             plugin.get_current_section_id = function() {
@@ -504,7 +508,8 @@
                     }
                 });
                 
-                $(container).html( md.render(content) );
+                var c = document.querySelector(container);
+                if ( c !== null ) c.innerHTML = md.render(content);
             };
     
             // render raw content, no Markdown formatting
