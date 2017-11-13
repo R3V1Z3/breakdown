@@ -389,7 +389,7 @@
                 do {
                     var n = prefix + '-' + x;
                     // check if id already exists
-                    var name = document.querySelector( '#' + $gd.clean(n) );
+                    var name = document.querySelector( '#' + plugin.clean(n) );
                     if ( name === null ) return n;
                     x++;
                 }
@@ -565,6 +565,7 @@
             };
     
             plugin.update_toc = function(s) {
+                var toc = document.querySelector( eid + ' .info .toc' );
                 var html = '';
                 if (s.length > 1 ) {
                     // iterate section classes and get id name to compose TOC
@@ -578,21 +579,28 @@
                             classes += "current";
                         }
                         // add '.hidden' class if parent section is hidden
-                        if ( $(eid + ' #' + id).is(':hidden') ) {
+                        var e = document.querySelector( eid + ' #' + id );
+                        if ( e !== null && e.offsetParent === null ) {
                             classes += " hidden";
                         }
                         if ( classes != '' ) {
                             html += 'class="' + classes + '"';
                         }
                         html += '>';
-                        html += $(`${eid_inner} .section#${id} a.handle`).text();
+                        var handle = document.querySelector( `${eid_inner} .section#${id} a.handle` );
+                        if ( handle !== null ) html += handle.innerHTML;
                         html += '</a>';
                     }
-                    $( eid + ' .info .toc' ).html( html );
+                    if ( toc !== null ) toc.innerHTML = html;
                 } else {
-                    // remove the toc if there are no sections
-                    $(eid + ' .info .toc-heading').remove();
-                    $(eid + ' .info .toc').remove();
+                    // remove the toc and heading if there are no sections
+                    var toc_heading = document.querySelector( eid + ' .info .toc-heading' );
+                    if ( toc_heading !== null ) {
+                        toc_heading.parentNode.removeChild(toc_heading);
+                    }
+                    if ( toc !== null ) {
+                        toc.parentNode.removeChild(toc);
+                    }
                 }
             };
     
