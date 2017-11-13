@@ -252,6 +252,7 @@
                 return -1;
             };
     
+            // load user specified highlight style
             plugin.render_highlight = function() {
                 // todo: remove jquery references
                 var h = plugin.settings['highlight'];
@@ -261,20 +262,37 @@
                     if ( highlight !== null ) highlight.parentNode.removeChild(highlight);
                 } else {
                     // setup link details
-                    var l = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
-                    l += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
-                    l += '.min.css';
+                    var href = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
+                    href += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
+                    href += '.min.css';
                     // check for existence of highlight link
                     if ( highlight === null ) {
-                        // create highlight id
-                        var link = `<link rel="stylesheet" id="gd-highlight" href="${l}">`;
-                        // add style reference to head to load it
-                        $('head').append(link);
+                        // add style reference to head
+                        plugin.append_style( href, 'gd-highlight' );
+                        //$('head').append(link);
                     } else {
                         // modify existing href
-                        highlight.setAttribute( 'href', l );
+                        highlight.setAttribute( 'href', href );
                     }
                 }
+            }
+
+            // add external stylesheet to head
+            // id: optional id so user can alter href later
+            // href: user provided reference
+            plugin.append_style = function( href, id ){
+                for( var i = 0; i < document.styleSheets.length; i++ ){
+                    if( document.styleSheets[i].href == href ){
+                        return;
+                    }
+                }
+                var head  = document.getElementsByTagName('head')[0];
+                var link  = document.createElement('link');
+                link.rel  = 'stylesheet';
+                link.type = 'text/css';
+                link.href = href;
+                if ( id !== null ) link.id = id;
+                head.appendChild(link);
             }
     
             plugin.get_setting = function(s) {

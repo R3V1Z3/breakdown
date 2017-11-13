@@ -78,6 +78,15 @@ Themes <!-- {$gd_css} -->
 - Blue
 - Dodgerblue
 
+Highlight Styles <!-- {$gd_select_highlight} -->
+- None
+- Default
+- *Agate
+- Androidstudio
+- Arduino Light
+- Arta
+- Ascetic
+
 <!-- {$gd_collapsible_end_appearance} -->
 
 <!-- {$gd_hide} -->
