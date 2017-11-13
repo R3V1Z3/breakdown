@@ -1424,7 +1424,8 @@
             var render_info = function(app_title) {
     
                 // first create .unhide div used to unhide the panel on mobile
-                if ( $( eid + ' .fullscreen' ).length < 1 ) {
+                var fullscreen = document.querySelector( eid + ' .fullscreen' );
+                if ( fullscreen === null ) {
                     $( eid + ' .container' ).append('<div class="unhide"></div>');
                     $( eid + ' .container' ).append('<div class="fullscreen"></div>');
                 }
