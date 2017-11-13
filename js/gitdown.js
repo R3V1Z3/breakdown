@@ -258,7 +258,7 @@
                 var highlight = document.querySelector('#gd-highlight');
                 if ( h === undefined || h === null ) h = 'default';
                 if ( h.toLowerCase() === 'none' ) {
-                    highlight.parentNode.removeChild(highlight);
+                    if ( highlight !== null ) highlight.parentNode.removeChild(highlight);
                 } else {
                     // setup link details
                     var l = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
