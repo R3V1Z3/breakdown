@@ -441,6 +441,7 @@
                         if ( p != '' ) {
                             $slider.val(p);
                             $slider.attr( 'value', p );
+                            $slider.parent().attr( 'data-value', p );
                         }
                         plugin.settings[name] = $slider.val();
                     } else if ( $f.hasClass('select') ) {
@@ -714,8 +715,11 @@
 
             var render_gist = function(data) {
                 sections = [];
-                $( eid + ' .info *' ).remove();
-                $( eid + ' .inner *' ).remove();
+                // clear content from .info and .inner
+                var e = document.querySelector( eid + ' .info' );
+                if ( e !== null ) e.innerHTML = '';
+                e = document.querySelector( eid_inner );
+                if ( e !== null ) e.innerHTML = '';
                 data = extract_info_content(data);
                 // extra routine for initial load (occurs only at first run)
                 if ( !plugin.settings.loaded ) {
@@ -1359,7 +1363,7 @@
                         v_items = v_items.substring( 0, v_items.length - 1 );
                         // get user assigned string
                         var items = v_items.split(',');
-                        c = `<div class="field slider ${v_name}">`;
+                        c = `<div class="field slider ${v_name}" name="${v_name}">`;
                         c += `<input name="${v_name}" type="range" `;
                         // get slider attributes
                         c += ` value="${items[0]}"`;
@@ -1553,6 +1557,7 @@
                     var suffix = $(this).attr('data-suffix');
                     if ( suffix === undefined ) suffix = '';
                     $(this).attr( 'value', value + suffix );
+                    $(this).parent().attr( 'data-value', value + suffix );
                     plugin.settings[name] = value + suffix;
                     plugin.set_param( name, value );
                     // font-size

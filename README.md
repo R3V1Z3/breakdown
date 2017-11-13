@@ -80,6 +80,8 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
 
+<!-- {$gd_slider_volume="1,0,1,0.01"} -->
+
 <!-- {$gd_toc} -->
 
 <!-- {$gd_hide} -->
