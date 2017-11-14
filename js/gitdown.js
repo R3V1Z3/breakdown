@@ -1489,8 +1489,11 @@
                             var data = JSON.parse(event.data);
                             console.log('Received data from GitHub.');
                             sections = [];
-                            $( eid + '.info *' ).remove();
-                            $( eid + '.inner *' ).remove();
+                            // clear content from .info and .inner
+                            var e = document.querySelector( eid + ' .info' );
+                            if ( e !== null ) e.innerHTML = '';
+                            e = document.querySelector( eid_inner );
+                            if ( e !== null ) e.innerHTML = '';
                             var content = data.content + '\n' + plugin.default_info_content();
                             content = extract_info_content(content);
                             window.localStorage.setItem( 'gd_content', content );
