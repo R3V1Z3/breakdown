@@ -6,23 +6,23 @@
 }
 
 .container::after {
-    content: "★";
-    pointer-events: none;
-    left: -300px;
-    bottom: -50px;
-    color: darkblue;
-    font-size: 50em;
-    text-align: inherit;
-    position: fixed;
-    mix-blend-mode: color-burn;
-    opacity: 0.1;
+  content: "★";
+  pointer-events: none;
+  left: -300px;
+  bottom: -50px;
+  color: darkblue;
+  font-size: 50em;
+  text-align: inherit;
+  position: fixed;
+  mix-blend-mode: color-burn;
+  opacity: 0.1;
   z-index: -1;
 }
 
 code {
-    background: rgba(0,0,0,0.25);
-    color: rgba(0,0,0,0.7);
-    font-family: 'IM Fell Double Pica', cursive;
+  background: rgba(0,0,0,0.25);
+  color: rgba(0,0,0,0.7);
+  font-family: 'IM Fell Double Pica', cursive;
 }
 
 #custom .info .element-count,

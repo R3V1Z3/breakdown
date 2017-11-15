@@ -642,7 +642,7 @@
                 return files[f];
             };
     
-            // return a list of urls to try in get_file()
+            // prepares list of urls to try in get_file()
             plugin.prepare_get = function( id, type ) {
                 var urls = [];
                 if ( id === 'default' && type === 'css' ) {
@@ -662,6 +662,13 @@
                     if ( type === 'css' ) {
                         file_path = 'css/';
                         ext = '.css';
+                        // push named file for ids that exist in example_css_default
+                        // todo
+                        for ( key in example_css_default ) {
+                            if ( example_css_default[key] === id ) {
+                                urls.push( file_path + 'gitdown-' + plugin.clean(key) + ext );
+                            }
+                        }
                     }
                     urls.push( file_path + id + ext );
                     urls.push( '//ugotsta.github.io/gitdown/' + file_path + id + ext );
@@ -834,10 +841,15 @@
             };
 
             var update_theme_vars = function() {
+                var html = '';
                 var theme_vars = document.querySelector(eid + ' .info .theme-vars');
                 if ( theme_vars !== null ) {
-                    var html = `<p>Variables: ${plugin.css_vars}</p>`;
-                    html = '';
+                    // todo
+                    for ( key in plugin.css_vars ) {
+                        var value = plugin.css_vars[key];
+                        html += `<p>${key}: ${value}</p>`;
+                    }
+                    console.log(plugin.css_vars);
                     theme_vars.innerHTML = html;
                 }
             }
@@ -1341,7 +1353,6 @@
                         if ( next !== null && next.tagName === 'UL' ) {
                             items = next.getElementsByTagName('li');
                         }
-                        // todo
                         c = field_html( 'select', v_name, items );
                         next.parentNode.removeChild(next);
                         $t.next('br').remove();
