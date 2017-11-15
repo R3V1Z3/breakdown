@@ -80,8 +80,6 @@ Themes <!-- {$gd_css} -->
 - Blue
 - Dodgerblue
 
-<!-- {$gd_choice_columns="1,*2,3,4"} -->
-
 <!-- {$gd_collapsible_end_appearance} -->
 
 <!-- {$gd_hide} -->
