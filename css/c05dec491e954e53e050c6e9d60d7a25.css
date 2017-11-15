@@ -5,10 +5,14 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
 
+$scale: 1.1;
+$translateX: -120;
+$transform: scale($scale) translateX(-120px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
+
 /* BeatDown styling */
 .gd-slides #custom .inner {
     position: fixed;
-    transform: scale(1.1) translateX(-120px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
+    transform: scale(1.1) translateX($translateX px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
     padding: 10%;
 }
 

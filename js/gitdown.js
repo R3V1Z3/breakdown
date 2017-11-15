@@ -94,8 +94,8 @@
     
             // simplify plugin name with this and declare settings
             var plugin = this;
-            plugin.settings = {};
-            plugin.css_vars = {};
+            plugin.content_loaded = false, plugin.css_loaded = false;
+            plugin.settings = {}, plugin.css_vars = {};
             
             // ensure element has an id, then store it in eid
             var eid = '#' + element.getAttribute('id');
@@ -254,7 +254,6 @@
     
             // load user specified highlight style
             plugin.render_highlight = function() {
-                // todo: remove jquery references
                 var h = plugin.settings['highlight'];
                 var highlight = document.querySelector('#gd-highlight');
                 if ( h === undefined || h === null ) h = 'default';
@@ -407,12 +406,13 @@
                     if (re) {
                         var key = re[1];
                         var value = re[2];
-                        // todo: ensure css variable name isn't already used in settings
-
                         // check for existence of url parameter
                         var v = plugin.update_parameter(key);
                         if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
-                            value = v;
+                            // ensure css variable name isn't already used in settings
+                            if ( plugin.settings['key'] === undefined ) {
+                                value = v;
+                            }
                         }
                         plugin.css_vars[key] = value;
                     } else {
@@ -647,6 +647,7 @@
                 var urls = [];
                 if ( id === 'default' && type === 'css' ) {
                     render_theme_css('');
+                    plugin.css_loaded = true;
                     return;
                 } else if ( id === 'default' && type === 'gist' ) {
                     urls.push(plugin.settings.file);
@@ -672,6 +673,7 @@
             // we can later use get_file to load files apart from GitHub Gist
             plugin.get_file = function( id, type, urls ) {
                 if ( urls.length < 1 ) return;
+                var status = '';
                 var url = urls.shift();
                 var filename = plugin.settings[type + '_filename'];
                 // begin promise chain
@@ -691,13 +693,29 @@
                     } else {
                         render_gist(data);
                     }
+                    status = 'success';
                 }, function (error) {
+                    status = error;
                     if ( error.toString().indexOf('404') ) {
                         if ( urls.length > 0 ) {
                             plugin.get_file( id, type, urls );
                         }
                     }
                     console.error( "Request failed.", error );
+                }).then (function() {
+                    if ( type === 'css' && status === 'success' ) {
+                        if ( plugin.settings.css === id ) {
+                            plugin.css_loaded = true;
+                            console.log('CSS loaded.');
+                        }
+                    } else if ( type === 'gist' && status === 'success' ) {
+                        if ( plugin.settings.gist === id || plugin.settings.gist === 'default' ) {
+                            plugin.content_loaded = true;
+                            console.log('Content loaded.');
+                        }
+                    }
+                    // update theme variables if everything is loaded
+                    if ( plugin.css_loaded && plugin.content_loaded ) update_theme_vars();
                 });
             };
     
@@ -814,6 +832,15 @@
                     plugin.settings.loaded = true;
                 }
             };
+
+            var update_theme_vars = function() {
+                var theme_vars = document.querySelector(eid + ' .info .theme-vars');
+                if ( theme_vars !== null ) {
+                    var html = `<p>Variables: ${plugin.css_vars}</p>`;
+                    html = '';
+                    theme_vars.innerHTML = html;
+                }
+            }
     
             // store settings in browser
             var store_settings = function() {
@@ -1103,7 +1130,7 @@
                     var parser = new HtmlWhitelistedSanitizer(true);
                     css = parser.sanitizeString(css);
     
-                    // preprocess css is our sissy lttle sass wannabe :)
+                    // preprocess_css is our sissy lttle sass wannabe :)
                     var preprocessed = plugin.preprocess_css(css);
     
                     // when using a local css file, get the theme name
@@ -1138,20 +1165,23 @@
                 }
                 return '';
             };
-    
-            var extract_li = function( $ul, is_gist ) {
-                var li = {};
-                $ul.find('li').each(function(){
+
+            function extract_list_items( $next, is_gist ) {
+                var items = {};
+                if ( !$next.is('ul') ) return items;
+                // iterate over list and popular items
+                $next.find('li').each(function(){
                     var $li = $(this);
                     var name = $li.text();
                     var id = $li.find('a').attr('href');
                     if (is_gist) {
                         id = id.substr( id.lastIndexOf('/') + 1 );
                     }
-                    li[name] = id;
+                    items[name] = id;
                 });
-                return li;
-            };
+                $next.remove();
+                return items;
+            }
     
             var proper_filename = function(f) {
                 // remove occurences of gitdown- in filename
@@ -1222,8 +1252,9 @@
                 return c;
             }
     
-            var variable_html = function( v, $t ) {
-                // c is the html
+            var variable_html = function( v, t ) {
+                var $t = $(t);
+                // c is the html content
                 var c = '';
                 var title = plugin.settings.title;
                 if ( v != '' ) {
@@ -1236,46 +1267,36 @@
                     } else if ( plugin.begins( v, '$gd_element_count' ) ) {
                         c = '<div class="element-count">.section total:</div>';
                         $t.append(c);
-                    } else if ( plugin.begins( v, '$gd_gist' ) ) {
+                    } else if ( v === '$gd_gist' ) {
     
                         // first extract contents of list for examples
-                        var examples = {};
-                        var $gists = $t.next();
-                        if ( $gists.is('ul') ) {
-                            examples = extract_li( $gists, true );
-                            $gists.remove();
-                        }
+                        var items = extract_list_items( $t.next(), true );
     
                         // check settings and merge examples if needed
                         if ( plugin.settings.merge_gists ) {
-                            example_gist = $.extend( example_gist_default, examples );
+                            example_gist = $.extend( example_gist_default, items );
                         } else {
-                            example_gist = examples;
+                            example_gist = items;
                         }
                         c = selector_html( 'gist', $t, 'Gist ID', example_gist );
                         $t.next('br').remove();
                         $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_css' ) ) {
+                    } else if ( v === '$gd_css' ) {
     
                         // first extract contents of list for examples
-                        var examples = {};
-                        var $gists = $t.next();
-                        if ( $gists.is('ul') ) {
-                            examples = extract_li( $gists, true );
-                            $gists.remove();
-                        }
+                        var items = extract_list_items( $t.next(), true );
     
                         // check settings and merge examples if needed
                         if ( plugin.settings.merge_themes === 'false' ) {
-                            example_css = examples;
+                            example_css = items;
                         } else {
-                            example_css = $.extend( example_css_default, examples );
+                            example_css = $.extend( example_css_default, items );
                         }
                         c = selector_html( 'css', $t, 'Gist ID for CSS theme', example_css );
                         $t.next('br').remove();
                         $t.html(c);
                     } else if ( plugin.begins( v, '$gd_toc' ) ) {
-                        // handle assignment
+                        // handle assignment, letting user provide header text
                         if ( v.indexOf('=') != -1 ) {
                             var toc = v.split('=')[1];
                             toc = toc.replace(/["'“”]/g, '');
@@ -1288,16 +1309,14 @@
                     } else if ( plugin.begins( v, '$gd_hide' ) ) {
                         c = '<a class="hide"><kbd>Esc</kbd> - show/hide this panel.</a>';
                         $t.html(c);
+                    } else if ( plugin.begins( v, '$gd_theme_variables' ) ) {
+                        c = '<div class="theme-vars"></div>';
+                        $t.html(c);
                     } else if ( plugin.begins( v, '$gd_selector_' ) ) {
                         var v_name = v.split('$gd_selector_')[1];
                         // first extract contents of list for examples
-                        var items = {};
-                        var $next = $t.next();
-                        if ( $next.is('ul') ) {
-                            items = extract_li( $next, false );
-                            $next.remove();
-                            c = selector_html( v_name, $t, v_name, items );
-                        }
+                        var items = extract_list_items( $t.next(), false );
+                        c = selector_html( v_name, $t, v_name, items );
                         $t.next('br').remove();
                         $t.html(c);
                     } else if ( plugin.begins( v, '$gd_choice_' ) ) {
@@ -1313,41 +1332,18 @@
                         v_items = v_items.substring( 0, v_items.length - 1 );
                         // get user assigned string
                         var items = v_items.split(',');
-                        c = `<div data-name="${v_name}"`;
-                        c += ` class="field choices ${v_name}">`;
-                        plugin.settings['v_name'] = '';
-                        for ( var i = 0; i < items.length; i++ ) {
-                            var v = items[i];
-                            var s = '';
-                            if ( v.charAt(0) === '*' ) {
-                                v = v.substr(1);
-                                plugin.settings['v_name'] = v;
-                                s = 'selected';
-                            }
-                            c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
-                        }
-                        c += '</div>';
+                        c = field_html( 'choices', v_name, items);
                         $t.html(c);
                     } else if ( plugin.begins( v, '$gd_select_' ) ) {
                         var v_name = v.split('$gd_select_')[1];
-                        var $list = $t.next();
-                        c = `<div class="field select ${v_name}" data-name="${v_name}">`;
-                        c += `<select name="${v_name}">`;
-                        plugin.settings['v_name'] = '';
-                        if ( $list.length > 0 && $list.is('ul') ) {
-                            $list.find('li').each(function( i, val ){
-                                var li = $(this).text();
-                                var s = '';
-                                if ( li.charAt(0) === '*' ) {
-                                    li = li.substr(1);
-                                    plugin.settings['v_name'] = li;
-                                    s = 'selected';
-                                }
-                                c += `<option value="${plugin.clean(li)}" ${s}>${li}</option>`;
-                            });
-                            $list.remove();
+                        var next = t.nextElementSibling;
+                        var items = {};
+                        if ( next !== null && next.tagName === 'UL' ) {
+                            items = next.getElementsByTagName('li');
                         }
-                        c += '</select></div>';
+                        // todo
+                        c = field_html( 'select', v_name, items );
+                        next.parentNode.removeChild(next);
                         $t.next('br').remove();
                         $t.html(c);
                     } else if ( plugin.begins( v, '$gd_slider_' ) ) {
@@ -1359,24 +1355,12 @@
                         // get the assigned string
                         var v_items = v.split('=')[1];
                         // remove parens
-                        v_items = v_items.substring(1);
+                        v_items = v_items.substring(1).substring( 0, v_items.length - 1 );
                         v_items = v_items.substring( 0, v_items.length - 1 );
                         // get user assigned string
                         var items = v_items.split(',');
-                        c = `<div class="field slider ${v_name}" name="${v_name}">`;
-                        c += `<input name="${v_name}" type="range" `;
-                        // get slider attributes
-                        c += ` value="${items[0]}"`;
-                        plugin.settings['v_name'] = items[0];
-                        c += ` min="${items[1]}"`;
-                        c += ` max="${items[2]}"`;
-                        c += ` step="${items[3]}"`;
-                        // handle suffix
-                        if ( items.length > 4 ) {
-                            c += ` data-suffix="${items[4]}" `;
-                        }
-                        c += '>';
-                        c += '</div>';
+                        // generate slider html
+                        c = field_html( 'slider', v_name, items);
                         // removing the next br removes the next slider comment attached to that br
                         $t.next('br').remove();
                         $t.append(c);
@@ -1388,13 +1372,58 @@
                             v_name = v_name.split('end_')[1];
                         }
                         v_name = plugin.clean(v_name);
-                        var classes = `field collapsible ${v_name} ${pos}`;
-                        c = `<div class="${classes}" data-name="${v_name}"></div>`;
+                        c = field_html( 'collapsible ' + pos, v_name);
                         $t.next('br').remove();
                         $t.html(c);
                     }
                 }
             };
+
+            var field_html = function(type, name, items) {
+                var c = `<div class="field ${type} ${name}" data-name="${name}">`;
+                if ( type === 'select') {
+                    c += `<select name="${name}">`;
+                    plugin.settings['name'] = '';
+                    for ( var i = 0; i < items.length; i++ ) {
+                        var li = items[i].innerHTML;
+                        var s = '';
+                        if ( li.charAt(0) === '*' ) {
+                            li = li.substr(1);
+                            plugin.settings['name'] = li;
+                            s = 'selected';
+                        }
+                        c += `<option value="${plugin.clean(li)}" ${s}>${li}</option>`;
+                    }
+                    c += '</select>';
+                } else if ( type === 'slider' ) {
+                    c += `<input name="${name}" type="range" `;
+                    // get slider attributes
+                    c += ` value="${items[0]}"`;
+                    plugin.settings['name'] = items[0];
+                    c += ` min="${items[1]}"`;
+                    c += ` max="${items[2]}"`;
+                    c += ` step="${items[3]}"`;
+                    // handle suffix
+                    if ( items.length > 4 ) {
+                        c += ` data-suffix="${items[4]}" `;
+                    }
+                    c += '>';
+                } else if ( type === 'choices' ) {
+                    plugin.settings['name'] = '';
+                    for ( var i = 0; i < items.length; i++ ) {
+                        var v = items[i];
+                        var s = '';
+                        if ( v.charAt(0) === '*' ) {
+                            v = v.substr(1);
+                            plugin.settings['name'] = v;
+                            s = 'selected';
+                        }
+                        c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
+                    }
+                }
+                c += '</div>';
+                return c;
+            }
     
             var render_variables = function( container, app_title ) {
                 var $sections = $( container );
@@ -1407,7 +1436,7 @@
                                 var v = extract_variable( comments[i] );
                                 if ( v != '' ) {
                                     v = plugin.clean( v, 'value' );
-                                    variable_html( v, $(this) );
+                                    variable_html( v, this );
                                 }
                             }
                         }

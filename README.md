@@ -63,6 +63,8 @@ Themes <!-- {$gd_css} -->
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
 
+<!-- {$gd_theme_variables} -->
+
 <!-- {$gd_slider_fontsize="120,50,300,1,%"} -->
 
 <!-- {$gd_select_primary-color} -->
@@ -78,12 +80,8 @@ Themes <!-- {$gd_css} -->
 - Blue
 - Dodgerblue
 
+<!-- {$gd_choice_columns="1,*2,3,4"} -->
+
 <!-- {$gd_collapsible_end_appearance} -->
-
-<!-- {$gd_collapsible_contents} -->
-
-<!-- {$gd_toc} -->
-
-<!-- {$gd_collapsible_end_contents} -->
 
 <!-- {$gd_hide} -->
