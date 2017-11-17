@@ -24,6 +24,11 @@ p {
   margin: auto;
 }
 
+.inner {
+  transition: none;
+  animation: none;
+}
+
 /* Section */
 .section {
   margin: auto;

@@ -21,7 +21,7 @@
                 developers to designers or those just looking to have fun.
             */
     
-            var defaults = {
+            let defaults = {
     
                 // defaults for url parameters
     
@@ -62,18 +62,18 @@
             };
     
             // get URL parameters
-            var params = (new URL(location)).searchParams;
-            var path = '/' + window.location.hostname.split('.')[0];
+            let params = (new URL(location)).searchParams;
+            let path = '/' + window.location.hostname.split('.')[0];
             path += window.location.pathname;
     
-            var example_gist = {};
-            var example_css = {};
+            let example_gist = {};
+            let example_css = {};
             // we'll use jquery $.extend later to merge these
-            var example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
+            let example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
                                         "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
             };
     
-            var example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
+            let example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                         "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
                                         "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                         "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
@@ -87,18 +87,17 @@
                                         "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
                                         "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
             };
-            var info_content = '';
+            let info_content = '';
     
-            var sections = [];
-            var link_symbol = '&#11150';
+            let sections = [];
+            let link_symbol = '&#11150';
     
             // simplify plugin name with this and declare settings
-            var plugin = this;
-            plugin.content_loaded = false, plugin.css_loaded = false;
+            let plugin = this;
             plugin.settings = {}, plugin.css_vars = {};
             
             // ensure element has an id, then store it in eid
-            var eid = '#' + element.getAttribute('id');
+            let eid = '#' + element.getAttribute('id');
             if ( eid === '#' ) {
                 var new_id = document.querySelector('#wrapper');
                 // ensure another id doesn't already exist in page
@@ -107,15 +106,16 @@
                     element.setAttribute( 'id', eid.substr(1) );
                 }
             }
-            var eid_container;
-            var eid_inner;
+            let eid_container;
+            let eid_inner;
+            
+            let content_loaded  = false, css_loaded  = false, loaded = false;
     
             // CONSTRUCTOR --------------------------------------------------------
             plugin.init = function() {
     
                 // merge defaults and user-provided options into plugin settings
                 plugin.settings = $.extend({}, defaults, options);
-                plugin.settings.loaded = false;
                 
                 // add container div and inner content
                 var content = '<div class="' + plugin.settings.container + '">';
@@ -140,7 +140,7 @@
     
             // detect specified url parameter, clean and add it to settings
             plugin.update_parameter = function( key, default_value ) {
-                var val = default_value;
+                let val = default_value;
                 // check if specified key exists as url param
                 if ( params.has(key) ) {
                     // ensure the parameter is allowed
@@ -148,7 +148,7 @@
                         val = params.get(key);
                         // sanitize strings
                         if ( typeof val === 'string' ) {
-                            var parser = new HtmlWhitelistedSanitizer(true);
+                            const parser = new HtmlWhitelistedSanitizer(true);
                             val = parser.sanitizeString(val);
                         }
                         plugin.settings[key] = val;
@@ -156,12 +156,17 @@
                 }
                 return val;
             };
+
+            // return true to let user know everything is fully loaded
+            plugin.is_loaded = function() {
+                return loaded;
+            }
     
             // helper function for combining url parts
             plugin.uri = function() {
-                var q = params.toString();
+                let q = params.toString();
                 if ( q.length > 0 ) q = '?' + q;
-                var base = window.location.href.split('?')[0];
+                let base = window.location.href.split('?')[0];
                 base = base.split('#')[0];
                 return base + q + location.hash;
             };
@@ -277,7 +282,7 @@
             }
 
             // add external stylesheet to head
-            // id: optional id so user can alter href later
+            // id: optional id so we can alter href later
             // href: user provided reference
             plugin.append_style = function( href, id ){
                 for( var i = 0; i < document.styleSheets.length; i++ ){
@@ -304,22 +309,6 @@
                     return JSON.parse(s);
                 }
             }
-    
-            // helper function to provide defaults
-            plugin.get_examples = function(c) {
-                var examples;
-                if ( c === 'css' ) {
-                    examples = example_css;
-                } else examples = example_gist;
-    
-                var content = '{';
-                for ( var key in examples ) {
-                    content += '"' + key + '": ';
-                    content += '"' + examples[key] + '", ';
-                }
-                content += '}';
-                return content;
-            };
     
             plugin.update_selector_url = function( type, filename ) {
                 
@@ -377,7 +366,7 @@
                 value = '';
                 for ( key in plugin.css_vars ) {
                     if ( key === k ) {
-                        return plugin.css_vars[k];
+                        return plugin.css_vars[k][0];
                     }
                 }
                 return value;
@@ -397,31 +386,49 @@
     
             plugin.preprocess_css = function(css) {
                 // setup vars to store css variables
-                var vars = {};
+                let vars = {};
                 // iterate over css to get variables
-                var lines = css.split('\n');
-                var pre_css = '';
+                let lines = css.split('\n');
+                let pre_css = '';
                 for ( var i = 0; i < lines.length; i++ ) {
-                    var re = lines[i].match(/\$(.*?):(.*?);/);
+                    let re = lines[i].match(/\$(.*?):(.*?);/);
                     if (re) {
-                        var key = re[1];
-                        var value = re[2];
+                        let key = re[1];
+                        let value = re[2];
                         // check for existence of url parameter
-                        var v = plugin.update_parameter(key);
+                        let v = plugin.update_parameter(key);
                         if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
                             // ensure css variable name isn't already used in settings
                             if ( plugin.settings['key'] === undefined ) {
                                 value = v;
                             }
                         }
-                        plugin.css_vars[key] = value;
+                        let val = [];
+                        val.push(value);
+                        // get variable declaration from comment if it exists
+                        let d = lines[i].split('{$gd_');
+                        if ( d.length > 1 ) {
+                            val.push(d[1].split('}')[0]);
+                            let selector = d[0];
+                            // add any user specific selector to array
+                            selector = selector.split('/*');
+                            if ( selector.length > 1 ) {
+                                val.push( selector[1].trim() );
+                            } else val.push('');
+                        } else {
+                            val.push('');
+                            val.push('');
+                        }
+                        // css_vars[key] = {value, optional variable decalaration, optional selector}
+                        plugin.css_vars[key] = val;
                     } else {
                         pre_css += lines[i];
                     }
                 }
                 // iterate over vars and replace occurences in css
                 for ( key in plugin.css_vars ) {
-                    pre_css = pre_css.split( '$' + key ).join(plugin.css_vars[key]);
+                    let value = plugin.css_vars[key][0];
+                    pre_css = pre_css.split( '$' + key ).join(value);
                 }
                 return pre_css;
             }
@@ -495,6 +502,7 @@
                 container.scrollTop = top-container.offsetTop;
             }
 
+            // plain js implementation of jquery index()
             plugin.find_index = function(node) {
                 var i = 1;
                 while ( node = node.previousSibling ) {
@@ -642,15 +650,25 @@
                 return files[f];
             };
     
-            // prepares list of urls to try in get_file()
-            plugin.prepare_get = function( id, type ) {
+            // directs the loading process, preparing a list of urls to be used in promise chain
+            plugin.pre_get = function( id, type ) {
+                if (type === 'css') {
+                    css_loaded  = false;
+                    /// clear any existing theme-var fields
+                    // let v = document.querySelector(eid + ' .info .theme-vars');
+                    // if ( v !== 'null') v.innerHTML = '';
+                }
+                if (type === 'gist') content_loaded  = false;
                 var urls = [];
+                // for default theme, redirect to render_theme_css()
                 if ( id === 'default' && type === 'css' ) {
                     render_theme_css('');
-                    plugin.css_loaded = true;
+                    css_loaded  = true;
                     return;
+                // for default content, just load the file from settings
                 } else if ( id === 'default' && type === 'gist' ) {
                     urls.push(plugin.settings.file);
+                // otherwise generate list of urls to try
                 } else {
                     // first set url to pull local file named with id
                     // if that fails, we'll pull from original gist
@@ -663,7 +681,6 @@
                         file_path = 'css/';
                         ext = '.css';
                         // push named file for ids that exist in example_css_default
-                        // todo
                         for ( key in example_css_default ) {
                             if ( example_css_default[key] === id ) {
                                 urls.push( file_path + 'gitdown-' + plugin.clean(key) + ext );
@@ -677,13 +694,16 @@
                 plugin.get_file( id, type, urls );
             }
     
-            // we can later use get_file to load files apart from GitHub Gist
+            // takes a series of urls and tries them until one succeeds loading
             plugin.get_file = function( id, type, urls ) {
                 if ( urls.length < 1 ) return;
-                var status = '';
                 var url = urls.shift();
                 var filename = plugin.settings[type + '_filename'];
-                // begin promise chain
+
+                /*
+                    begin promise chain
+                */
+
                 plugin.get(url).then( function (response ) {
                     plugin.settings[type] = id;
                     plugin.settings[type + '_filename'] = url;
@@ -697,32 +717,23 @@
                     }
                     if ( type === 'css' ) {
                         render_theme_css(data);
+                        css_loaded  = true;
                     } else {
                         render_gist(data);
+                        let gid = plugin.settings.gist;
+                        if ( id === gid || id === plugin.settings.gist_filename ) {
+                            content_loaded = true;
+                        }
                     }
-                    status = 'success';
                 }, function (error) {
-                    status = error;
+                    // try next url in array if current url returns not found
                     if ( error.toString().indexOf('404') ) {
                         if ( urls.length > 0 ) {
                             plugin.get_file( id, type, urls );
                         }
                     }
-                    console.error( "Request failed.", error );
                 }).then (function() {
-                    if ( type === 'css' && status === 'success' ) {
-                        if ( plugin.settings.css === id ) {
-                            plugin.css_loaded = true;
-                            console.log('CSS loaded.');
-                        }
-                    } else if ( type === 'gist' && status === 'success' ) {
-                        if ( plugin.settings.gist === id || plugin.settings.gist === 'default' ) {
-                            plugin.content_loaded = true;
-                            console.log('Content loaded.');
-                        }
-                    }
-                    // update theme variables if everything is loaded
-                    if ( plugin.css_loaded && plugin.content_loaded ) update_theme_vars();
+                    load_complete();
                 });
             };
     
@@ -734,9 +745,30 @@
                     plugin.update_parameter(key);
                 }
 
-                plugin.prepare_get(plugin.settings.file, 'gist');
+                // loading process:
+                // 1. pre_gist() generates initial content urls to try or loads default content and theme
+                // 2. get_file() begins promise chain to load content from provided urls
+                // 3. get_gist() and su_render() render content
+                // 4. load_complete() finishes updates css variable fields and registers events
+                plugin.pre_get(plugin.settings.file, 'gist');
     
             };
+
+            var load_complete = function() {
+                // complete initialization once everything is loaded
+                if ( css_loaded  && content_loaded  ) {
+                    // update theme vars and render fields
+                    update_theme_vars();
+                    // finally register events
+                    register_events();
+                    // pass control back to user provided callback if it exists
+                    if ( typeof plugin.settings.callback == 'function' ) {
+                        plugin.settings.callback.call();
+                        // provide a way for user to know callback has been called already
+                        loaded = true;
+                    }
+                }
+            }
 
             var render_gist = function(data) {
                 sections = [];
@@ -747,18 +779,23 @@
                 if ( e !== null ) e.innerHTML = '';
                 data = extract_info_content(data);
                 // extra routine for initial load (occurs only at first run)
-                if ( !plugin.settings.loaded ) {
+                if ( !loaded ) {
                     // we'll load any user-specified css first
-                    plugin.prepare_get( plugin.settings.css, 'css' );
+                    plugin.pre_get( plugin.settings.css, 'css' );
                     // now load any user-specific content
                     var gist = plugin.update_parameter('gist');
                     if ( gist !== undefined && gist !== 'default' ) {
-                        plugin.prepare_get( gist, 'gist' );
+                        plugin.pre_get( gist, 'gist' );
                         // render user provided Info panel default content
 
                         // todo: currently rendering README content in su_render()
                         // needs to be optimized using separate, simplified function
                         // that only renders info panel content
+
+                        // we need to clearly define the load process
+                        // 1. load initial content
+                        // 2. parse for info panel
+                        // 3. get any user-specified content
                         su_render(info_content);
                         // return since su_render() is executed above
                         return;
@@ -820,7 +857,6 @@
                 // render raw text if user specified
                 plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
     
-                register_events();
                 handle_options();
     
                 // write settings to browser for easy re-use by apps
@@ -831,27 +867,40 @@
     
                 // toggle collapsible sections at start
                 $( eid + ' .field.collapsible .header' ).click();
-    
-                // send control back to user provided callback if it exists
-                if ( typeof plugin.settings.callback == 'function' ) {
-                    plugin.settings.callback.call();
-                    // provide a way for user to know callback has been called already
-                    plugin.settings.loaded = true;
-                }
             };
 
             var update_theme_vars = function() {
-                var html = '';
-                var theme_vars = document.querySelector(eid + ' .info .theme-vars');
+                let html = '';
+                let theme_vars = document.querySelector(eid + ' .info .theme-vars');
                 if ( theme_vars !== null ) {
-                    // todo
                     for ( key in plugin.css_vars ) {
-                        var value = plugin.css_vars[key];
-                        html += `<p>${key}: ${value}</p>`;
+                        // get variable declaration if it exists
+                        let d = plugin.css_vars[key][1];
+                        if ( d !== '' ) {
+                            // check if selector exists in current content
+                            let selector = plugin.css_vars[key][2];
+                            if ( selector === '' ) selector = '*';
+                            selector = document.querySelector(selector);
+                            if ( selector !== null ) {
+                                let type = d.split('=')[0];
+                                if ( type === 'slider' ) {
+                                    // get the assigned string
+                                    let v_items = d.split('=')[1];
+                                    // remove parens
+                                    v_items = v_items.substring(1).substring( 0, v_items.length - 1 );
+                                    v_items = v_items.substring( 0, v_items.length - 1 );
+                                    // get user assigned string
+                                    let items = v_items.split(',');
+                                    // generate slider html
+                                    html += field_html( 'slider', key, items);
+                                }
+                            }
+                        }
                     }
-                    console.log(plugin.css_vars);
+                    // todo
                     theme_vars.innerHTML = html;
                 }
+                plugin.update_fields();
             }
     
             // store settings in browser
@@ -1139,14 +1188,14 @@
                 } else {
                     $('html').removeClass('gd-default');
                     // attempt to sanitize CSS so hacker don't splode our website
-                    var parser = new HtmlWhitelistedSanitizer(true);
+                    let parser = new HtmlWhitelistedSanitizer(true);
                     css = parser.sanitizeString(css);
     
                     // preprocess_css is our sissy lttle sass wannabe :)
-                    var preprocessed = plugin.preprocess_css(css);
+                    let preprocessed = plugin.preprocess_css(css);
     
                     // when using a local css file, get the theme name
-                    var id = plugin.settings.css;
+                    let id = plugin.settings.css;
                     for ( key in example_css_default ) {
                         if ( example_css_default[key] === id ) {
                             plugin.settings.css_filename = key;
@@ -1462,7 +1511,7 @@
             }
     
             var render_info = function(app_title) {
-    
+
                 // first create .unhide div used to unhide the panel on mobile
                 var fullscreen = document.querySelector( eid + ' .fullscreen' );
                 if ( fullscreen === null ) {
@@ -1507,14 +1556,14 @@
             var register_events = function() {
 
                 // handle history
-                if ( !plugin.settings.loaded ) {
+                if ( !loaded ) {
                     window.addEventListener('popstate', function(e) {
                         go_to_hash();
                     });
                 }
 
                 // send Ready message to whatever window opened this app
-                if ( !plugin.settings.loaded && window.opener != null ) {
+                if ( !loaded && window.opener != null ) {
                     window.opener.postMessage( 'Ready.', plugin.settings.origin );
                 }
                 
@@ -1543,13 +1592,13 @@
                 }, false);
     
                 // fullscreen request
-                $( eid + ' .fullscreen').click(function(){
+                $( eid + ' .fullscreen').unbind().click(function(){
                     var e = document.getElementById( 'eid.substring(1)' );
                     plugin.toggleFullscreen(e);
                 });
     
                 // commmand count
-                $( eid + ' .element-count' ).click(function() {
+                $( eid + ' .element-count' ).unbind().click(function() {
                     var count_array = ['.section','kbd','li','code'];
                     // get current count option
                     var c = $( eid + ' .element-count' ).text();
@@ -1568,50 +1617,45 @@
                 });
     
                 // event handler to toggle info panel
-                $( eid + ' .hide' ).click(function() {
+                $( eid + ' .hide' ).unbind().click(function() {
                     $( eid + ' .panel' ).toggleClass('minimized');
                 });
     
                 // hide/unhide panel
-                $( eid + ' .unhide' ).on('click', function (e) {
+                $( eid + ' .unhide' ).unbind().on('click', function (e) {
                     if ( $(e.target).closest(".section").length === 0 ) {
                         $( eid + ' .panel' ).removeClass('minimized');
                     }
                 });
-    
-                // Key events
-                if ( !plugin.settings.loaded ) {
-                    $(document).keyup(function(e) {
-                        if( e.which == 27 ) {
-                            // ESC key to hide/unhide info panel
-                            $( eid + ' .panel' ).toggleClass('minimized');
-                            $( eid + ' .selector .dialog' ).hide();
-                        }
-                    });
-                }
     
                 /*
                     Fields
                 */
     
                 // SLIDER FIELDS
-                $ (eid + ' .info .field.slider input' ).on('input change', function(e) {
+                $ (eid + ' .info .field.slider input' ).unbind().on('input change', function(e) {
                     var name = $(this).attr('name');
-                    var value = $(this).val();
                     var suffix = $(this).attr('data-suffix');
                     if ( suffix === undefined ) suffix = '';
-                    $(this).attr( 'value', value + suffix );
-                    $(this).parent().attr( 'data-value', value + suffix );
-                    plugin.settings[name] = value + suffix;
+                    var value = $(this).val() + suffix;
+                    $(this).attr( 'value', value );
+                    $(this).parent().attr( 'data-value', value );
+                    plugin.settings[name] = value ;
                     plugin.set_param( name, value );
                     // font-size
                     if ( name === 'fontsize' ) {
                         $(eid_inner).css( 'font-size', plugin.settings['fontsize'] );
                     }
+                    // check if this is for a theme var
+                    if ( name in plugin.css_vars ) {
+                        // todo
+                        var css = window.localStorage.getItem( 'gd_theme', css );
+                        render_theme_css(css);
+                    }
                 });
     
                 // CHOICE FIELDS
-                $( eid + ' .info .field.choices .choice' ).click(function() {
+                $( eid + ' .info .field.choices .choice' ).unbind().click(function() {
                     var name = $(this).parent().attr('data-name');
                     $(this).parent().find('.selected').removeClass('selected');
                     var value = $(this).attr('data-value');
@@ -1621,7 +1665,7 @@
                 });
     
                 // SELECT FIELDS
-                $( eid + ' .info .field.select select' ).change(function() {
+                $( eid + ' .info .field.select select' ).unbind().change(function() {
                     var name = $(this).parent().attr('data-name');
                     name = plugin.clean(name);
                     var value = $(this).val();
@@ -1640,13 +1684,13 @@
                 });
     
                 // COLLAPSIBLE FIELDS
-                $( eid + ' .info .field.collapsible .header' ).click(function(e) {
+                $( eid + ' .info .field.collapsible .header' ).unbind().click(function(e) {
                     if (e.target !== this) return;
-                    $(this).parent().toggleClass('collapsed');
+                    this.parentNode.classList.toggle('collapsed');
                 });
     
                 // SELECTOR KEYPRESS
-                $( eid + ' .info .selector-input' ).keyup(function(e) {
+                $( eid + ' .info .selector-input' ).unbind().keyup(function(e) {
                     if( e.which == 13 ) {
                         // get parent class
                         var c = get_selector_class( $(this).parent() );
@@ -1657,13 +1701,13 @@
     
                 function update_selector(type, id) {
                     plugin.set_param( type, id );
-                    if ( type === 'gist' || type === 'css' ){
-                        plugin.prepare_get( id, type );
+                    if ( type === 'css' || type === 'gist' ) {
+                        plugin.pre_get( id, type );
                     }
                 }
     
                 // Gist and CSS selectors
-                $( eid + ' .info .selector-url' ).click(function() {
+                $( eid + ' .info .selector-url' ).unbind().click(function() {
                     var c = get_selector_class( $(this) );
                     var prefix = '.' + c;
                     $( `${eid} ${prefix}-selector` ).toggle();
@@ -1684,8 +1728,10 @@
                     });
                 });
     
+                /* Document based events such as keypresses and general clicks */
+
                 // hide selector if anything is clicked outside of it
-                $(document).click(function(event) {
+                $(document).unbind().click(function(event) {
                     var $t = $(event.target);
                     // check if any .selector dialog is visiable
                     var $visible_selector = $( eid + ' .field.selector .dialog:visible' );
@@ -1703,6 +1749,12 @@
                         } else {
                             $( eid + ` .${c}-selector` ).hide();
                         }
+                    }
+                }).keyup(function(e) {
+                    if( e.which == 27 ) {
+                        // ESC key to hide/unhide info panel
+                        $( eid + ' .panel' ).toggleClass('minimized');
+                        $( eid + ' .selector .dialog' ).hide();
                     }
                 });
             };

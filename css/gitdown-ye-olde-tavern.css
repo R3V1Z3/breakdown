@@ -5,14 +5,30 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
 
-$scale: 1.1;
-$translateX: -120;
-$transform: scale($scale) translateX(-120px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
+/*
+    GitDown will automatically create input fields for CSS variables.
+    Use commens with extra details to make use of other field types.
+    
+    Format:
+    selector {$gd_field_type="values"}
+*/
+
+$scale: 1.1;            /* .gd-slides #custom .inner {$gd_slider="1.1,0.15,30,0.1"} */
+$translateX: -120px;    /* .gd-slides #custom .inner {$gd_slider="-120,-2000,2000,1,px"} */
+$translateY: 0px;       /* .gd-slides #custom .inner {$gd_slider="0,-2000,2000,1,px"} */
+$perspective: 800px;    /* .gd-slides #custom .inner {$gd_slider="800,100,2000,1,px"} */
+$rotateX: 15deg;        /* .gd-slides #custom .inner {$gd_slider="15,0,360,1,deg"} */
+$rotateY: 4deg;         /* .gd-slides #custom .inner {$gd_slider="4,0,360,1,deg"} */
 
 /* BeatDown styling */
 .gd-slides #custom .inner {
     position: fixed;
-    transform: scale(1.1) translateX($translateX px) translateY(0px) perspective(800px) rotateX(15deg) rotateY(4deg);
+    transform:  scale($scale)
+                translateX($translateX)
+                translateY($translateY)
+                perspective($perspective)
+                rotateX($rotateX)
+                rotateY($rotateY);
     padding: 10%;
 }
 

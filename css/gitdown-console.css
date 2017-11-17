@@ -2,7 +2,7 @@
   Theme name: Console
 */
 
-$primary-color: green;
+$color: green;
 
 @import url('https://fonts.googleapis.com/css?family=Cousine');
 
