@@ -69,4 +69,10 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
 
+<!-- {$gd_collapsible_contents} -->
+
+<!-- {$gd_toc} -->
+
+<!-- {$gd_collapsible_end_contents} -->
+
 <!-- {$gd_hide} -->

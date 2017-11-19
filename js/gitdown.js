@@ -895,8 +895,8 @@
                 render_info( plugin.settings.title );
 
                 // render raw text if user specified
-                // plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
-    
+                plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
+                
                 update_ui();
             }
 
@@ -908,7 +908,6 @@
                 update_theme_vars();
                 // finally register events
                 register_events();
-
                 // pass control back to user provided callback if it exists
                 if ( typeof plugin.settings.callback == 'function' ) {
                     plugin.settings.callback.call();
@@ -936,7 +935,7 @@
                 // hide selector dialogs at start
                 $( eid + ' .info .field.selector .dialog' ).hide();
                 // toggle collapsible sections at start
-                $( eid + ' .info .field.collapsible .header' ).addClass('collapsed');
+                $( eid + ' .info .field.collapsible' ).addClass('collapsed');
                 
                 let wrapper = document.querySelector(eid);
                 // add .gd-default class if using default theme
