@@ -343,8 +343,10 @@
                     if (s.styleSheet) {
                         s.styleSheet.cssText = content;
                       } else {
-                          // todo: sanitize content here so user doesn't need to
-                        s.appendChild(document.createTextNode(content));
+                        // attempt to sanitize content so hacker don't splodes our website
+                        const parser = new HtmlWhitelistedSanitizer(true);
+                        const css = parser.sanitizeString(content);
+                        s.appendChild(document.createTextNode(css));
                       }
                 }
                 if ( id !== null ) s.id = id;
@@ -424,16 +426,25 @@
                 return value;
             }
 
-            plugin.unique_name = function(prefix) {
+            // basically, tries to find a unique name for an element by adding
+            // -number at the end and checking for any element with that name
+            //
+            // prefix: section, room or some other identifier
+            // selector: base selector so we can find a unique id, class or otherwise
+            // max: maximum number of times to try
+            //
+            // returns new element name with suffixed number
+            plugin.unique = function(prefix, selector, max) {
                 let x = 1;
+                if ( max === null || max < 1 ) max = 200;
                 do {
-                    const n = `${prefix}'-'${x}`;
+                    const n = `${plugin.clean(prefix)}'-'${x}`;
                     // check if id already exists
-                    const name = document.querySelector( '#' + plugin.clean(n) );
+                    const name = document.querySelector( selector + n );
                     if ( name === null ) return n;
                     x++;
                 }
-                while (x < 200);
+                while (x < max);
             }
     
             plugin.preprocess_css = function(css) {
@@ -1064,11 +1075,11 @@
                         var $exists = $( eid_inner + ' .section#' + name );
                         if ( $exists.length > 0 ) {
                             // name already exists so give it a new suffix
-                            name = plugin.unique_name( name );
+                            name = plugin.unique( name, '#' );
                         }
                     } else {
                         // name is empty so assign it blank with suffix
-                        name = plugin.unique_name( 'blank' );
+                        name = plugin.unique( 'blank', '#' );
                     }
                     $(this).addClass('handle-heading');
                     $(this).wrapInner('<a class="handle" name="' + name + '"/>');
@@ -1108,6 +1119,8 @@
             var preprocess = function(data) {
                 var processed = '';
                 var lines = data.split('\n');
+                // todo: ensure this works as jquery each did previously
+                // $.each(lines, function( i, val ){
                 $.each(lines, function( i, val ){
                     // start by checking if # is the first character in the line
                     if ( val.charAt(0) === '#' ) {
@@ -1202,7 +1215,7 @@
     
             // custom method to allow for certain tags like <i> and <kbd>
             var tag_replace = function( tag, container ) {
-                var str = $( container ).html();
+                let str = document.querySelector(container).innerHTML;
                 // for html comments
                 if( tag === '<!--' ) {
                     // add content of comments as data-attributes attribute
@@ -1248,16 +1261,13 @@
     
             var render_theme_css = function(css) {
                 // first remove existing theme
-                $('#gd-theme-css').remove();
+                let el = document.querySelector(eid + ' #gd-theme-css');
+                if ( el !== null ) el.parentNode.removeChild(el);
     
                 if ( css === '' ) {
                     plugin.settings.css_filename = 'style.css';
                     plugin.settings.css = 'default';
                 } else {
-                    // attempt to sanitize CSS so hacker don't splode our website
-                    let parser = new HtmlWhitelistedSanitizer(true);
-                    css = parser.sanitizeString(css);
-    
                     // preprocess_css is our sissy lttle sass wannabe :)
                     let preprocessed = plugin.preprocess_css(css);
     
