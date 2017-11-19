@@ -1,5 +1,6 @@
 /*
   Theme name: Console
+  URL: https://gist.github.com/Ugotsta/e9217f4e7ed7c8fa18f13d12def1ad6c
 */
 
 $color: green;
@@ -150,15 +151,9 @@ pre code, pre, .hljs, pre.hljs {
 }
 
 @keyframes scan {
-    0% {
-        background-position-y: 0px;
-    }
-    50% {
-        background-position-y: 100px;
-    }
-    100% {
-        background-position-y: 0px;
-    }
+    0% { background-position-y: 0px; }
+    50% { background-position-y: 100px; }
+    100% { background-position-y: 0px; }
 }
 
 .container::after {

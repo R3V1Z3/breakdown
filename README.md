@@ -67,19 +67,6 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_slider_fontsize="120,50,300,1,%"} -->
 
-<!-- {$gd_select_primary-color} -->
-- Default
-- Slategrey
-- Burlywood
-- Antiquewhite
-- Green
-- Magenta
-- Brown
-- Red
-- Organe
-- Blue
-- Dodgerblue
-
 <!-- {$gd_collapsible_end_appearance} -->
 
 <!-- {$gd_hide} -->

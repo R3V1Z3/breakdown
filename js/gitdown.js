@@ -1,6 +1,6 @@
 (function($) {
     
-        $.gitdown = function(element, options, callback) {
+        $.gitdown = function(element, options) {
     
             /*
                 Options are configurable by 3 means, in the following order:
@@ -25,12 +25,17 @@
     
                 // defaults for url parameters
     
-                file: 'README.md',          // local file parsed for initial options
+                initial: 'README.md',       // initial content, either a local filename or 'HTML'
+
+                file: 'README.md',          // local file parsed for initial options (Todo: replace with initial)
+
                 header: 'h1',               // element to use for header
                 heading: 'h2',              // element to use for sections
                 container: 'container',     // class added for container
                 inner: 'inner',             // inner container for styling
                 fontsize: '',
+                content: 'default',
+                content_filename: '',
                 gist: 'default',
                 gist_filename: '',
                 css: 'default',
@@ -60,11 +65,13 @@
 
                 origin: '//ugotsta.github.io',
             };
+
+            // we'll protect these settings from altering by URL params
+            const parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
     
             // get URL parameters
             let params = (new URL(location)).searchParams;
-            let path = '/' + window.location.hostname.split('.')[0];
-            path += window.location.pathname;
+            const path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
     
             let example_gist = {};
             let example_css = {};
@@ -87,7 +94,7 @@
                                         "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
                                         "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
             };
-            let info_content = '';
+            let initial_content = '', info_content = '';
     
             let sections = [];
             let link_symbol = '&#11150';
@@ -109,7 +116,39 @@
             let eid_container;
             let eid_inner;
             
-            let content_loaded  = false, css_loaded  = false, loaded = false;
+            // status holds flags for loading process
+            // status.flags = [
+            //  'initial',         initial readme content loaded
+            //  'css',             css loaded (either user-provided or base theme)
+            //  'content',         user-specified content loaded (applicable only if user provides url)
+            //  'done',            all content and css fully loaded
+            //  'callback'         call to user-provided callback made (if user specified callback)
+            // ];
+            // status.add('initial');
+            // status.remove('initial');
+            // status.log();
+            const status = {
+                add(flag) {
+                    flag.split(',').forEach(function(e) {
+                        if ( status.flags.indexOf(e) === -1 ) status.flags.push(e);
+                    });
+                },
+                remove(flag) {
+                    flag.split(',').forEach(function(e) {
+                        let i = status.flags.indexOf(e);
+                        if ( i !== -1 ) status.flags.splice(i,1);
+                    });
+                },
+                has(flag) {
+                    if ( status.flags.indexOf(flag) !== -1 ) {
+                        return true;
+                    } else return false;
+                },
+                log() {
+                    console.log(status.flags);
+                },
+                flags: []
+            };
     
             // CONSTRUCTOR --------------------------------------------------------
             plugin.init = function() {
@@ -141,10 +180,11 @@
             // detect specified url parameter, clean and add it to settings
             plugin.update_parameter = function( key, default_value ) {
                 let val = default_value;
+                if ( val === undefined ) val = plugin.settings[key];
                 // check if specified key exists as url param
                 if ( params.has(key) ) {
                     // ensure the parameter is allowed
-                    if ( plugin.settings.parameters_disallowed.indexOf(key) === -1 ) {
+                    if ( plugin.is_param_allowed(key) ) {
                         val = params.get(key);
                         // sanitize strings
                         if ( typeof val === 'string' ) {
@@ -157,9 +197,18 @@
                 return val;
             };
 
+            plugin.is_param_allowed = function(p) {
+                let allowed = plugin.settings.parameters_disallowed.split(',');
+                let protected = parameters_protected.split(',');
+                if ( protected.indexOf(p) === -1 && allowed.indexOf(p) === -1 ) {
+                    return true;
+                }
+                return false;
+            }
+
             // return true to let user know everything is fully loaded
             plugin.is_loaded = function() {
-                return loaded;
+                return status.has('done');
             }
     
             // helper function for combining url parts
@@ -272,8 +321,7 @@
                     // check for existence of highlight link
                     if ( highlight === null ) {
                         // add style reference to head
-                        plugin.append_style( href, 'gd-highlight' );
-                        //$('head').append(link);
+                        plugin.append_style( 'link', 'gd-highlight', href );
                     } else {
                         // modify existing href
                         highlight.setAttribute( 'href', href );
@@ -282,21 +330,24 @@
             }
 
             // add external stylesheet to head
+            // type: link or style
             // id: optional id so we can alter href later
-            // href: user provided reference
-            plugin.append_style = function( href, id ){
-                for( var i = 0; i < document.styleSheets.length; i++ ){
-                    if( document.styleSheets[i].href == href ){
-                        return;
-                    }
+            // content: either href or actual style content
+            plugin.append_style = function( type, id, content ){
+                let s  = document.createElement(type);
+                s.type = 'text/css';
+                if ( type === 'link' ){
+                    s.rel  = 'stylesheet';
+                    s.href = content;
+                } else if ( type === 'style' ) {
+                    if (s.styleSheet) {
+                        s.styleSheet.cssText = content;
+                      } else {
+                        s.appendChild(document.createTextNode(content));
+                      }
                 }
-                var head  = document.getElementsByTagName('head')[0];
-                var link  = document.createElement('link');
-                link.rel  = 'stylesheet';
-                link.type = 'text/css';
-                link.href = href;
-                if ( id !== null ) link.id = id;
-                head.appendChild(link);
+                if ( id !== null ) s.id = id;
+                document.head.appendChild(s);
             }
     
             plugin.get_setting = function(s) {
@@ -321,7 +372,7 @@
     
                 var href = '';
                 if ( id === 'default' ) {
-                    href = gist_url( plugin.settings.file, false );
+                    href = gist_url( plugin.settings.content, false );
                 } else {
                     href = '//gist.github.com/' + id;
                 }
@@ -434,7 +485,7 @@
             }
     
             // update fields based on url parameters
-            plugin.update_fields = function(type) {
+            plugin.update_fields_with_params = function(type) {
                 if ( type === '' || type === undefined ) type = '';
                 var $fields = $( `${eid} .info .field${type}` );
                 $fields.each(function(){
@@ -483,7 +534,7 @@
                 });
             }
     
-            // set params while also updating url
+            // update parameter values in storage and url
             plugin.set_param = function( key, value ) {
                 params.set( key, value );
                 history.replaceState( {}, plugin.settings.title, plugin.uri() );
@@ -651,93 +702,97 @@
             };
     
             // directs the loading process, preparing a list of urls to be used in promise chain
-            plugin.pre_get = function( id, type ) {
-                if (type === 'css') {
-                    css_loaded  = false;
-                    /// clear any existing theme-var fields
-                    // let v = document.querySelector(eid + ' .info .theme-vars');
-                    // if ( v !== 'null') v.innerHTML = '';
-                }
-                if (type === 'gist') content_loaded  = false;
+            plugin.prepare_urls = function( id, type ) {
                 var urls = [];
-                // for default theme, redirect to render_theme_css()
-                if ( id === 'default' && type === 'css' ) {
-                    render_theme_css('');
-                    css_loaded  = true;
-                    return;
-                // for default content, just load the file from settings
-                } else if ( id === 'default' && type === 'gist' ) {
-                    urls.push(plugin.settings.file);
-                // otherwise generate list of urls to try
-                } else {
-                    // first set url to pull local file named with id
-                    // if that fails, we'll pull from original gist
-                    var file_path = '';
-                    var ext = '';
-                    // add markdown extension if file has no extension
-                    if ( id.indexOf('.') === -1 ) ext = '.md';
-                    // add css extension and css/ file path if this is a css file
-                    if ( type === 'css' ) {
-                        file_path = 'css/';
-                        ext = '.css';
-                        // push named file for ids that exist in example_css_default
-                        for ( key in example_css_default ) {
-                            if ( example_css_default[key] === id ) {
-                                urls.push( file_path + 'gitdown-' + plugin.clean(key) + ext );
-                            }
+                // first set url to pull local file named with id
+                // if that fails, we'll pull from original gist
+                var file_path = '';
+                var ext = '';
+                // add markdown extension if file has no extension
+                if ( id.indexOf('.') === -1 ) ext = '.md';
+                // add css extension and css/ file path if this is a css file
+                if ( type === 'css' ) {
+                    file_path = 'css/';
+                    ext = '.css';
+                    // push named file for ids that exist in example_css_default
+                    for ( key in example_css_default ) {
+                        if ( example_css_default[key] === id ) {
+                            urls.push( [type, id, file_path + 'gitdown-' + plugin.clean(key) + ext] );
                         }
                     }
-                    urls.push( file_path + id + ext );
-                    urls.push( '//ugotsta.github.io/gitdown/' + file_path + id + ext );
-                    urls.push( `//api.github.com/gists/${id}` );
                 }
-                plugin.get_file( id, type, urls );
+                urls.push( [type, id, file_path + id + ext] );
+                urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + id + ext] );
+                urls.push( [type, id, `//api.github.com/gists/${id}`] );
+                return urls;
+            }
+
+            plugin.status = function() {
+                return status.flags;
+            }
+
+            plugin.status_has = function(flag) {
+                return status.has('flag');
+            }
+
+            // adjust response if content is pulled from GitHub Gist
+            plugin.gistify_response = function(type, url, response) {
+                const filename = plugin.settings[type + '_filename'];
+                if ( url.indexOf('api.github.com') != -1 ) {
+                    const parsed = JSON.parse(response);
+                    const file = plugin.get_gist_filename( parsed, filename );
+                    plugin.settings[type + '_filename'] = file.filename;
+                    return file.content;
+                }
+                return response;
             }
     
-            // takes a series of urls and tries them until one succeeds loading
-            plugin.get_file = function( id, type, urls ) {
+            // takes a series of urls and tries them until one loads succesfully
+            plugin.get_files = function( urls ) {
                 if ( urls.length < 1 ) return;
-                var url = urls.shift();
-                var filename = plugin.settings[type + '_filename'];
-
-                /*
-                    begin promise chain
-                */
-
+                if ( status.has('done') ) return;
+                const a = urls.shift();
+                let type = a[0], id = a[1], url = a[2];
+                /* PROMISE CHAIN */
                 plugin.get(url).then( function (response ) {
                     plugin.settings[type] = id;
                     plugin.settings[type + '_filename'] = url;
-                    var data = response;
-                    // slight adjustments for files pulled from GitHub Gist
-                    if ( url.indexOf('api.github.com') != -1 ) {
-                        var parsed = JSON.parse(response);
-                        var file = plugin.get_gist_filename( parsed, filename );
-                        plugin.settings[type + '_filename'] = file.filename;
-                        data = file.content;
-                    }
+                    let data = plugin.gistify_response(type, url, response);
                     if ( type === 'css' ) {
                         render_theme_css(data);
-                        css_loaded  = true;
+                        if ( status.has('content') ) load_done();
                     } else {
-                        render_gist(data);
-                        let gid = plugin.settings.gist;
-                        if ( id === gid || id === plugin.settings.gist_filename ) {
-                            content_loaded = true;
+                        if ( status.has('content') ) return;
+                        // clear content from .info and .inner
+                        sections = [];
+                        var e = document.querySelector( eid + ' .info' );
+                        if ( e !== null ) e.innerHTML = '';
+                        e = document.querySelector( eid_inner );
+                        if ( e !== null ) e.innerHTML = '';
+                        render_content(data);
+                        status.add('content');
+                        if ( !status.has('done') ) {
+                            load_done();
                         }
                     }
-                }, function (error) {
-                    // try next url in array if current url returns not found
-                    if ( error.toString().indexOf('404') ) {
-                        if ( urls.length > 0 ) {
-                            plugin.get_file( id, type, urls );
-                        }
-                    }
-                }).then (function() {
-                    load_complete();
-                });
+                    plugin.get_files( urls );
+                }).catch( function(error) {
+                    console.log(error);
+                    plugin.get_files( urls );
+                })
             };
     
             // PRIVATE METHODS -----------------------------------------------------
+            
+            // CONTROL FLOW:
+            //
+            // 1. main() - entry point
+            //   1a. load_initial() - get initial content
+            //   1b. render_content() - render initial content
+            // 2. loop - directs flow after initial load
+            //   2a. plugin.get_files() - promise chain where all loading occurs after initial load
+            //   2b. render_content() - content pulled from get_files() sent back to renderer
+            // 3. load_done() - update ui elements and call any user provided callback
             var main = function() {
     
                 // update settings with URL parameters
@@ -745,71 +800,69 @@
                     plugin.update_parameter(key);
                 }
 
-                // loading process:
-                // 1. pre_gist() generates initial content urls to try or loads default content and theme
-                // 2. get_file() begins promise chain to load content from provided urls
-                // 3. get_gist() and su_render() render content
-                // 4. load_complete() finishes updates css variable fields and registers events
-                plugin.pre_get(plugin.settings.file, 'gist');
-    
+                let initial = plugin.settings.initial;
+                if ( initial.toLowerCase === 'html' ) {
+                    let html = document.querySelector(eid);
+                    if ( html !== null ) initial_content = html.innerHTML;
+                    render_content('html');
+                    status.add('initial');
+                } else {
+                    load_initial(initial);
+                }    
             };
 
-            var load_complete = function() {
-                // complete initialization once everything is loaded
-                if ( css_loaded  && content_loaded  ) {
-                    // update theme vars and render fields
-                    update_theme_vars();
-                    // finally register events
-                    register_events();
-                    // pass control back to user provided callback if it exists
-                    if ( typeof plugin.settings.callback == 'function' ) {
-                        plugin.settings.callback.call();
-                        // provide a way for user to know callback has been called already
-                        loaded = true;
+            var load_initial = function(url) {
+                plugin.get(url).then( function (response) {
+                    render_content(response);
+                    status.add('initial');
+                    loop();
+                }, function (error) {
+                    if ( error.toString().indexOf('404') ) {
+                        console.log(error);
                     }
+                });
+            }
+
+            var loop = function() {
+                const css = plugin.update_parameter('css'),
+                gist = plugin.update_parameter('gist');
+
+                let urls = [];
+                if ( css === 'default' ) {
+                    render_theme_css('');
+                } else if ( !status.has('css') ) {
+                    urls = plugin.prepare_urls( css, 'css' );
+                }
+
+                if ( gist === 'default' ) {
+                    // load initial content
+                    if ( !status.has('content') && status.has('callback') ) {
+                        status.remove('initial');
+                        load_initial(plugin.settings.initial);
+                    }
+                    status.add('content');
+                    plugin.settings.gist_filename = plugin.settings.content;
+                } else if ( !status.has('content') ) {
+                    const content_urls = plugin.prepare_urls( gist, 'gist' );
+                    content_urls.forEach(function(e) { urls.unshift(e); });
+                }
+                
+                if ( urls.length < 1 ) {
+                    load_done();
+                } else {
+                    // get_files() is a recursive function that tries all urls in array
+                    plugin.get_files(urls);
                 }
             }
 
-            var render_gist = function(data) {
-                sections = [];
-                // clear content from .info and .inner
-                var e = document.querySelector( eid + ' .info' );
-                if ( e !== null ) e.innerHTML = '';
-                e = document.querySelector( eid_inner );
-                if ( e !== null ) e.innerHTML = '';
-                data = extract_info_content(data);
-                // extra routine for initial load (occurs only at first run)
-                if ( !loaded ) {
-                    // we'll load any user-specified css first
-                    plugin.pre_get( plugin.settings.css, 'css' );
-                    // now load any user-specific content
-                    var gist = plugin.update_parameter('gist');
-                    if ( gist !== undefined && gist !== 'default' ) {
-                        plugin.pre_get( gist, 'gist' );
-                        // render user provided Info panel default content
-
-                        // todo: currently rendering README content in su_render()
-                        // needs to be optimized using separate, simplified function
-                        // that only renders info panel content
-
-                        // we need to clearly define the load process
-                        // 1. load initial content
-                        // 2. parse for info panel
-                        // 3. get any user-specified content
-                        su_render(info_content);
-                        // return since su_render() is executed above
-                        return;
-                    }
+            var render_content = function(data) {
+                if ( plugin.settings.initial.toLowerCase === 'html' ){
+                    //
+                } else {
+                    // best practice, files should end with newline, we'll ensure it.
+                    data += '\n';
                 }
-                su_render(data);
-            }
-    
-            // Start content rendering process
-            var su_render = function(data) {
 
-                // best practice, files should end with newline, we'll ensure it.
-                data += '\n';
-    
                 // preprocess data if user specified
                 if( plugin.settings.preprocess ) {
                     data = preprocess(data);
@@ -820,21 +873,18 @@
     
                 // setup info panel default content if it doesn't exist
                 data = extract_info_content(data);
+
+                // if we're just getting info content from initial, return at this point
+                let initial = status.has('initial');
+                let gist = plugin.settings.gist;
+                if ( !initial && gist !== 'default' ) return;
     
                 // render content and info panel
                 plugin.render( data, eid_inner, true );
                 plugin.render( info_content, eid + ' .info', false );
     
-                // add gd-default class if using default theme
-                if ( plugin.settings.css === 'default' ) $('html').addClass('gd-default');
-
-                // add gd-lyrics class when using lyrics mode: heading=lyrics
-                if ( plugin.settings.heading === 'lyrics' ) $(eid).addClass('gd-lyrics');
-    
                 // arrange content in sections based on headings
                 sectionize();
-                
-                plugin.render_highlight();
     
                 // handle special tags we want to allow
                 tag_replace( 'kbd', eid );
@@ -843,33 +893,84 @@
     
                 // render info panel and toc based on current section
                 render_info( plugin.settings.title );
+
+                // render raw text if user specified
+                // plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
     
+                update_ui();
+            }
+
+            var load_done = function() {
+                // complete initialization once everything is loaded
+                status.add('done');
+                update_ui();
+                // update theme vars and render fields
+                update_theme_vars();
+                // finally register events
+                register_events();
+
+                // pass control back to user provided callback if it exists
+                if ( typeof plugin.settings.callback == 'function' ) {
+                    plugin.settings.callback.call();
+                    status.add('callback');
+                }
+            }
+
+            var update_ui = function() {
+
+                /// clear any existing theme-var fields
+                let v = document.querySelector(eid + ' .info .theme-vars');
+                if ( v !== null ) v.innerHTML = '';
+
+                // update fields based on params
+                plugin.update_fields_with_params();
+                update_ui_from_settings();
+                plugin.render_highlight();
+
                 // set current section and go there
                 go_to_hash();
-                
-                // update fields based on params
-                plugin.update_fields();
 
                 // where are we updating parameters based on fields like sliders?
                 var fontsize = plugin.settings.fontsize;
                 if ( fontsize != '' ) $( eid_inner ).css('font-size', fontsize + '%');
-
-                // render raw text if user specified
-                plugin.render_raw( raw_data, eid_inner, plugin.settings.markdownit );
-    
-                handle_options();
-    
-                // write settings to browser for easy re-use by apps
-                store_settings();
-    
                 // hide selector dialogs at start
                 $( eid + ' .info .field.selector .dialog' ).hide();
-    
                 // toggle collapsible sections at start
-                $( eid + ' .field.collapsible .header' ).click();
+                $( eid + ' .info .field.collapsible .header' ).addClass('collapsed');
+                
+                let wrapper = document.querySelector(eid);
+                // add .gd-default class if using default theme
+                if ( plugin.settings.css === 'default' ) {
+                    wrapper.classList.add('gd-default');
+                } else wrapper.classList.remove('gd-default');
+
+                // add .gd-lyrics class when using lyrics mode: heading=lyrics
+                if ( plugin.settings.heading === 'lyrics' ) {
+                    wrapper.classList.add('gd-lyrics');
+                }
+            }
+
+            var update_ui_from_settings = function() {
+                // rewrite with forEach() to hide settings based on element name
+                const elements = ['info','help_ribbon','element_count','gist_details','css_details'];
+                elements.forEach(function(i){
+                    if( plugin.settings[`hide_${i}`] ) {
+                        var e = document.querySelector( `${eid} .${plugin.clean(i)}` );
+                        if ( e !== null) e.parentNode.removeChild(e);
+                    }
+                });
+                if( plugin.settings['disable_hide'] ) {
+                    var e = document.querySelector( `${eid} .hide` );
+                    if ( e !== null) e.parentNode.removeChild(e);
+                }
+                if( plugin.settings['hide_toc'] ) {
+                    var e = document.querySelector( `${eid} .info .toc` );
+                    if ( e !== null) e.parentNode.removeChild(e);
+                }
             };
 
             var update_theme_vars = function() {
+                // todo: use same code base as variable_html()
                 let html = '';
                 let theme_vars = document.querySelector(eid + ' .info .theme-vars');
                 if ( theme_vars !== null ) {
@@ -899,41 +1000,9 @@
                     }
                     // todo
                     theme_vars.innerHTML = html;
+                    plugin.update_fields_with_params();
                 }
-                plugin.update_fields();
             }
-    
-            // store settings in browser
-            var store_settings = function() {
-                var s = JSON.stringify(plugin.settings);
-                window.localStorage.setItem( 'gd_settings', s );
-                // retrieve settings in apps with plugin.get_setting('settings')
-            }
-    
-            var handle_options = function() {
-                if( options['hide_info'] ) {
-                    $( eid + ' .info' ).remove();
-                }
-                if( options['hide_help_ribbon'] ) {
-                    $( eid + ' .help-ribbon' ).remove();
-                }
-                if( options['hide_element_count'] ) {
-                    $( eid + ' .element-count' ).remove();
-                }
-                if( options['hide_gist_details'] ) {
-                    $( eid + ' .gist-details' ).remove();
-                }
-                if( options['hide_css_details'] ) {
-                    $( eid + ' .css-details' ).remove();
-                }
-                if( options['disable_hide'] ) {
-                    $( eid + ' .hide' ).remove();
-                }
-                if( options['hide_toc'] ) {
-                    $( eid + ' .toc' ).remove();
-                    $( eid + ' .info h3' ).remove();
-                }
-            };
     
             // extra info panel contents if they exist
             // does nothing if no info content is found
@@ -1180,13 +1249,11 @@
             var render_theme_css = function(css) {
                 // first remove existing theme
                 $('#gd-theme-css').remove();
-                $('html').addClass('gd-default');
     
                 if ( css === '' ) {
                     plugin.settings.css_filename = 'style.css';
                     plugin.settings.css = 'default';
                 } else {
-                    $('html').removeClass('gd-default');
                     // attempt to sanitize CSS so hacker don't splode our website
                     let parser = new HtmlWhitelistedSanitizer(true);
                     css = parser.sanitizeString(css);
@@ -1203,12 +1270,11 @@
                     }
     
                     // create style tag with css content
-                    $('head').append(`<style id="gd-theme-css">${preprocessed}</style>`);
+                    plugin.append_style( 'style', 'gd-theme-css', preprocessed );
                 }
-                // update theme selector field
-                plugin.update_selector_url( 'css', plugin.settings.css_filename );
                 // store cleaned css in browser
                 window.localStorage.setItem( 'gd_theme', css );
+                status.add('css');
             };
     
             var extract_variable = function( v ) {
@@ -1272,7 +1338,7 @@
                 var file = '';
                 var is_gist = false;
                 if ( n === 'gist' ){
-                    file = plugin.settings.file;
+                    file = plugin.settings.content;
                 } else if ( n === 'css' ) {
                     file = 'css/style.css';
                 }
@@ -1313,6 +1379,10 @@
                 return c;
             }
     
+            // todo: this absolutely needs re-writing
+            // it doesn't return html as name implies
+            // remove append() and html() calls
+            // and return the html along with instructions for handling it
             var variable_html = function( v, t ) {
                 var $t = $(t);
                 // c is the html content
@@ -1341,6 +1411,7 @@
                         }
                         c = selector_html( 'gist', $t, 'Gist ID', example_gist );
                         $t.next('br').remove();
+                        if (!plugin.is_param_allowed('gist')) c = '';
                         $t.html(c);
                     } else if ( v === '$gd_css' ) {
     
@@ -1355,6 +1426,7 @@
                         }
                         c = selector_html( 'css', $t, 'Gist ID for CSS theme', example_css );
                         $t.next('br').remove();
+                        if (!plugin.is_param_allowed('css')) c = '';
                         $t.html(c);
                     } else if ( plugin.begins( v, '$gd_toc' ) ) {
                         // handle assignment, letting user provide header text
@@ -1556,14 +1628,14 @@
             var register_events = function() {
 
                 // handle history
-                if ( !loaded ) {
+                if ( !status.has('done') ) {
                     window.addEventListener('popstate', function(e) {
                         go_to_hash();
                     });
                 }
 
                 // send Ready message to whatever window opened this app
-                if ( !loaded && window.opener != null ) {
+                if ( !status.has('done') && window.opener != null ) {
                     window.opener.postMessage( 'Ready.', plugin.settings.origin );
                 }
                 
@@ -1574,7 +1646,7 @@
                         if ( event.data === 'Ready.') {
                             //
                         } else {
-                            // we've received content so su_render it
+                            // we've received content so render it
                             var data = JSON.parse(event.data);
                             console.log('Received data from GitHub.');
                             sections = [];
@@ -1586,7 +1658,7 @@
                             var content = data.content + '\n' + plugin.default_info_content();
                             content = extract_info_content(content);
                             window.localStorage.setItem( 'gd_content', content );
-                            su_render(content);
+                            render_content(content);
                         }
                     }
                 }, false);
@@ -1700,9 +1772,16 @@
                 });
     
                 function update_selector(type, id) {
+                    // hide any visible selector field first
+                    $( eid + ' .field.selector .dialog' ).hide();
                     plugin.set_param( type, id );
-                    if ( type === 'css' || type === 'gist' ) {
-                        plugin.pre_get( id, type );
+                    plugin.update_parameter(type, id);
+                    if ( type === 'css' ) {
+                        status.remove('css,done');
+                        loop();
+                    } else if ( type === 'gist' ) {
+                        status.remove('content,done');
+                        loop();
                     }
                 }
     
@@ -1722,7 +1801,7 @@
                     });
     
                     // create click events for links
-                    $( `${eid} ${prefix}-selector a.id` ).click(function(event) {
+                    $( `${eid} ${prefix}-selector a.id` ).unbind().click(function(event) {
                         var id = $(this).attr('data-id');
                         update_selector(c, id);
                     });

@@ -31,6 +31,7 @@
 
             // attach the plugin to an element
             $('#wrapper').gitdown( {'title': 'GitDown',
+                                    'content': 'README.md',
                                     'callback': done,
             } );
 
@@ -47,11 +48,7 @@
             function done() {
 
                 // execute the following code only at app startup
-                if ( !$gd.settings.loaded ) {
-                    console.log('Plugin loaded.');
-                } else {
-                    console.log('Callback executed again.');
-                }
+                console.log('Callback executed.');
             }
 
         });
