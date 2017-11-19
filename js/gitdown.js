@@ -122,7 +122,9 @@
             //  'css',             css loaded (either user-provided or base theme)
             //  'content',         user-specified content loaded (applicable only if user provides url)
             //  'done',            all content and css fully loaded
-            //  'callback'         call to user-provided callback made (if user specified callback)
+            //  'callback'         call to user-provided callback made, added AFTER callback completed
+            //  'content-changed'  app loaded and user selected different content
+            //  'theme-changed'    app loaded and user selected different theme
             // ];
             // status.add('initial');
             // status.remove('initial');
@@ -140,7 +142,12 @@
                     });
                 },
                 has(flag) {
-                    if ( status.flags.indexOf(flag) !== -1 ) {
+                    if ( flag === 'changed' ) {
+                        // return true if any flags have text '-changed'
+                        status.flags.forEach((e) => {
+                            if ( e.indexOf('-changed') ) return true;
+                        });
+                    } else if ( status.flags.indexOf(flag) !== -1 ) {
                         return true;
                     } else return false;
                 },
@@ -329,7 +336,7 @@
                 }
             }
 
-            // add external stylesheet to head
+            // add style to head either inline or external stylesheet
             // type: link or style
             // id: optional id so we can alter href later
             // content: either href or actual style content
@@ -758,53 +765,18 @@
                 }
                 return response;
             }
-    
-            // takes a series of urls and tries them until one loads succesfully
-            plugin.get_files = function( urls ) {
-                if ( urls.length < 1 ) return;
-                if ( status.has('done') ) return;
-                const a = urls.shift();
-                let type = a[0], id = a[1], url = a[2];
-                /* PROMISE CHAIN */
-                plugin.get(url).then( function (response ) {
-                    plugin.settings[type] = id;
-                    plugin.settings[type + '_filename'] = url;
-                    let data = plugin.gistify_response(type, url, response);
-                    if ( type === 'css' ) {
-                        render_theme_css(data);
-                        if ( status.has('content') ) load_done();
-                    } else {
-                        if ( status.has('content') ) return;
-                        // clear content from .info and .inner
-                        sections = [];
-                        var e = document.querySelector( eid + ' .info' );
-                        if ( e !== null ) e.innerHTML = '';
-                        e = document.querySelector( eid_inner );
-                        if ( e !== null ) e.innerHTML = '';
-                        render_content(data);
-                        status.add('content');
-                        if ( !status.has('done') ) {
-                            load_done();
-                        }
-                    }
-                    plugin.get_files( urls );
-                }).catch( function(error) {
-                    console.log(error);
-                    plugin.get_files( urls );
-                })
-            };
-    
+
             // PRIVATE METHODS -----------------------------------------------------
             
             // CONTROL FLOW:
             //
             // 1. main() - entry point
-            //   1a. load_initial() - get initial content
             //   1b. render_content() - render initial content
-            // 2. loop - directs flow after initial load
-            //   2a. plugin.get_files() - promise chain where all loading occurs after initial load
-            //   2b. render_content() - content pulled from get_files() sent back to renderer
-            // 3. load_done() - update ui elements and call any user provided callback
+            // 2. load_initial() - get initial content
+            // 3. loop - directs flow after initial load
+            //   3a. get_files() - promise chain where all loading occurs after initial load
+            //   3b. render_content() - content pulled from get_files() sent back to renderer
+            // 4. load_done() - update ui elements and call any user provided callback
             var main = function() {
     
                 // update settings with URL parameters
@@ -863,9 +835,50 @@
                     load_done();
                 } else {
                     // get_files() is a recursive function that tries all urls in array
-                    plugin.get_files(urls);
+                    get_files(urls);
                 }
             }
+
+            // used stricly to clear existing content when loading new content
+            var clear_content = function() {
+                sections = [];
+                var e = document.querySelector( eid + ' .info' );
+                if ( e !== null ) e.innerHTML = '';
+                e = document.querySelector( eid_inner );
+                if ( e !== null ) e.innerHTML = '';
+            }
+
+            // takes a series of urls and tries them until one loads succesfully
+            var get_files = function( urls ) {
+                if ( urls.length < 1 ) return;
+                if ( status.has('done') ) return;
+                const a = urls.shift();
+                let type = a[0], id = a[1], url = a[2];
+                /* PROMISE CHAIN */
+                plugin.get(url).then( function (response ) {
+                    plugin.settings[type] = id;
+                    plugin.settings[type + '_filename'] = url;
+                    let data = plugin.gistify_response(type, url, response);
+                    if ( type === 'css' ) {
+                        render_theme_css(data);
+                        if ( status.has('content') ) load_done();
+                    } else {
+                        // clear content from .info and .inner
+                        clear_content();
+                        render_content(data);
+                        status.add('content');
+                        // remove 'gist' content from urls since we have the content
+                        urls = urls.filter(i => i[0] !== 'gist');
+                        if ( status.has('content,css') ) {
+                            load_done();
+                        }
+                    }
+                    get_files( urls );
+                }).catch( function(error) {
+                    console.log(error);
+                    get_files( urls );
+                })
+            };
 
             var render_content = function(data) {
                 if ( plugin.settings.initial.toLowerCase === 'html' ){
@@ -913,17 +926,22 @@
             }
 
             var load_done = function() {
-                // complete initialization once everything is loaded
-                status.add('done');
-                update_ui();
-                // update theme vars and render fields
-                update_theme_vars();
-                // finally register events
-                register_events();
-                // pass control back to user provided callback if it exists
-                if ( typeof plugin.settings.callback == 'function' ) {
-                    plugin.settings.callback.call();
-                    status.add('callback');
+                if ( status.has('theme-changed') ) {
+                    // update theme vars and render fields
+                    update_theme_vars();
+                } else {
+                    // complete initialization once everything is loaded
+                    status.add('done');
+                    update_ui();
+                    // update theme vars and render fields
+                    update_theme_vars();
+                    // finally register events
+                    register_events();
+                    // pass control back to user provided callback if it exists
+                    if ( typeof plugin.settings.callback == 'function' ) {
+                        plugin.settings.callback.call();
+                        status.add('callback');
+                    }
                 }
             }
 
@@ -942,12 +960,14 @@
                 go_to_hash();
 
                 // where are we updating parameters based on fields like sliders?
-                var fontsize = plugin.settings.fontsize;
+                var fontsize = parseInt( plugin.settings.fontsize );
                 if ( fontsize != '' ) $( eid_inner ).css('font-size', fontsize + '%');
                 // hide selector dialogs at start
                 $( eid + ' .info .field.selector .dialog' ).hide();
-                // toggle collapsible sections at start
-                $( eid + ' .info .field.collapsible' ).addClass('collapsed');
+                // toggle collapsible sections at start, prior to callback
+                if ( !status.has('changed') ) {
+                    $( eid + ' .info .field.collapsible' ).addClass('collapsed');
+                }
                 
                 let wrapper = document.querySelector(eid);
                 // add .gd-default class if using default theme
@@ -1261,7 +1281,7 @@
     
             var render_theme_css = function(css) {
                 // first remove existing theme
-                let el = document.querySelector(eid + ' #gd-theme-css');
+                let el = document.querySelector('#gd-theme-css');
                 if ( el !== null ) el.parentNode.removeChild(el);
     
                 if ( css === '' ) {
@@ -1775,20 +1795,22 @@
                         // get parent class
                         var c = get_selector_class( $(this).parent() );
                         var id = $(this).val();
-                        update_selector(c, id);
+                        selector_changed(c, id);
                     }
                 });
     
-                function update_selector(type, id) {
+                function selector_changed(type, id) {
                     // hide any visible selector field first
                     $( eid + ' .field.selector .dialog' ).hide();
                     plugin.set_param( type, id );
                     plugin.update_parameter(type, id);
                     if ( type === 'css' ) {
-                        status.remove('css,done');
+                        status.remove('css,done,content-changed');
+                        status.add('theme-changed');
                         loop();
                     } else if ( type === 'gist' ) {
-                        status.remove('content,done');
+                        status.remove('content,done,theme-changed');
+                        status.add('content-changed');
                         loop();
                     }
                 }
@@ -1811,7 +1833,7 @@
                     // create click events for links
                     $( `${eid} ${prefix}-selector a.id` ).unbind().click(function(event) {
                         var id = $(this).attr('data-id');
-                        update_selector(c, id);
+                        selector_changed(c, id);
                     });
                 });
     
