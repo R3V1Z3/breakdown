@@ -343,6 +343,7 @@
                     if (s.styleSheet) {
                         s.styleSheet.cssText = content;
                       } else {
+                          // todo: sanitize content here so user doesn't need to
                         s.appendChild(document.createTextNode(content));
                       }
                 }
@@ -376,13 +377,13 @@
                 } else {
                     href = '//gist.github.com/' + id;
                 }
-    
+
                 var source = document.querySelector( `${eid} .info .field.selector.${type} a.selector-source` );
                 if ( source !== null ) source.setAttribute( 'href', href );
             }
     
+            // helper function to get current section
             plugin.get_current_section_id = function() {
-                // make the first .section current if no current section is set yet
                 var current = document.querySelector( eid_inner + ' .section.current' );
                 if ( current !== null ) {
                     return current.getAttribute('id');
@@ -412,7 +413,7 @@
                 return '';            
             };
     
-            // returns true
+            // returns value of css_var at key k
             plugin.get_css_var = function(k) {
                 value = '';
                 for ( key in plugin.css_vars ) {
@@ -424,11 +425,11 @@
             }
 
             plugin.unique_name = function(prefix) {
-                var x = 1;
+                let x = 1;
                 do {
-                    var n = prefix + '-' + x;
+                    const n = `${prefix}'-'${x}`;
                     // check if id already exists
-                    var name = document.querySelector( '#' + plugin.clean(n) );
+                    const name = document.querySelector( '#' + plugin.clean(n) );
                     if ( name === null ) return n;
                     x++;
                 }
@@ -1627,11 +1628,9 @@
             var register_events = function() {
 
                 // handle history
-                if ( !status.has('done') ) {
-                    window.addEventListener('popstate', function(e) {
-                        go_to_hash();
-                    });
-                }
+                window.addEventListener('popstate', function(e) {
+                    go_to_hash();
+                });
 
                 // send Ready message to whatever window opened this app
                 if ( !status.has('done') && window.opener != null ) {
