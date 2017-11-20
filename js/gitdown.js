@@ -21,7 +21,7 @@
                 developers to designers or those just looking to have fun.
             */
     
-            let defaults = {
+            const defaults = {
     
                 // defaults for url parameters
     
@@ -70,17 +70,17 @@
             const parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
     
             // get URL parameters
-            let params = (new URL(location)).searchParams;
+            const params = (new URL(location)).searchParams;
             const path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
     
             let example_gist = {};
             let example_css = {};
             // we'll use jquery $.extend later to merge these
-            let example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
+            const example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
                                         "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
             };
     
-            let example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
+            const example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                         "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
                                         "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                         "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
@@ -97,7 +97,7 @@
             let initial_content = '', info_content = '';
     
             let sections = [];
-            let link_symbol = '&#11150';
+            const chr_link = '⮎';
     
             // simplify plugin name with this and declare settings
             let plugin = this;
@@ -131,12 +131,12 @@
             // status.log();
             const status = {
                 add(flag) {
-                    flag.split(',').forEach(function(e) {
+                    flag.split(',').forEach((e) => {
                         if ( status.flags.indexOf(e) === -1 ) status.flags.push(e);
                     });
                 },
                 remove(flag) {
-                    flag.split(',').forEach(function(e) {
+                    flag.split(',').forEach((e) => {
                         let i = status.flags.indexOf(e);
                         if ( i !== -1 ) status.flags.splice(i,1);
                     });
@@ -145,7 +145,7 @@
                     if ( flag === 'changed' ) {
                         // return true if any flags have text '-changed'
                         status.flags.forEach((e) => {
-                            if ( e.indexOf('-changed') ) return true;
+                            if ( e.indexOf('-changed') !== -1 ) return true;
                         });
                     } else if ( status.flags.indexOf(flag) !== -1 ) {
                         return true;
@@ -855,7 +855,7 @@
                 const a = urls.shift();
                 let type = a[0], id = a[1], url = a[2];
                 /* PROMISE CHAIN */
-                plugin.get(url).then( function (response ) {
+                plugin.get(url).then( (response ) => {
                     plugin.settings[type] = id;
                     plugin.settings[type + '_filename'] = url;
                     let data = plugin.gistify_response(type, url, response);
@@ -953,15 +953,16 @@
 
                 // update fields based on params
                 plugin.update_fields_with_params();
+                // where are we updating parameters based on fields like sliders?
+                var fontsize = parseInt( plugin.settings.fontsize );
+                if ( fontsize != '' ) $( eid_inner ).css('font-size', fontsize + '%');
+                
                 update_ui_from_settings();
                 plugin.render_highlight();
 
                 // set current section and go there
                 go_to_hash();
 
-                // where are we updating parameters based on fields like sliders?
-                var fontsize = parseInt( plugin.settings.fontsize );
-                if ( fontsize != '' ) $( eid_inner ).css('font-size', fontsize + '%');
                 // hide selector dialogs at start
                 $( eid + ' .info .field.selector .dialog' ).hide();
                 // toggle collapsible sections at start, prior to callback
@@ -1029,7 +1030,6 @@
                             }
                         }
                     }
-                    // todo
                     theme_vars.innerHTML = html;
                     plugin.update_fields_with_params();
                 }
@@ -1049,7 +1049,7 @@
                     c = '';
                     // get all content starting with occurrence of $gd_info
                     var lines = content.split('\n');
-                    $.each( lines, function( i, val ){
+                    lines.forEach((val) => {
                         if ( val.indexOf('<!-- {$gd_info} -->') != -1 ) {
                             info_found = true;
                         }
@@ -1139,9 +1139,7 @@
             var preprocess = function(data) {
                 var processed = '';
                 var lines = data.split('\n');
-                // todo: ensure this works as jquery each did previously
-                // $.each(lines, function( i, val ){
-                $.each(lines, function( i, val ){
+                lines.forEach((val) => {
                     // start by checking if # is the first character in the line
                     if ( val.charAt(0) === '#' ) {
                         var x = plugin.find_first_char_not('#', val);
@@ -1306,22 +1304,6 @@
                 window.localStorage.setItem( 'gd_theme', css );
                 status.add('css');
             };
-    
-            var extract_variable = function( v ) {
-                // ensure there's an open paren
-                if ( v.indexOf('{') != -1 ) {
-                    var v1 = v.split('{')[1];
-                    // ensure there's a closing paren
-                    if ( v1.indexOf('}') != -1 ) {
-                        var v2 = v1.split('}')[0];
-                        // ensure the variable begins with $
-                        if ( v2.indexOf('$') != -1 ) {
-                            return v2;
-                        }
-                    }
-                }
-                return '';
-            };
 
             function extract_list_items( $next, is_gist ) {
                 var items = {};
@@ -1377,17 +1359,18 @@
                 placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
                 
                 var c = `<div class="field selector ${n} ${n}-details">`;
+                let txt = $t.text();
     
                 // current item
                 if ( n === 'gist' || n === 'css' ) {
                     is_gist = true;
                     var url = gist_url( file, true );
-                    c += `<a class="selector-source" href="${url}" target="_blank">${link_symbol}</a>`;
-                    c += `<a name="${$t.text()}" class="${n}-url selector-url">${proper} ▾</a>`;
+                    c += `<a class="selector-source" href="${url}" target="_blank">${chr_link}</a>`;
+                    c += `<a name="${txt}" class="${n}-url selector-url">${proper} ▾</a>`;
                 } else {
                     // other selectors
-                    c += `<a class="selector-source" href="${$t.text()}" target="_blank">${link_symbol}</a>`;
-                    c += `<a name="${$t.text()}" class="${n}-url selector-url">${$t.text()} ▾</a>`;
+                    c += `<a class="selector-source" href="${txt}" target="_blank">${chr_link}</a>`;
+                    c += `<a name="${txt}" class="${n}-url selector-url">${txt} ▾</a>`;
                 }
     
                 c += `<div class="${n}-selector dialog">`;
@@ -1399,7 +1382,7 @@
                 if ( n === 'gist' || n === 'css' ) {
                     var url = gist_url( file, false );
                     //c += list_html( { 'Default': url }, true);
-                    c += `<a href="${url}" target="_blank">${link_symbol}</a>`;
+                    c += `<a href="${url}" target="_blank">${chr_link}</a>`;
                     c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
                 }
     
@@ -1409,9 +1392,6 @@
                 return c;
             }
     
-            // todo: this absolutely needs re-writing
-            // it doesn't return html as name implies
-            // remove append() and html() calls
             // and return the html along with instructions for handling it
             var variable_html = function( v, t ) {
                 var $t = $(t);
@@ -1419,20 +1399,19 @@
                 var c = '';
                 var title = plugin.settings.title;
                 if ( v != '' ) {
-                    if ( plugin.begins( v, '$gd_info' ) ) {
-                        $t.text( title ).addClass( plugin.clean(title) + ' app-title' );
-                    } else if ( plugin.begins( v, '$gd_help_ribbon' ) ) {
+                    if ( plugin.begins( v, 'gd_info' ) ) {
+                        //$t.text( title ).addClass( plugin.clean(title) + ' app-title' );
+                        return [ title, 'text' ];
+                    } else if ( plugin.begins( v, 'gd_help_ribbon' ) ) {
                         c = '<a class="help-ribbon" href="//github.com' + path;
                         c += '#' + title.toLowerCase() + '">?</a>';
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_element_count' ) ) {
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_element_count' ) ) {
                         c = '<div class="element-count">.section total:</div>';
-                        $t.append(c);
-                    } else if ( v === '$gd_gist' ) {
-    
+                        return [ c, 'append' ];
+                    } else if ( v === 'gd_gist' ) {
                         // first extract contents of list for examples
                         var items = extract_list_items( $t.next(), true );
-    
                         // check settings and merge examples if needed
                         if ( plugin.settings.merge_gists ) {
                             example_gist = $.extend( example_gist_default, items );
@@ -1440,14 +1419,11 @@
                             example_gist = items;
                         }
                         c = selector_html( 'gist', $t, 'Gist ID', example_gist );
-                        $t.next('br').remove();
                         if (!plugin.is_param_allowed('gist')) c = '';
-                        $t.html(c);
-                    } else if ( v === '$gd_css' ) {
-    
+                        return [ c, 'html' ];
+                    } else if ( v === 'gd_css' ) {
                         // first extract contents of list for examples
                         var items = extract_list_items( $t.next(), true );
-    
                         // check settings and merge examples if needed
                         if ( plugin.settings.merge_themes === 'false' ) {
                             example_css = items;
@@ -1457,8 +1433,8 @@
                         c = selector_html( 'css', $t, 'Gist ID for CSS theme', example_css );
                         $t.next('br').remove();
                         if (!plugin.is_param_allowed('css')) c = '';
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_toc' ) ) {
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_toc' ) ) {
                         // handle assignment, letting user provide header text
                         if ( v.indexOf('=') != -1 ) {
                             var toc = v.split('=')[1];
@@ -1467,23 +1443,22 @@
                         }
                         c += '<div class="toc"></div>';
                         if ( $t.is('p') ) {
-                            $t.before(c);
-                        } else $t.after(c);
-                    } else if ( plugin.begins( v, '$gd_hide' ) ) {
+                            return [ c, 'before' ];
+                        } else return [ c, 'after' ];
+                    } else if ( plugin.begins( v, 'gd_hide' ) ) {
                         c = '<a class="hide"><kbd>Esc</kbd> - show/hide this panel.</a>';
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_theme_variables' ) ) {
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_theme_variables' ) ) {
                         c = '<div class="theme-vars"></div>';
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_selector_' ) ) {
-                        var v_name = v.split('$gd_selector_')[1];
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_selector_' ) ) {
+                        var v_name = v.split('gd_selector_')[1];
                         // first extract contents of list for examples
                         var items = extract_list_items( $t.next(), false );
                         c = selector_html( v_name, $t, v_name, items );
-                        $t.next('br').remove();
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_choice_' ) ) {
-                        var v_name = v.split('$gd_choice_')[1];
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_choice_' ) ) {
+                        var v_name = v.split('gd_choice_')[1];
                         // return if there's no assignment after variable
                         if ( v_name.indexOf('=') === -1 ) return;
                         // remove assignment text from name
@@ -1496,9 +1471,9 @@
                         // get user assigned string
                         var items = v_items.split(',');
                         c = field_html( 'choices', v_name, items);
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_select_' ) ) {
-                        var v_name = v.split('$gd_select_')[1];
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_select_' ) ) {
+                        var v_name = v.split('gd_select_')[1];
                         var next = t.nextElementSibling;
                         var items = {};
                         if ( next !== null && next.tagName === 'UL' ) {
@@ -1506,10 +1481,9 @@
                         }
                         c = field_html( 'select', v_name, items );
                         next.parentNode.removeChild(next);
-                        $t.next('br').remove();
-                        $t.html(c);
-                    } else if ( plugin.begins( v, '$gd_slider_' ) ) {
-                        var v_name = v.split('$gd_slider_')[1];
+                        return [ c, 'html' ];
+                    } else if ( plugin.begins( v, 'gd_slider_' ) ) {
+                        var v_name = v.split('gd_slider_')[1];
                         // return if there's no assignment after variable
                         if ( v_name.indexOf('=') === -1 ) return;
                         // remove assignment text from name and ensure it's clean (no malicious HTML)
@@ -1523,11 +1497,9 @@
                         var items = v_items.split(',');
                         // generate slider html
                         c = field_html( 'slider', v_name, items);
-                        // removing the next br removes the next slider comment attached to that br
-                        $t.next('br').remove();
-                        $t.append(c);
-                    } else if ( plugin.begins( v, '$gd_collapsible_' ) ) {
-                        var v_name = v.split('$gd_collapsible_')[1];
+                        return [ c, 'append' ];
+                    } else if ( plugin.begins( v, 'gd_collapsible_' ) ) {
+                        var v_name = v.split('gd_collapsible_')[1];
                         var pos = 'start';
                         if ( v_name.startsWith('end_') ) {
                             pos = 'end';
@@ -1535,8 +1507,7 @@
                         }
                         v_name = plugin.clean(v_name);
                         c = field_html( 'collapsible ' + pos, v_name);
-                        $t.next('br').remove();
-                        $t.html(c);
+                        return [ c, 'html' ];
                     }
                 }
             };
@@ -1586,24 +1557,53 @@
                 c += '</div>';
                 return c;
             }
+
+            plugin.render_variables = function(container) {
+                const variables = plugin.get_variables(container);
+                variables.forEach((v) => {
+                    const variable = v[0], el = v[1];
+                    const result = variable_html( v[0], v[1] );
+                    const content = result[0], r = result[1];
+                    if ( r === 'html' ) {
+                        el.innerHTML = content;
+                    } else if ( r === 'text' ) {
+                        el.textContent = content;
+                    } else if ( r === 'append' ) {
+                        el.innerHTML += content;
+                    } else if ( r === 'before' ) {
+                        el.innerHTML = content + el.innerHTML;
+                    } else if ( r === 'after' ) {
+                        el.innerHTML += content;
+                    }
+                });
+            }
     
-            var render_variables = function( container, app_title ) {
-                var $sections = $( container );
-                if ( $sections.length > 0 ) {
-                    // find attributes and position section
-                    $sections.each(function() {
-                        var comments = $(this).getComments();
-                        if ( comments.length > 0 ) {
-                            for ( var i = 0; i < comments.length; i++ ) {
-                                var v = extract_variable( comments[i] );
-                                if ( v != '' ) {
-                                    v = plugin.clean( v, 'value' );
-                                    variable_html( v, this );
-                                }
-                            }
+            plugin.get_variables = function(container) {
+                let result = [];
+                const c = document.querySelectorAll(container);
+                c.forEach((el) => {
+                    el.childNodes.forEach((node) => {
+                        if ( node.nodeType === 8 ) {
+                            let v = extract_variable(node.nodeValue);
+                            v = plugin.clean( v, 'value' );
+                            result.push( [v, el] );
                         }
                     });
-                }
+                });
+                return result;
+            };
+
+            // simple functin to get variable content between open and close symbols
+            //
+            // content: content to parse for variable
+            // open: characters preceding the variable
+            // close: characters closing the variable
+            var extract_variable = function( content, open = '{$', close = '}' ) {
+                let v = content.split(open);
+                if ( v.length < 2 ) return '';
+                v = v[1].split(close);
+                if ( v.length < 2) return '';
+                return v[0];
             };
     
             // simple helper to reduce repitition for getting selector class
@@ -1622,7 +1622,7 @@
                 }
     
                 // render all variables in comments
-                render_variables( eid + ' .info *', app_title );
+                plugin.render_variables( eid + ' .info *' );
     
                 // arrange content within collapsible fields
                 $( eid + ' .info .field.collapsible').unwrap();
@@ -1879,7 +1879,7 @@
                     } else {
                         url = items[key];
                     }
-                    content += `<a href="${url}" target="_blank">${link_symbol}</a>`;
+                    content += `<a href="${url}" target="_blank">${chr_link}</a>`;
                     content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
                 }
                 return content;
@@ -1900,16 +1900,6 @@
                     $(this).data( 'gitdown', plugin );
                 }
             });
-        };
-    
-        // Extra jQuery EXTENSIONS ----------------------------------------------
-    
-        // extend jQuery with getComments
-        // credits: https://stackoverflow.com/questions/22562113/read-html-comments-with-js-or-jquery#22562475
-        $.fn.getComments = function () {
-            return this.contents().map(function () {
-                if (this.nodeType === 8) return this.nodeValue;
-            }).get();
         };
     
     })(jQuery);
