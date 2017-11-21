@@ -445,7 +445,7 @@
                 let x = 1;
                 if ( max === null || max < 1 ) max = 200;
                 do {
-                    const n = `${plugin.clean(prefix)}'-'${x}`;
+                    const n = `${plugin.clean(prefix)}-${x}`;
                     // check if id already exists
                     const name = document.querySelector( selector + n );
                     if ( name === null ) return n;
@@ -961,7 +961,7 @@
                 plugin.render_highlight();
 
                 // set current section and go there
-                go_to_hash();
+                go_to_section();
 
                 // hide selector dialogs at start
                 $( eid + ' .info .field.selector .dialog' ).hide();
@@ -1161,7 +1161,9 @@
                 return processed;
             };
     
-            var go_to_hash = function() {
+            // navigate to section based on url hash or specific section argument
+            var go_to_section = function(section) {
+                if ( section === null ) section = plugin.get_current_section_id();
 
                 // first remove .current classes from wrapper
                 var wrapper = document.querySelector(eid);
@@ -1562,7 +1564,8 @@
                 const variables = plugin.get_variables(container);
                 variables.forEach((v) => {
                     const variable = v[0], el = v[1];
-                    const result = variable_html( v[0], v[1] );
+                    const result = variable_html( variable, el );
+                    if ( result.length < 1 ) return;
                     const content = result[0], r = result[1];
                     if ( r === 'html' ) {
                         el.innerHTML = content;
@@ -1659,7 +1662,7 @@
 
                 // handle history
                 window.addEventListener('popstate', function(e) {
-                    go_to_hash();
+                    go_to_section();
                 });
 
                 // send Ready message to whatever window opened this app
