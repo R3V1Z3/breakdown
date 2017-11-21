@@ -441,9 +441,8 @@
             // max: maximum number of times to try
             //
             // returns new element name with suffixed number
-            plugin.unique = function(prefix, selector, max) {
+            plugin.unique = function(prefix, selector = '#', max = 200) {
                 let x = 1;
-                if ( max === null || max < 1 ) max = 200;
                 do {
                     const n = `${plugin.clean(prefix)}-${x}`;
                     // check if id already exists
