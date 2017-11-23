@@ -1686,7 +1686,7 @@ class GitDown {
         // SLIDER FIELDS
         $(gd.eid + ' .info .field.slider input' ).unbind().on('input change', function(e) {
             const name = $(this).attr('name');
-            const suffix = $(this).attr('data-suffix');
+            let suffix = $(this).attr('data-suffix');
             if ( suffix === undefined ) suffix = '';
             const value = $(this).val() + suffix;
             $(this).attr( 'value', value );
