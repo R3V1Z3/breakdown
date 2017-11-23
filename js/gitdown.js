@@ -855,8 +855,7 @@ class GitDown {
         gd.render_info( gd.settings.title );
 
         // render raw text if user specified
-        console.log(data);
-        gd.render_raw( raw_data, gd.eid_inner, gd.settings.markdownit );
+        gd.render_raw( data, gd.eid_inner, gd.settings.markdownit );
         
         gd.update_ui();
     }
