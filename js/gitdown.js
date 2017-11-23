@@ -1726,7 +1726,7 @@ class GitDown {
                 gd.render_highlight();
             }
             // update css_vars with key
-            if ( tgdhis.get_css_var(name) !== '' ) {
+            if ( gd.get_css_var(name) !== '' ) {
                 gd.update_parameter(name);
                 const css = window.localStorage.getItem( 'gd_theme', css );
                 gd.render_theme_css(css);
