@@ -483,7 +483,7 @@ kbd:hover {
 
 /* Sadly massive slider styling */
 .info .field.slider::after {
-  content: attr(data-name) ': ' attr(data-value);
+  content: attr(data-name) ': ' attr(data-value) '' attr(data-suffix);
   color: white;
   text-shadow: 1px 1px 2px black;
   position: absolute;

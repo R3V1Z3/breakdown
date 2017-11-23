@@ -445,18 +445,22 @@ class GitDown {
     update_fields_with_params(type) {
         if ( type === '' || type === undefined ) type = '';
         var $fields = $( `${gd.eid} .info .field${type}` );
-        $fields.each(function(){
+        $fields.each((i, val) => {
             var field_class = '';
-            var $f = $(this);
+            var $f = $(val);
             if ( $f.hasClass('slider') ) {
                 var $slider = $f.find('input');
                 var name = $slider.attr('name');
                 // get parameter value if user specified
-                var p = gd.update_parameter( name, parseFloat($slider.val()) );
+                var p = gd.update_parameter( name, $slider.val() );
                 if ( p != '' ) {
                     $slider.val(p);
                     $slider.attr( 'value', p );
                     $slider.parent().attr( 'data-value', p );
+                    // update inner element based on fontsize
+                    if ( name == 'fontsize' ) {
+                        $( gd.eid_inner ).css('font-size', $slider.val() + '%');
+                    }
                 }
                 gd.settings[name] = $slider.val();
             } else if ( $f.hasClass('select') ) {
@@ -884,9 +888,6 @@ class GitDown {
 
         // update fields based on params
         gd.update_fields_with_params();
-        // where are we updating parameters based on fields like sliders?
-        var fontsize = parseInt( gd.settings.fontsize );
-        if ( fontsize != '' ) $( gd.eid_inner ).css('font-size', fontsize + '%');
         
         gd.update_ui_from_settings();
         gd.render_highlight();
@@ -1446,8 +1447,9 @@ class GitDown {
     };
 
     field_html( type, name, items ) {
-        var c = `<div class="field ${type} ${name}" data-name="${name}">`;
+        var c = `<div class="field ${type} ${name}" data-name="${name}"`;
         if ( type === 'select') {
+            c += `>`;
             c += `<select name="${name}">`;
             gd.settings['name'] = '';
             for ( var i = 0; i < items.length; i++ ) {
@@ -1462,6 +1464,11 @@ class GitDown {
             }
             c += '</select>';
         } else if ( type === 'slider' ) {
+            c += ` data-value="${items[0]}"`;
+            if ( items.length > 4 ) {
+                c += ` data-suffix="${items[4]}" `;
+            }
+            c += `>`;
             c += `<input name="${name}" type="range" `;
             // get slider attributes
             c += ` value="${items[0]}"`;
@@ -1475,7 +1482,8 @@ class GitDown {
             }
             c += '>';
         } else if ( type === 'choices' ) {
-             this.settings['name'] = '';
+            c += `>`;
+            this.settings['name'] = '';
             for ( var i = 0; i < items.length; i++ ) {
                 var v = items[i];
                 var s = '';
@@ -1687,14 +1695,14 @@ class GitDown {
             const name = $(this).attr('name');
             let suffix = $(this).attr('data-suffix');
             if ( suffix === undefined ) suffix = '';
-            const value = $(this).val() + suffix;
+            const value = $(this).val();
             $(this).attr( 'value', value );
             $(this).parent().attr( 'data-value', value );
-            gd.settings[name] = value ;
+            gd.settings[name] = value;
             gd.set_param( name, value );
             // font-size
             if ( name === 'fontsize' ) {
-                $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] );
+                $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
             }
             // check if this is for a theme var
             if ( name in gd.css_vars ) {
