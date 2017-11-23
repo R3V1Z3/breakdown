@@ -131,6 +131,7 @@ kbd:hover {
 
 .info h1, .info h3 {
   text-transform: none;
+  margin: 0;
 }
 
 .info p {

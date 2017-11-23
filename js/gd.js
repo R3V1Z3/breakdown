@@ -7,44 +7,23 @@
 class GitDown {
     
     constructor( el, options ) {
-        const gd = this;
+        let gd = this;
+        // get URL parameters
+        gd.params = (new URL(location)).searchParams;
+        gd.path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
+        gd.settings = gd.default_options(options);
+        if ( typeof el === 'string' ) el = document.querySelector(el);
         gd.init( el, options );
+        gd.status = new Status();
+        //this.init(el, options);
+        gd.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
+        gd.set_examples();
+        gd.initial_content = '', gd.info_content = '';
+        gd.sections = [];
+        gd.chr_link = '⮎';
+        gd.css_vars = {};
         gd.main();
     }
-
-    init( el, options ) {
-        // get URL parameters
-        this.status = new Status();
-        this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
-        this.set_examples();
-        this.initial_content = '', this.info_content = '';
-        this.sections = [];
-        this.chr_link = '⮎';
-        this.css_vars = {};
-        this.params = (new URL(location)).searchParams;
-        this.path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
-        this.settings = this.default_options(options);
-        if ( typeof el === 'string' ) el = document.querySelector(el);
-        // ensure element has an id, then store it in eid
-        this.eid = '#' + el.getAttribute('id');
-        if ( this.eid === '#' ) {
-            let new_id = document.querySelector('#wrapper');
-            // ensure another id doesn't already exist in page
-            if( new_id === null ) {
-                this.eid = new_id;
-                el.setAttribute( 'id', eid.substr(1) );
-            }
-        }
-        // add container div and inner content
-        let content = '<div class="' + this.settings.inner + '">';
-        content += '</div>';
-        content += '<div class="info panel"></div>';
-        el.innerHTML += content;
-        // helper variables to simplify access to container elements
-        this.eid_inner = ' .' + this.settings.inner;
-        // setup default info content
-        this.info_content = this.default_info_content();
-    };
 
     set_examples() {
         this.example_gist = {};
@@ -70,9 +49,33 @@ class GitDown {
         };
     }
 
+    init( el, options ) {
+        // ensure element has an id, then store it in eid
+        this.eid = '#' + el.getAttribute('id');
+        if ( this.eid === '#' ) {
+            let new_id = document.querySelector('#wrapper');
+            // ensure another id doesn't already exist in page
+            if( new_id === null ) {
+                this.eid = new_id;
+                el.setAttribute( 'id', eid.substr(1) );
+            }
+        }
+        // add container div and inner content
+        let content = '<div class="' + this.settings.inner + '">';
+        content += '</div>';
+        content += '<div class="info panel"></div>';
+        el.innerHTML += content;
+        // helper variables to simplify access to container elements
+        this.eid_inner = ' .' + this.settings.inner;
+        // setup default info content
+        this.info_content = this.default_info_content();
+
+    };
+
     default_options(options) {
         const defaults = {
             initial: 'README.md',       // initial content, either a local filename or 'HTML'
+            file: 'README.md',          // local file parsed for initial options (Todo: replace with initial)
             header: 'h1',               // element to use for header
             heading: 'h2',              // element to use for sections
             inner: 'inner',   // inner container for styling
@@ -150,10 +153,7 @@ class GitDown {
         return status.has('done');
     }
 
-    /**
-     * Helper function for combining url parts
-     * @returns {string} url with base, query vars and hash
-     */
+    // helper function for combining url parts
     uri() {
         let q = this.params.toString();
         if ( q.length > 0 ) q = '?' + q;
@@ -228,13 +228,9 @@ class GitDown {
         return str;
     };
 
-    /**
-     * Helper to determine if string begins with another string
-     * @param {string} t string to test
-     * @param {string} str string to find in t
-     * @returns {bool} whether t begins with str
-     */
+    // returns true if n begins with str
     begins( t, str ) {
+        // only return true if str found at start of t
         if ( t.indexOf(str) === 0 ) {
             return true;
         }
@@ -724,9 +720,9 @@ class GitDown {
             this.load_initial(initial);
         }    
     };
-    
+            
     load_initial(url) {
-        this.get(url).then( (response) => {
+         this.get(url).then( (response) => {
             gd.render_content(response);
             gd.status.add('initial');
             gd.loop();
@@ -737,7 +733,6 @@ class GitDown {
         });
     }
 
-    // todo: after content-changed, events aren't registered or are re-registered to cancel them
     loop() {
         const css = gd.update_parameter('css'),
         gist = gd.update_parameter('gist');
@@ -753,7 +748,7 @@ class GitDown {
             // load initial content
             if ( !gd.status.has('content') && gd.status.has('callback') ) {
                 gd.status.remove('initial');
-                gd.load_initial(gd.settings.initial);
+                gd.load_initial( gd.settings.initial);
             }
             gd.status.add('content');
             gd.settings.gist_filename =  gd.settings.content;
@@ -800,7 +795,6 @@ class GitDown {
                 gd.status.add('content');
                 // remove 'gist' content from urls since we have the content
                 urls = urls.filter(i => i[0] !== 'gist');
-                // complete load process if both content and css loaded successfully
                 if ( gd.status.has('content,css') ) {
                     gd.load_done();
                 }
@@ -1644,15 +1638,15 @@ class GitDown {
 
         // fullscreen request
         $( this.eid + ' .fullscreen').unbind().click(function(){
-            var e = document.getElementById( gd.eid.substring(1) );
-            gd.toggleFullscreen(e);
+            var e = document.getElementById( this.eid.substring(1) );
+             this.toggleFullscreen(e);
         });
 
         // commmand count
-        $( gd.eid + ' .element-count' ).unbind().click(function() {
+        $( this.eid + ' .element-count' ).unbind().click(function() {
             var count_array = ['.section','kbd','li','code'];
             // get current count option
-            var c = $( gd.eid + ' .element-count' ).text();
+            var c = $( eid + ' .element-count' ).text();
             c = c.split(' total')[0];
 
             // find current item in count_array
@@ -1664,18 +1658,18 @@ class GitDown {
                 x += 1;
             }
             c = count_array[x];
-            gd.render_count(c);
+            this.render_count(c);
         });
 
         // event handler to toggle info panel
-        $( gd.eid + ' .hide' ).unbind().click(function() {
-            $( gd.eid + ' .panel' ).toggleClass('minimized');
+        $( this.eid + ' .hide' ).unbind().click(function() {
+            $( this.eid + ' .panel' ).toggleClass('minimized');
         });
 
         // hide/unhide panel
-        $( gd.eid + ' .unhide' ).unbind().on('click', function (e) {
+        $( this.eid + ' .unhide' ).unbind().on('click', function (e) {
             if ( $(e.target).closest(".section").length === 0 ) {
-                $( gd.eid + ' .panel' ).removeClass('minimized');
+                $( this.eid + ' .panel' ).removeClass('minimized');
             }
         });
 
@@ -1685,10 +1679,10 @@ class GitDown {
 
         // SLIDER FIELDS
         $(gd.eid + ' .info .field.slider input' ).unbind().on('input change', function(e) {
-            const name = $(this).attr('name');
-            const suffix = $(this).attr('data-suffix');
+            var name = $(this).attr('name');
+            var suffix = $(this).attr('data-suffix');
             if ( suffix === undefined ) suffix = '';
-            const value = $(this).val() + suffix;
+            var value = $(this).val() + suffix;
             $(this).attr( 'value', value );
             $(this).parent().attr( 'data-value', value );
             gd.settings[name] = value ;
@@ -1699,42 +1693,43 @@ class GitDown {
             }
             // check if this is for a theme var
             if ( name in gd.css_vars ) {
+                // todo
                 var css = window.localStorage.getItem( 'gd_theme', css );
                 gd.render_theme_css(css);
             }
         });
 
         // CHOICE FIELDS
-        $( gd.eid + ' .info .field.choices .choice' ).unbind().click(function() {
+        $( this.eid + ' .info .field.choices .choice' ).unbind().click(function() {
             var name = $(this).parent().attr('data-name');
             $(this).parent().find('.selected').removeClass('selected');
-            const value = $(this).attr('data-value');
+            var value = $(this).attr('data-value');
             $(this).addClass('selected');
-            gd.settings[name] = value;
-            gd.set_param( name, value );
+            this.settings[name] = value;
+            this.set_param( name, value );
         });
 
         // SELECT FIELDS
-        $( gd.eid + ' .info .field.select select' ).unbind().change(function() {
-            let name = $(this).parent().attr('data-name');
-            name =  gd.clean(name);
-            const value = $(this).val();
-            gd.settings[name] = value;
-            gd.set_param( name, value );
+        $( this.eid + ' .info .field.select select' ).unbind().change(function() {
+            var name = $(this).parent().attr('data-name');
+            name =  this.clean(name);
+            var value = $(this).val();
+            this.settings[name] = value;
+            this.set_param( name, value );
             // load user provided highlight style
             if ( name === 'highlight' ) {
-                gd.render_highlight();
+                this.render_highlight();
             }
             // update css_vars with key
-            if ( tgdhis.get_css_var(name) !== '' ) {
-                gd.update_parameter(name);
-                const css = window.localStorage.getItem( 'gd_theme', css );
-                gd.render_theme_css(css);
+            if ( this.get_css_var(name) !== '' ) {
+                var val =  this.update_parameter(name);
+                var css = window.localStorage.getItem( 'gd_theme', css );
+                this.render_theme_css(css);
             }
         });
 
         // COLLAPSIBLE FIELDS
-        $( gd.eid + ' .info .field.collapsible .header' ).unbind().click(function(e) {
+        $( this.eid + ' .info .field.collapsible .header' ).unbind().click(function(e) {
             if (e.target !== this) return;
             this.parentNode.classList.toggle('collapsed');
         });
@@ -1867,17 +1862,9 @@ class Status {
             this.flags.forEach((e) => {
                 if ( e.indexOf('-changed') !== -1 ) return true;
             });
-        // iterate over user provided flag and return true if they're all in status.flags
-        } else {
-            let result = false;
-            flag.split(',').forEach((e) => {
-                let i = this.flags.indexOf(e);
-                if ( i !== -1 ) {
-                    result = true;
-                } else return result = false;
-            });
-            return result;
-        }
+        } else if ( this.flags.indexOf(flag) !== -1 ) {
+            return true;
+        } else return false;
     }
 
 }

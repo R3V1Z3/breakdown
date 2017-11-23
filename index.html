@@ -26,31 +26,17 @@
     </div>
 
     <script>
-        var $gd;
-        jQuery(document).ready(function() {
 
-            // attach the plugin to an element
-            $('#wrapper').gitdown( {'title': 'GitDown',
-                                    'content': 'README.md',
-                                    'callback': done,
-            } );
-
-            $gd = $('#wrapper').data('gitdown');
-
-            // to call public methods
-            // $gd.update_toc();
-
-            // to access settings
-            // $gd.settings.fontsize;
-
-            // if you need to do stuff after the plugin's
-            // content is fully loaded, add a callback like so:
-            function done() {
-                // execute the following code only at app startup
-                console.log('Callback executed.');
-            }
-
+        const gd = new GitDown('#wrapper', {
+            title: 'GitDown',
+            content: 'README.md',
+            callback: done
         });
+
+        function done() {
+            console.log('Callback executed.');
+        }
+
     </script>
 </body>
 
