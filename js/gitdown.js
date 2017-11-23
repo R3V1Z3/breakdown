@@ -364,13 +364,12 @@ class GitDown {
 
     // returns value of css_var at key k
     get_css_var(k) {
-        value = '';
         for ( const key in gd.css_vars ) {
             if ( key === k ) {
                 return gd.css_vars[k][0];
             }
         }
-        return value;
+        return '';
     }
 
     // basically, tries to find a unique name for an element by adding
