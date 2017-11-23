@@ -452,7 +452,7 @@ class GitDown {
                 var $slider = $f.find('input');
                 var name = $slider.attr('name');
                 // get parameter value if user specified
-                var p = gd.update_parameter( name, $slider.val() );
+                var p = gd.update_parameter( name, parseFloat($slider.val()) );
                 if ( p != '' ) {
                     $slider.val(p);
                     $slider.attr( 'value', p );
