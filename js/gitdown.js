@@ -401,8 +401,8 @@ class GitDown {
         for ( var i = 0; i < lines.length; i++ ) {
             let re = lines[i].match(/\$(.*?):(.*?);/);
             if (re) {
-                let key = re[1];
-                let value = re[2];
+                let key = re[1].trim();
+                let value = re[2].trim();
                 // check for existence of url parameter
                 let v = this.update_parameter(key);
                 if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
@@ -424,11 +424,11 @@ class GitDown {
                         val.push( selector[1].trim() );
                     } else val.push('');
                 } else {
-                    val.push('');
+                    val.push(key);
                     val.push('');
                 }
                 // css_vars[key] = {value, optional variable decalaration, optional selector}
-                 this.css_vars[key] = val;
+                this.css_vars[key] = val;
             } else {
                 pre_css += lines[i];
             }
@@ -740,7 +740,6 @@ class GitDown {
         });
     }
 
-    // todo: after content-changed, events aren't registered or are re-registered to cancel them
     loop() {
         const css = gd.update_parameter('css'),
         gist = gd.update_parameter('gist');
@@ -863,6 +862,7 @@ class GitDown {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_theme_vars();
+            gd.register_events();
         } else {
             // complete initialization once everything is loaded
             gd.status.add('done');
@@ -933,37 +933,78 @@ class GitDown {
     };
 
     update_theme_vars() {
-        // todo: use same code base as variable_html()
         let html = '';
         let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
-        if ( theme_vars !== null ) {
+        if ( theme_vars !== null && gd.css_vars.length !== {} ) {
             for ( const key in gd.css_vars ) {
-                // get variable declaration if it exists
-                let d = gd.css_vars[key][1];
-                if ( d !== '' ) {
-                    // check if selector exists in current content
-                    let selector = gd.css_vars[key][2];
-                    if ( selector === '' ) selector = '*';
-                    selector = document.querySelector(selector);
-                    if ( selector !== null ) {
-                        let type = d.split('=')[0];
-                        if ( type === 'slider' ) {
-                            // get the assigned string
-                            let v_items = d.split('=')[1];
-                            // remove parens
-                            v_items = v_items.substring(1).substring( 0, v_items.length - 1 );
-                            v_items = v_items.substring( 0, v_items.length - 1 );
-                            // get user assigned string
-                            let items = v_items.split(',');
-                            // generate slider html
-                            html += field_html( 'slider', key, items);
-                        }
-                    }
+                let value = gd.css_vars[key][0];
+                let variable = gd.css_vars[key][1];
+                let selector = gd.css_vars[key][2];
+                if ( selector === '' ) {
+                    html += gd.theme_var_html( variable );
+                } else {
+                    // add field only if selector exists
+                    let s = document.querySelector(selector);
+                    if ( s !== null ) html += gd.theme_var_html( variable );
                 }
             }
             theme_vars.innerHTML = html;
             gd.update_fields_with_params();
         }
+    }
+    
+    theme_var_html(v) {
+        let c = '';
+        if ( gd.begins( v, 'select_' ) ) {
+            let name = v.split('select_');
+            // get assignment after var name
+            let assignment = name[1].split('=');
+            let items = [];
+            if ( assignment.length < 2 ) {
+                name = assignment[0];
+                if ( name.indexOf('color') !== -1 ) {
+                    items = gd.get_color_names();
+                }
+            } else {
+                let v_items = assignment[1];
+                name = assignment[0];
+                // remove parens
+                v_items = v_items.substring(1);
+                v_items = v_items.substring( 0, v_items.length - 1 );
+                // split items
+                items = v_items.split(',');
+            }
+            c = gd.field_html( 'select', name, items);
+            return c;
+        } else if( gd.begins( v, 'slider_' ) ) {
+            var name = v.split('slider_');
+            // get assignment after var name
+            let assignment = name[1].split('=');
+            let items = [];
+            if ( assignment.length < 2 ) {
+                return '';
+            } else {
+                let v_items = assignment[1];
+                name = assignment[0];
+                // remove parens
+                v_items = v_items.substring(1);
+                v_items = v_items.substring( 0, v_items.length - 1 );
+                // split items
+                items = v_items.split(',');
+            }
+            c = gd.field_html( 'slider', name, items);
+            return [ c ];
+        } else {
+            // for special cases where variable includes keyword 'color';
+            if ( v.indexOf('color') !== -1 ){
+                return gd.theme_var_html( 'select_' + v );
+            }
+        }
+    }
+
+    get_color_names() {
+        const color_names = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
+        return color_names;
     }
 
     // extra info panel contents if they exist
@@ -1451,9 +1492,10 @@ class GitDown {
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
-            gd.settings['name'] = '';
+            gd.settings[name] = '';
             for ( var i = 0; i < items.length; i++ ) {
                 var li = items[i].innerHTML;
+                if ( li === undefined ) li = items[i];
                 var s = '';
                 if ( li.charAt(0) === '*' ) {
                     li = li.substr(1);
@@ -1472,7 +1514,7 @@ class GitDown {
             c += `<input name="${name}" type="range" `;
             // get slider attributes
             c += ` value="${items[0]}"`;
-             this.settings['name'] = items[0];
+            gd.settings[name] = items[0];
             c += ` min="${items[1]}"`;
             c += ` max="${items[2]}"`;
             c += ` step="${items[3]}"`;
@@ -1483,13 +1525,13 @@ class GitDown {
             c += '>';
         } else if ( type === 'choices' ) {
             c += `>`;
-            this.settings['name'] = '';
+            gd.settings[name] = '';
             for ( var i = 0; i < items.length; i++ ) {
                 var v = items[i];
                 var s = '';
                 if ( v.charAt(0) === '*' ) {
                     v = v.substr(1);
-                    gd.settings['name'] = v;
+                    gd.settings[name] = v;
                     s = 'selected';
                 }
                 c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
@@ -1604,6 +1646,7 @@ class GitDown {
         if ( type === 'css' ) {
             gd.status.remove('css,done,content-changed');
             gd.status.add('theme-changed');
+            gd.css_vars = {};
             gd.loop();
         } else if ( type === 'gist' ) {
             gd.status.remove('content,done,theme-changed');
@@ -1734,7 +1777,7 @@ class GitDown {
             // update css_vars with key
             if ( gd.get_css_var(name) !== '' ) {
                 gd.update_parameter(name);
-                const css = window.localStorage.getItem( 'gd_theme', css );
+                const css = window.localStorage.getItem('gd_theme');
                 gd.render_theme_css(css);
             }
         });
