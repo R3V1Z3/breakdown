@@ -38,7 +38,7 @@ class GitDown {
         // add container div and inner content
         let content = '<div class="' + this.settings.inner + '">';
         content += '</div>';
-        content += '<div class="info panel"></div>';
+        content += '<div class="info panel visible"></div>';
         el.innerHTML += content;
         // helper variables to simplify access to container elements
         this.eid_inner = ' .' + this.settings.inner;
@@ -828,16 +828,15 @@ class GitDown {
             data = preprocess(data);
         }
 
-        // create data backup for use with render_raw()
-        var raw_data = data;
-
-        // setup info panel default content if it doesn't exist
-        data = gd.extract_info_content(data);
-
         // if we're just getting info content from initial, return at this point
         let initial = gd.status.has('initial');
         let gist = gd.settings.gist;
         if ( !initial && gist !== 'default' ) return;
+
+        // setup info panel default content if it doesn't exist
+        let extract = gd.extract_info_content(data);
+        data = extract[0];
+        if ( extract[1] !== '' ) gd.info_content = extract[1];
 
         // render content and info panel
         gd.render( data, gd.eid_inner, true );
@@ -896,7 +895,7 @@ class GitDown {
         gd.go_to_section();
 
         // hide selector dialogs at start
-        $( gd.eid + ' .info .field.selector .dialog' ).hide();
+        //$( gd.eid + ' .info .field.selector .dialog' ).hide();
         // toggle collapsible sections at start, prior to callback
         if ( !gd.status.has('changed') ) {
             $( gd.eid + ' .info .field.collapsible' ).addClass('collapsed');
@@ -971,11 +970,11 @@ class GitDown {
     // does nothing if no info content is found
     // this allows users to create a custom info panel for their files
     // useful for apps like Entwine so users can create a panel that fits their game
+    //
+    // returns array with content and info panel content separated
     extract_info_content(content) {
-        var n = '\n';
-        var info = '';
-        var info_found = false;
-        var c = content;
+        const n = '\n';
+        let info_found = false, c = content, c_info = '';
         // check content for $gd_info
         if ( c.indexOf('<!-- {$gd_info} -->') != -1 ) {
             c = '';
@@ -986,15 +985,14 @@ class GitDown {
                     info_found = true;
                 }
                 if ( info_found ) {
-                    info += val + n;
+                    c_info += val + n;
                 } else {
                     // add line to content for return later
                     c += val + n;
                 }
             });
-            gd.info_content = info;
         }
-        return c;
+        return [c, c_info];
     };
 
     sectionize() {
@@ -1004,18 +1002,21 @@ class GitDown {
         var heading = gd.settings.heading;
         if ( heading === 'lyrics' ) heading = 'p';
 
+        // todo: setup a factory for generating sections
+        // so we can easily port to Juce
+
         if ( $( gd.eid_inner + ' ' + header ).length ) {
             $( gd.eid_inner + ' ' + header ).each(function() {
                 var name = gd.clean( $(this).text() );
                 $(this).addClass('handle-heading');
                 $(this).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
-                $(this).nextUntil(heading).andSelf().wrapAll('<div class="section header" id="' + name + '"/>');
+                $(this).nextUntil(heading).andSelf().wrapAll('<section class="section header" id="' + name + '"/>');
                 $(this).nextUntil(heading).wrapAll('<div class="content"/>');
             });
         } else {
             // add a header if none already exists
             if ( $( gd.eid_inner + '.section.header').length > 0 ) {
-                $( gd.eid_inner ).append('<div class="section header"></div>');
+                $( gd.eid_inner ).append('<section class="section header"></section>');
             }
         }
 
@@ -1035,7 +1036,7 @@ class GitDown {
             }
             $(this).addClass('handle-heading');
             $(this).wrapInner('<a class="handle" name="' + name + '"/>');
-            $(this).nextUntil(heading).andSelf().wrapAll('<div class="section heading" id="' + name + '"/>');
+            $(this).nextUntil(heading).andSelf().wrapAll('<section class="section heading" id="' + name + '"/>');
             $(this).nextUntil(heading).wrapAll('<div class="content"/>');
         });
 
@@ -1281,31 +1282,30 @@ class GitDown {
 
     selector_html( n, $t, placeholder, items ) {
 
-        var file = '';
-        var is_gist = false;
+        let file = '';
+        let is_gist = false;
         if ( n === 'gist' ){
             file = gd.settings.content;
         } else if ( n === 'css' ) {
             file = 'css/style.css';
         }
 
-        var proper = gd.proper_filename(file);
+        let proper = gd.proper_filename(file);
         placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
-        
-        var c = `<div class="field selector ${n} ${n}-details">`;
-        let txt = $t.text();
 
+        let txt = $t.text();
+        let fname = txt;
+        let url = '';
         // current item
         if ( n === 'gist' || n === 'css' ) {
             is_gist = true;
-            var url = gd.gist_url( file, true );
-            c += `<a class="selector-source" href="${url}" target="_blank">${gd.chr_link}</a>`;
-            c += `<a name="${txt}" class="${n}-url selector-url">${proper} ▾</a>`;
-        } else {
-            // other selectors
-            c += `<a class="selector-source" href="${txt}" target="_blank">${gd.chr_link}</a>`;
-            c += `<a name="${txt}" class="${n}-url selector-url">${txt} ▾</a>`;
+            url = gd.gist_url( file, true );
+            fname = proper;
         }
+        
+        var c = `<div class="field selector ${n}" data-name="${n}">`;
+        c += `<a class="selector-source" href="${url}" target="_blank">${gd.chr_link}</a>`;
+        c += `<a name="${txt}" class="${n}-url selector-url">${fname} ▾</a>`;
 
         c += `<div class="${n}-selector dialog">`;
         c += `<input class="${n}-input selector-input" type="text" placeholder="${placeholder}" />`;
@@ -1314,7 +1314,7 @@ class GitDown {
 
         // first list item
         if ( n === 'gist' || n === 'css' ) {
-            var url = gd.gist_url( file, false );
+            url = gd.gist_url( file, false );
             //c += list_html( { 'Default': url }, true);
             c += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
             c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
@@ -1329,7 +1329,7 @@ class GitDown {
     // and return the html along with instructions for handling it
     variable_html( v, t ) {
         var $t = $(t);
-        // c is the html content
+        // c is the html content we'll return
         var c = '';
         var title = gd.settings.title;
         if ( v != '' ) {
@@ -1550,8 +1550,7 @@ class GitDown {
 
     // simple helper to reduce repitition for getting selector class
     get_selector_class($c) {
-        var classes = $c.closest('.field.selector').attr('class').split(' ');
-        return classes[2];
+        return $c.closest('.field.selector').attr('data-name');
     }
 
     render_info(app_title) {
@@ -1559,8 +1558,8 @@ class GitDown {
         // first create .unhide div used to unhide the panel on mobile
         var fullscreen = document.querySelector( gd.eid + ' .fullscreen' );
         if ( fullscreen === null ) {
-            $( gd.eid + ' .container' ).append('<div class="unhide"></div>');
-            $( gd.eid + ' .container' ).append('<div class="fullscreen"></div>');
+            $( gd.eid ).append('<div class="unhide"></div>');
+            $( gd.eid ).append('<div class="fullscreen"></div>');
         }
 
         // render all variables in comments
@@ -1599,7 +1598,7 @@ class GitDown {
 
     selector_changed(type, id) {
         // hide any visible selector field first
-        $( gd.eid + ' .field.selector .dialog' ).hide();
+        $( gd.eid + ' .field.selector .dialog.visible' ).removeClass('visible');
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
@@ -1642,7 +1641,7 @@ class GitDown {
                     e = document.querySelector( eid_inner );
                     if ( e !== null ) e.innerHTML = '';
                     var content = data.content + '\n' +  this.default_info_content();
-                    content = this.extract_info_content(content);
+                    //content = this.extract_info_content(content);
                     window.localStorage.setItem( 'gd_content', content );
                     this.render_content(content);
                 }
@@ -1675,14 +1674,14 @@ class GitDown {
         });
 
         // event handler to toggle info panel
-        $( gd.eid + ' .hide' ).unbind().click(function() {
-            $( gd.eid + ' .panel' ).toggleClass('minimized');
+        $( gd.eid + ' .info .hide' ).unbind().click(function() {
+            $( gd.eid + ' .panel' ).toggleClass('visible');
         });
 
         // hide/unhide panel
         $( gd.eid + ' .unhide' ).unbind().on('click', function (e) {
-            if ( $(e.target).closest(".section").length === 0 ) {
-                $( gd.eid + ' .panel' ).removeClass('minimized');
+            if ( $(e.target).closest('.section').length === 0 ) {
+                $( gd.eid + ' .panel' ).addClass('visible');
             }
         });
 
@@ -1750,7 +1749,7 @@ class GitDown {
         $( gd.eid + ' .info .selector-input' ).unbind().keyup(function(e) {
             if( e.which == 13 ) {
                 // get parent class
-                var c = get_selector_class( $(this).parent() );
+                var c = gd.get_selector_class( $(this).parent() );
                 var id = $(this).val();
                 gd.selector_changed(c, id);
             }
@@ -1760,7 +1759,8 @@ class GitDown {
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
             var c = gd.get_selector_class( $(this) );
             var prefix = '.' + c;
-            $( `${gd.eid} ${prefix}-selector` ).toggle();
+            // show selector dialog
+            $( `${gd.eid} ${prefix}-selector` ).addClass('visible');
             // move focus to text input
             $( `${gd.eid} ${prefix}-input` ).focus().select();
 
@@ -1779,35 +1779,34 @@ class GitDown {
         });
 
         /* Document based events such as keypresses and general clicks */
-
-        // hide selector if anything is clicked outside of it
-        $(document).unbind().click(function(event) {
-            var $t = $(event.target);
-            // check if any .selector dialog is visiable
-            var $visible_selector = $( gd.eid + ' .field.selector .dialog:visible' );
-            if ( $visible_selector.length > 0 ) {
-                // get the dialog's class by parent div's class
-                var c = gd.get_selector_class( $visible_selector );
-                if ( $t.hasClass(`${c}-url`) || $t.hasClass(`${c}-selector`) || $t.hasClass(`${c}-input`) ) {
-                    if ( $visible_selector.length > 1 ) {
-                        // hide any other open selector dialogs
-                        $visible_selector.each(function(){
-                            var b = gd.get_selector_class( $(this) );
-                            if ( b != c ) $(this).hide();
-                        });
-                    }
-                } else {
-                    $( gd.eid + ` .${c}-selector` ).hide();
-                }
+        $(document).unbind().click((e) => {
+            // return if no .selector dialog is visible
+            let dialog = document.querySelector(gd.eid + ' .info .field.selector .dialog.visible');
+            if ( dialog === null ) return;
+            let closest = dialog.closest('.field.selector');
+            let target = e.target;
+            // hide dialog if click occurred outside of it
+            if ( !closest.contains(target) ) {
+                dialog.classList.remove('visible');
             }
         }).keyup(function(e) {
-            if( e.which == 27 ) {
+            if( e.which === 27 ) {
                 // ESC key to hide/unhide info panel
-                $( gd.eid + ' .panel' ).toggleClass('minimized');
-                $( gd.eid + ' .selector .dialog' ).hide();
+                gd.hide(gd.eid + ' .panel');
+                gd.hide(gd.eid + ' .selector .dialog', true);
             }
         });
     };
+
+    // helper to remove or toggle visible class for specified elements
+    hide( elements, remove ) {
+        if ( remove === null ) remove = false;
+        [].map.call(document.querySelectorAll(elements), (el) => {
+            if ( remove ) {
+                el.classList.remove('visible');
+            } else el.classList.toggle('visible');
+        });
+    }
 
     // helper function to avoid replication of example content
     list_html( items, is_gist_id ) {
