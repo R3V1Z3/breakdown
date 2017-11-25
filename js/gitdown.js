@@ -55,7 +55,7 @@ class GitDown {
         };
 
         this.example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
-                                    "Console": "e9217f4e7ed7c8fa18f13d12def1ad6c",
+                                    "Console": "a634da7b7130fd40d682360154cc4e2e",
                                     "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
                                     "Ye Olde Tavern": "c05dec491e954e53e050c6e9d60d7a25",
@@ -628,7 +628,7 @@ class GitDown {
     // promise based get
     get(url) {
         return new Promise( function (resolve, reject) {
-            var http = new XMLHttpRequest();
+            const http = new XMLHttpRequest();
             http.open('GET', url);
             http.onload = function () {
                 if ( http.status === 200 ) {
@@ -687,6 +687,7 @@ class GitDown {
         urls.push( [type, id, file_path + id + ext] );
         urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + id + ext] );
         urls.push( [type, id, `//api.github.com/gists/${id}`] );
+        console.log(urls);
         return urls;
     }
 
@@ -864,6 +865,7 @@ class GitDown {
     load_done() {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
+            //gd.update_ui();
             gd.update_theme_vars();
             gd.register_events();
         } else {
@@ -897,27 +899,29 @@ class GitDown {
         // set current section and go there
         gd.go_to_section();
 
-        // hide selector dialogs at start
-        //$( gd.eid + ' .info .field.selector .dialog' ).hide();
-        // toggle collapsible sections at start, prior to callback
+        // collapse collapsible sections at start, prior to callback
         if ( !gd.status.has('changed') ) {
-            $( gd.eid + ' .info .field.collapsible' ).addClass('collapsed');
+            //todo
+            let elements = gd.eid + ' .info .field.collapsible';
+            [].map.call(document.querySelectorAll(elements), (el) => {
+                el.classList.add('collapsed');
+            });
         }
-        
+
         let wrapper = document.querySelector(gd.eid);
-        // add .gd-default class if using default theme
+
+        // add .gd-default class to wrapper if using default theme
         if ( gd.settings.css === 'default' ) {
             wrapper.classList.add('gd-default');
         } else wrapper.classList.remove('gd-default');
 
-        // add .gd-lyrics class when using lyrics mode: heading=lyrics
+        // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
         if ( gd.settings.heading === 'lyrics' ) {
             wrapper.classList.add('gd-lyrics');
         }
     }
 
     update_ui_from_settings() {
-        // rewrite with forEach() to hide settings based on element name
         const elements = ['info','help_ribbon','element_count','gist_details','css_details'];
         elements.forEach(function(i){
             if( gd.settings[`hide_${i}`] ) {

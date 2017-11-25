@@ -1,24 +1,20 @@
 /*
   Theme name: Console
-  URL: https://gist.github.com/Ugotsta/e9217f4e7ed7c8fa18f13d12def1ad6c
+  URL: https://gist.github.com/Ugotsta/a634da7b7130fd40d682360154cc4e2e
 */
 
 $color: green;
 
 @import url('https://fonts.googleapis.com/css?family=Cousine');
 
-#custom .gd-lyrics .section {
-    filter: blur(6px);
-}
-
-#custom .gd-lyrics .section.current {
-    filter: blur(0px);
-}
-
 * {
     font-family: 'Cousine', monospace;
     text-shadow: 0 0 13px rgba(255,255,255,0.5);
     color: rgba(255,255,255,0.8);
+}
+
+.inner * {
+  mix-blend-mode: overlay;
 }
 
 pre code, pre, .hljs, pre.hljs {
@@ -50,13 +46,9 @@ pre code, pre, .hljs, pre.hljs {
   background: none;
 }
 
-.inner * {
-  mix-blend-mode: overlay;
-}
-
 .section code {
     box-shadow: inset 0 0 60px rgba(255,255,255,0.2);
-    filter: invert(100%);
+    filter: invert(100%); 
 }
 
 .section a.handle {
@@ -72,7 +64,7 @@ pre code, pre, .hljs, pre.hljs {
     z-index: 1;
 }
 
-#custom .section.current {
+.section.current {
     z-index: 2;
 }
 
@@ -92,11 +84,7 @@ pre code, pre, .hljs, pre.hljs {
 #gd-entwine .inner::before,
 #gd-downslide .inner::before,
 .gd-animated .inner::before {
-    animation: line 3s linear infinite;
-}
-
-.gd-modular a.handle {
-    color: black;
+/*     animation: line 3s linear infinite; */
 }
 
 @keyframes line {
@@ -242,6 +230,12 @@ ul li {
     }
 }
 
+/* Modular .gd-modular styles */
+
+.gd-modular a.handle {
+    color: black;
+}
+
 connection {
     mix-blend-mode: multiply;
 }
@@ -255,6 +249,8 @@ connection {
     color: black;
 }
 
+/* EQ styles for BeatDown */
+
 #gd-beatdown .eq {
     mix-blend-mode: soft-light;
     z-index: 1;
@@ -262,4 +258,14 @@ connection {
 
 .eq .band {
     border-top: 3px solid rgba(255,255,255,0.65);
+}
+
+/* Mode-based styles */
+
+#custom .gd-lyrics .section {
+    filter: blur(6px);
+}
+
+#custom .gd-lyrics .section.current {
+    filter: blur(0px);
 }
