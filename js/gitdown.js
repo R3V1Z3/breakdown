@@ -679,7 +679,7 @@ class GitDown {
             for ( const key in gd.example_css_default ) {
                 if ( gd.example_css_default[key] === id ) {
                     let f = 'gitdown-' + gd.clean(key) + ext;
-                    urls.push( [type, id, file_path + x] );
+                    urls.push( [type, id, file_path + f] );
                     urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + f] );
                 }
             }
