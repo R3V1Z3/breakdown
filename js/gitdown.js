@@ -17,7 +17,8 @@ class GitDown {
         this.status = new Status();
         this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
         this.set_examples();
-        this.initial_content = '', this.info_content = '';
+        this.initial_content = '';
+        this.info_content = this.default_info_content();
         this.sections = [];
         this.chr_link = '⮎';
         this.css_vars = {};
@@ -43,7 +44,6 @@ class GitDown {
         // helper variables to simplify access to container elements
         this.eid_inner = ' .' + this.settings.inner;
         // setup default info content
-        this.info_content = this.default_info_content();
     };
 
     set_examples() {
@@ -574,9 +574,9 @@ class GitDown {
     };
 
     default_info_content() {
-        var n = '\n';
+        var n = '\n\n';
         var info = '# Info <!-- {$gd_info} -->' + n;
-        info += '<!-- {$gd_help_ribbon} -->' + n;
+        //info += '<!-- {$gd_help_ribbon} -->' + n;
         info += '<!-- {$gd_element_count} -->' + n;
         info += 'GIST <!-- {$gd_gist} -->' + n;
         info += 'CSS <!-- {$gd_css} -->' + n;
@@ -827,15 +827,15 @@ class GitDown {
             data = preprocess(data);
         }
 
-        // if we're just getting info content from initial, return at this point
-        let initial = gd.status.has('initial');
-        let gist = gd.settings.gist;
-        if ( !initial && gist !== 'default' ) return;
-
-        // setup info panel default content if it doesn't exist
+        // setup info panel default content
         let extract = gd.extract_info_content(data);
         data = extract[0];
         if ( extract[1] !== '' ) gd.info_content = extract[1];
+
+        // if we're just getting info content from initial, return at this point
+        if ( !gd.status.has('initial') && gd.settings.gist !== 'default' ) {
+            return;
+        }
 
         // render content and info panel
         gd.render( data, gd.eid_inner, true );
@@ -1683,7 +1683,7 @@ class GitDown {
                     if ( e !== null ) e.innerHTML = '';
                     e = document.querySelector( eid_inner );
                     if ( e !== null ) e.innerHTML = '';
-                    var content = data.content + '\n' +  this.default_info_content();
+                    var content = data.content + '\n' + this.default_info_content();
                     //content = this.extract_info_content(content);
                     window.localStorage.setItem( 'gd_content', content );
                     this.render_content(content);
