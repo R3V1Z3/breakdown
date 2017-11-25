@@ -1753,11 +1753,7 @@ class GitDown {
             if ( name === 'fontsize' ) {
                 $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
             }
-            // check if this is for a theme var
-            if ( name in gd.css_vars ) {
-                var css = window.localStorage.getItem( 'gd_theme', css );
-                gd.render_theme_css(css);
-            }
+            gd.update_from_css_vars(name);
         });
 
         // CHOICE FIELDS
@@ -1782,11 +1778,7 @@ class GitDown {
                 gd.render_highlight();
             }
             // update css_vars with key
-            if ( gd.get_css_var(name) !== '' ) {
-                gd.update_parameter(name);
-                const css = window.localStorage.getItem('gd_theme');
-                gd.render_theme_css(css);
-            }
+            gd.update_from_css_vars(name);
         });
 
         // COLLAPSIBLE FIELDS
@@ -1847,6 +1839,14 @@ class GitDown {
             }
         });
     };
+
+    update_from_css_vars(name) {
+        if ( name in gd.css_vars ) {
+            gd.update_parameter(name);
+            var css = window.localStorage.getItem('gd_theme');
+            gd.render_theme_css(css);
+        }
+    }
 
     // helper to remove or toggle visible class for specified elements
     hide( elements, remove ) {

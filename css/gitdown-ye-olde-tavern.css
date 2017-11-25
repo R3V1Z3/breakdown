@@ -13,22 +13,22 @@
     selector {$gd_field_type="values"}
 */
 
-$scale: 1.1;            /* .gd-slides #custom .inner {$gd_slider_scale="1.1,0.15,30,0.1"} */
-$translateX: -120px;    /* .gd-slides #custom .inner {$gd_slider_translatex="-120,-2000,2000,1,px"} */
-$translateY: 0px;       /* .gd-slides #custom .inner {$gd_slider_translatey="0,-2000,2000,1,px"} */
-$perspective: 800px;    /* .gd-slides #custom .inner {$gd_slider_perspective="800,100,2000,1,px"} */
-$rotateX: 15deg;        /* .gd-slides #custom .inner {$gd_slider_rotatex="15,0,360,1,deg"} */
-$rotateY: 4deg;         /* .gd-slides #custom .inner {$gd_slider_rotatey="4,0,360,1,deg"} */
+$scale: 1.1;          /* .gd-slides {$gd_slider_scale="1.1,0.15,30,0.1"} */
+$translateX: -120;    /* .gd-slides {$gd_slider_translateX="-120,-2000,2000,1,px"} */
+$translateY: 0;       /* .gd-slides {$gd_slider_translateY="0,-2000,2000,1,px"} */
+$perspective: 800;    /* .gd-slides {$gd_slider_perspective="800,100,2000,1,px"} */
+$rotateX: 15;         /* .gd-slides {$gd_slider_rotateX="15,0,360,1,deg"} */
+$rotateY: 4;          /* .gd-slides {$gd_slider_rotateY="4,0,360,1,deg"} */
 
 /* BeatDown styling */
 .gd-slides #custom .inner {
     position: fixed;
     transform:  scale($scale)
-                translateX($translateX)
-                translateY($translateY)
-                perspective($perspective)
-                rotateX($rotateX)
-                rotateY($rotateY);
+                translateX($translateXpx)
+                translateY($translateYpx)
+                perspective($perspectivepx)
+                rotateX($rotateXdeg)
+                rotateY($rotateYdeg);
     padding: 10%;
 }
 
