@@ -3,7 +3,7 @@
   Gist URL: https://gist.github.com/Ugotsta/adc373c2d5a5d2b07821686e93a9630b/
 */
 
-$primary-color: slategrey;
+$color: slategrey;
 
 @import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
 
@@ -216,7 +216,7 @@ h1, h2, h3, h4, h5, h6 {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: $primary-color;
+  background-color: $color;
   background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
   height: 100%;
   background-size: 50px 50px;

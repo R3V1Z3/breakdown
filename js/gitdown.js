@@ -576,7 +576,7 @@ class GitDown {
     default_info_content() {
         var n = '\n\n';
         var info = '# Info <!-- {$gd_info} -->' + n;
-        //info += '<!-- {$gd_help_ribbon} -->' + n;
+        info += '<!-- {$gd_help_ribbon} -->' + n;
         info += '<!-- {$gd_element_count} -->' + n;
         info += 'GIST <!-- {$gd_gist} -->' + n;
         info += 'CSS <!-- {$gd_css} -->' + n;
@@ -760,8 +760,9 @@ class GitDown {
             gd.status.add('content');
             gd.settings.gist_filename =  gd.settings.content;
         } else if ( !gd.status.has('content') ) {
+            // add content urls to urls array
             const content_urls = gd.prepare_urls( gist, 'gist' );
-            content_urls.forEach((e) => { urls.unshift(e); });
+            content_urls.forEach((e) => { urls.push(e); });
         }
         
         if ( urls.length < 1 ) {
@@ -937,15 +938,15 @@ class GitDown {
         let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
         if ( theme_vars !== null && gd.css_vars.length !== {} ) {
             for ( const key in gd.css_vars ) {
-                let value = gd.css_vars[key][0];
-                let variable = gd.css_vars[key][1];
-                let selector = gd.css_vars[key][2];
+                const value = gd.css_vars[key][0];
+                const variable = gd.css_vars[key][1];
+                const selector = gd.css_vars[key][2];
                 if ( selector === '' ) {
-                    html += gd.theme_var_html( variable );
+                    html += gd.theme_var_html( variable, value );
                 } else {
                     // add field only if selector exists
                     let s = document.querySelector(selector);
-                    if ( s !== null ) html += gd.theme_var_html( variable );
+                    if ( s !== null ) html += gd.theme_var_html( variable, value );
                 }
             }
             theme_vars.innerHTML = html;
@@ -953,7 +954,7 @@ class GitDown {
         }
     }
     
-    theme_var_html(v) {
+    theme_var_html(v, value) {
         let c = '';
         if ( gd.begins( v, 'select_' ) ) {
             let name = v.split('select_');
@@ -974,6 +975,12 @@ class GitDown {
                 // split items
                 items = v_items.split(',');
             }
+            // ensure asterisk is added to default item
+            items.forEach((val,i)=>{
+                if ( val.toLowerCase() === value.toLowerCase() ) {
+                    items[i] = '*' + items[i];
+                }
+            });
             c = gd.field_html( 'select', name, items);
             return c;
         } else if( gd.begins( v, 'slider_' ) ) {
@@ -997,7 +1004,7 @@ class GitDown {
         } else {
             // for special cases where variable includes keyword 'color';
             if ( v.indexOf('color') !== -1 ){
-                return gd.theme_var_html( 'select_' + v );
+                return gd.theme_var_html( 'select_' + v, value );
             }
         }
     }
