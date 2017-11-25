@@ -678,7 +678,9 @@ class GitDown {
             // push named file for ids that exist in example_css_default
             for ( const key in gd.example_css_default ) {
                 if ( gd.example_css_default[key] === id ) {
-                    urls.push( [type, id, file_path + 'gitdown-' + gd.clean(key) + ext] );
+                    let f = 'gitdown-' + gd.clean(key) + ext;
+                    urls.push( [type, id, file_path + x] );
+                    urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + f] );
                 }
             }
         }
