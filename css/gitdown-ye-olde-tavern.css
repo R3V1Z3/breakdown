@@ -1,16 +1,16 @@
 /*
-    Theme name: Ye Olde Tavern
-    URL: https://gist.github.com/Ugotsta/e9dc237da3d9bda63302fe4b659c20b5
+  Theme name: Ye Olde Tavern
+  URL: https://gist.github.com/Ugotsta/e9dc237da3d9bda63302fe4b659c20b5
 */
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
 
 $scale:1.1;           /* .gd-slides {$gd_slider_scale="1.1,0.15,30,0.1"} */
-$translateX:-120;     /* .gd-slides {$gd_slider_translateX="-120,-2000,2000,1,px"} */
-$translateY:-100;     /* .gd-slides {$gd_slider_translateY="-100,-2000,2000,1,px"} */
-$perspective:291;     /* .gd-slides {$gd_slider_perspective="291,100,2000,1,px"} */
-$rotateX:19;          /* .gd-slides {$gd_slider_rotateX="19,0,360,1,deg"} */
-$rotateY:3;           /* .gd-slides {$gd_slider_rotateY="3,0,360,1,deg"} */
+$translateX:-100;     /* .gd-slides {$gd_slider_translateX="-100,-2000,2000,1,px"} */
+$translateY:10;       /* .gd-slides {$gd_slider_translateY="10,-2000,2000,1,px"} */
+$perspective:900;     /* .gd-slides {$gd_slider_perspective="900,100,2000,1,px"} */
+$rotateX:15;          /* .gd-slides {$gd_slider_rotateX="15,0,360,1,deg"} */
+$rotateY:4;           /* .gd-slides {$gd_slider_rotateY="4,0,360,1,deg"} */
 $rotateZ:0;           /* .gd-slides {$gd_slider_rotateZ="0,0,360,1,deg"} */
 $translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
 
@@ -249,10 +249,6 @@ connection {
     background: none;
     margin-right: 1.7em;
     box-shadow: inset 0 0 2px 2px rgba(0,0,0,0.75), inset 2px 2px 2px 2px white, 0 0 2px 9px rgba(0,0,0,0.65), 0 0 1px 11px white, 0 0 2px 13px rgba(0,0,0,0.9);
-}
-
-#gd-beatdown #custom .inner {
-    transform: scale(1) translateX(-100px) translateY(10px) perspective(900px) rotateX(15deg) rotateY(4deg) rotateZ(0deg);
 }
 
 #gd-beatdown #custom .section {

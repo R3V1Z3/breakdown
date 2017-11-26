@@ -1,17 +1,12 @@
 /*
   Theme name: Woodwork
-  URL: https://gist.github.com/Ugotsta/c604615983fc6cdd5ebdbdd053800298
+  URL: https://gist.github.com/Ugotsta/ece15baa3b80cd95bc0b7a0a2b5a24bd
 */
 
 @import url('https://fonts.googleapis.com/css?family=Baloo|Lobster');
 
 #wrapper * {
   font-family: 'Baloo', cursive;
-}
-
-.container {
-  height: 100%;
-  width: 100%;
 }
 
 .inner {
@@ -36,7 +31,7 @@
   position: unset;
 }
 
-.container .section {
+.inner .section {
   background: #FFF9ED;
   border: 10px solid white;
   box-shadow: 0 10px 60px rgba(0,0,0,0.5);

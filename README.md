@@ -53,7 +53,7 @@ Themes <!-- {$gd_css} -->
 - [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
 - [Ye Olde Tavern](https://gist.github.com/e9dc237da3d9bda63302fe4b659c20b5)
 - [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
-- [Woodwork](https://gist.github.com/c604615983fc6cdd5ebdbdd053800298)
+- [Woodwork](https://gist.github.com/ece15baa3b80cd95bc0b7a0a2b5a24bd)
 - [Corkboard](https://gist.github.com/ada930f9dae1d0a8d95f41cb7a56d658)
 - [Graph Paper](https://gist.github.com/77b1f66ad5093c2db29c666ad15f334d)
 - [Eerie](https://gist.github.com/7ac556b27c2cd34b00aa59e0d3621dea)
