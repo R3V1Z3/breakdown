@@ -867,7 +867,8 @@ class GitDown {
             // update theme vars and render fields
             gd.update_wrapper_classes();
             gd.update_theme_vars();
-            gd.register_events();
+            // register events for any newly created theme variable fields
+            gd.register_field_events( gd.eid + ' .info .theme-vars' );
         } else {
             // complete initialization once everything is loaded
             gd.status.add('done');
@@ -1671,7 +1672,61 @@ class GitDown {
         }
     }
 
+    // s: wrapper selector within which to register newly created fields
+    register_field_events(s) {
+
+        // SLIDER FIELDS
+        $( s + ' .field.slider input' ).unbind().on('input change', function(e) {
+            const name = $(this).attr('name');
+            let suffix = $(this).attr('data-suffix');
+            if ( suffix === undefined ) suffix = '';
+            const value = $(this).val();
+            $(this).attr( 'value', value );
+            $(this).parent().attr( 'data-value', value );
+            gd.settings[name] = value;
+            gd.set_param( name, value );
+            // font-size
+            if ( name === 'fontsize' ) {
+                $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
+            }
+            gd.update_from_css_vars(name);
+        });
+
+        // CHOICE FIELDS
+        $( s + ' .field.choices .choice' ).unbind().click(function() {
+            var name = $(this).parent().attr('data-name');
+            $(this).parent().find('.selected').removeClass('selected');
+            const value = $(this).attr('data-value');
+            $(this).addClass('selected');
+            gd.settings[name] = value;
+            gd.set_param( name, value );
+        });
+
+        // SELECT FIELDS
+        $( s + ' .field.select select' ).unbind().change(function() {
+            let name = $(this).parent().attr('data-name');
+            name =  gd.clean(name);
+            const value = $(this).val();
+            gd.settings[name] = value;
+            gd.set_param( name, value );
+            // load user provided highlight style
+            if ( name === 'highlight' ) {
+                gd.render_highlight();
+            }
+            // update css_vars with key
+            gd.update_from_css_vars(name);
+        });
+
+        // COLLAPSIBLE FIELDS
+        $( s + ' .field.collapsible .header' ).unbind().click(function(e) {
+            if (e.target !== this) return;
+            this.parentNode.classList.toggle('collapsed');
+        });
+    }
+
     register_events() {
+
+        gd.register_field_events(gd.eid + ' .info');
 
         // handle history
         window.addEventListener('popstate', function(e) {
@@ -1742,58 +1797,6 @@ class GitDown {
             if ( $(e.target).closest('.section').length === 0 ) {
                 $( gd.eid + ' .panel' ).addClass('visible');
             }
-        });
-
-        /*
-            Fields
-        */
-
-        // SLIDER FIELDS
-        $(gd.eid + ' .info .field.slider input' ).unbind().on('input change', function(e) {
-            const name = $(this).attr('name');
-            let suffix = $(this).attr('data-suffix');
-            if ( suffix === undefined ) suffix = '';
-            const value = $(this).val();
-            $(this).attr( 'value', value );
-            $(this).parent().attr( 'data-value', value );
-            gd.settings[name] = value;
-            gd.set_param( name, value );
-            // font-size
-            if ( name === 'fontsize' ) {
-                $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
-            }
-            gd.update_from_css_vars(name);
-        });
-
-        // CHOICE FIELDS
-        $( gd.eid + ' .info .field.choices .choice' ).unbind().click(function() {
-            var name = $(this).parent().attr('data-name');
-            $(this).parent().find('.selected').removeClass('selected');
-            const value = $(this).attr('data-value');
-            $(this).addClass('selected');
-            gd.settings[name] = value;
-            gd.set_param( name, value );
-        });
-
-        // SELECT FIELDS
-        $( gd.eid + ' .info .field.select select' ).unbind().change(function() {
-            let name = $(this).parent().attr('data-name');
-            name =  gd.clean(name);
-            const value = $(this).val();
-            gd.settings[name] = value;
-            gd.set_param( name, value );
-            // load user provided highlight style
-            if ( name === 'highlight' ) {
-                gd.render_highlight();
-            }
-            // update css_vars with key
-            gd.update_from_css_vars(name);
-        });
-
-        // COLLAPSIBLE FIELDS
-        $( gd.eid + ' .info .field.collapsible .header' ).unbind().click(function(e) {
-            if (e.target !== this) return;
-            this.parentNode.classList.toggle('collapsed');
         });
 
         // SELECTOR KEYPRESS
