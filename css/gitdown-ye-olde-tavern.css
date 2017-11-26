@@ -1,34 +1,30 @@
 /*
     Theme name: Ye Olde Tavern
-    URL: https://gist.github.com/Ugotsta/c05dec491e954e53e050c6e9d60d7a25
+    URL: https://gist.github.com/Ugotsta/e9dc237da3d9bda63302fe4b659c20b5
 */
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
 
-/*
-    GitDown will automatically create input fields for CSS variables.
-    Use commens with extra details to make use of other field types.
-    
-    Format:
-    selector {$gd_field_type="values"}
-*/
-
-$scale: 1.1;          /* .gd-slides {$gd_slider_scale="1.1,0.15,30,0.1"} */
-$translateX: -120;    /* .gd-slides {$gd_slider_translateX="-120,-2000,2000,1,px"} */
-$translateY: 0;       /* .gd-slides {$gd_slider_translateY="0,-2000,2000,1,px"} */
-$perspective: 800;    /* .gd-slides {$gd_slider_perspective="800,100,2000,1,px"} */
-$rotateX: 15;         /* .gd-slides {$gd_slider_rotateX="15,0,360,1,deg"} */
-$rotateY: 4;          /* .gd-slides {$gd_slider_rotateY="4,0,360,1,deg"} */
+$scale:1.1;           /* .gd-slides {$gd_slider_scale="1.1,0.15,30,0.1"} */
+$translateX:-120;     /* .gd-slides {$gd_slider_translateX="-120,-2000,2000,1,px"} */
+$translateY:-100;     /* .gd-slides {$gd_slider_translateY="-100,-2000,2000,1,px"} */
+$perspective:291;     /* .gd-slides {$gd_slider_perspective="291,100,2000,1,px"} */
+$rotateX:19;          /* .gd-slides {$gd_slider_rotateX="19,0,360,1,deg"} */
+$rotateY:3;           /* .gd-slides {$gd_slider_rotateY="3,0,360,1,deg"} */
+$rotateZ:0;           /* .gd-slides {$gd_slider_rotateZ="0,0,360,1,deg"} */
+$translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
 
 /* BeatDown styling */
 .gd-slides #custom .inner {
     position: fixed;
-    transform:  scale($scale)
-                translateX($translateXpx)
-                translateY($translateYpx)
-                perspective($perspectivepx)
-                rotateX($rotateXdeg)
-                rotateY($rotateYdeg);
+    transform: scale($scale)
+        translateX($translateXpx)
+        translateY($translateYpx)
+        perspective($perspectivepx)
+        rotateX($rotateXdeg)
+        rotateY($rotateYdeg)
+        rotateZ($rotateZdeg)
+        translateZ($translateZpx);
     padding: 10%;
 }
 

@@ -51,7 +51,7 @@ Themes <!-- {$gd_css} -->
 - [Console](https://gist.github.com/a634da7b7130fd40d682360154cc4e2e)
 - [Tech Archaic](https://gist.github.com/e27b284231488b349f35786f6340096a)
 - [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
-- [Ye Olde Tavern](https://gist.github.com/c05dec491e954e53e050c6e9d60d7a25)
+- [Ye Olde Tavern](https://gist.github.com/e9dc237da3d9bda63302fe4b659c20b5)
 - [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
 - [Woodwork](https://gist.github.com/c604615983fc6cdd5ebdbdd053800298)
 - [Corkboard](https://gist.github.com/ada930f9dae1d0a8d95f41cb7a56d658)

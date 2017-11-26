@@ -58,7 +58,7 @@ class GitDown {
                                     "Console": "a634da7b7130fd40d682360154cc4e2e",
                                     "Tech Archaic": "e27b284231488b349f35786f6340096a",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
-                                    "Ye Olde Tavern": "c05dec491e954e53e050c6e9d60d7a25",
+                                    "Ye Olde Tavern": "e9dc237da3d9bda63302fe4b659c20b5",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
                                     "Woodwork": "c604615983fc6cdd5ebdbdd053800298",
                                     "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
@@ -921,7 +921,6 @@ class GitDown {
 
         // collapse collapsible sections at start, prior to callback
         if ( !gd.status.has('changed') ) {
-            //todo
             let elements = gd.eid + ' .info .field.collapsible';
             [].map.call(document.querySelectorAll(elements), (el) => {
                 el.classList.add('collapsed');
@@ -1665,7 +1664,6 @@ class GitDown {
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
-            // todo
             gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
             gd.css_vars = {};
@@ -1706,7 +1704,8 @@ class GitDown {
             gd.update_from_css_vars(name);
 
             // restore transition state to .inner
-            $(gd.eid_inner).css('transition', transition);
+            //todo
+            //$(gd.eid_inner).css( 'transition', transition );
         });
 
         // CHOICE FIELDS
