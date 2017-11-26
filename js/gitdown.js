@@ -878,11 +878,15 @@ class GitDown {
             gd.update_theme_vars();
             // finally register events
             gd.register_events();
-            // pass control back to user provided callback if it exists
-            if ( typeof gd.settings.callback == 'function' ) {
-                gd.settings.callback.call();
-                gd.status.add('callback');
-            }
+            gd.execute_callback();
+        }
+    }
+
+    execute_callback() {
+        // pass control back to user provided callback if it exists
+        if ( typeof gd.settings.callback == 'function' ) {
+            gd.settings.callback.call();
+            gd.status.add('callback');
         }
     }
 
@@ -1661,14 +1665,19 @@ class GitDown {
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
-            gd.status.remove('css,done,content-changed');
+            // todo
+            gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
             gd.css_vars = {};
             gd.loop();
         } else if ( type === 'gist' ) {
-            gd.status.remove('content,done,theme-changed');
+            gd.status.remove('content,done,changed');
             gd.status.add('content-changed');
             gd.loop();
+        } else {
+            gd.status.remove('changed');
+            gd.status.add(type + '-changed');
+            gd.execute_callback();
         }
     }
 
@@ -1922,9 +1931,19 @@ class Status {
     }
 
     remove(flag) {
+        let f = this;
         flag.split(',').forEach((e) => {
-            let i = this.flags.indexOf(e);
-            if ( i !== -1 ) this.flags.splice(i,1);
+            if ( e === 'changed' ) {
+                // iterate over this.flags and remove occurences of -changed
+                this.flags.forEach((val, i) => {
+                    if ( val.indexOf('-changed') !== -1 ) {
+                        this.flags.splice(i, 1);
+                    }
+                });
+            } else {
+                let i = this.flags.indexOf(e);
+                if ( i !== -1 ) this.flags.splice(i,1);
+            }
         });
         return this;
     }
