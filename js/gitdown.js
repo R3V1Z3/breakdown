@@ -865,13 +865,14 @@ class GitDown {
     load_done() {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
-            //gd.update_ui();
+            gd.update_wrapper_classes();
             gd.update_theme_vars();
             gd.register_events();
         } else {
             // complete initialization once everything is loaded
             gd.status.add('done');
             gd.update_ui();
+            gd.update_wrapper_classes();
             // update theme vars and render fields
             gd.update_theme_vars();
             // finally register events
@@ -881,6 +882,20 @@ class GitDown {
                 gd.settings.callback.call();
                 gd.status.add('callback');
             }
+        }
+    }
+
+    // add or remove various section and mode related classes to wrapper
+    update_wrapper_classes() {
+        let wrapper = document.querySelector(gd.eid);
+        // add .gd-default class to wrapper if using default theme
+        if ( gd.settings.css === 'default' ) {
+            wrapper.classList.add('gd-default');
+        } else wrapper.classList.remove('gd-default');
+
+        // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
+        if ( gd.settings.heading === 'lyrics' ) {
+            wrapper.classList.add('gd-lyrics');
         }
     }
 
@@ -906,18 +921,6 @@ class GitDown {
             [].map.call(document.querySelectorAll(elements), (el) => {
                 el.classList.add('collapsed');
             });
-        }
-
-        let wrapper = document.querySelector(gd.eid);
-
-        // add .gd-default class to wrapper if using default theme
-        if ( gd.settings.css === 'default' ) {
-            wrapper.classList.add('gd-default');
-        } else wrapper.classList.remove('gd-default');
-
-        // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
-        if ( gd.settings.heading === 'lyrics' ) {
-            wrapper.classList.add('gd-lyrics');
         }
     }
 
