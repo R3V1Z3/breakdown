@@ -56,7 +56,7 @@ class GitDown {
 
         this.example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "a634da7b7130fd40d682360154cc4e2e",
-                                    "Tech Archaic": "2d004ce3de0abc7a27be84f48ea17591",
+                                    "Tech Archaic": "e27b284231488b349f35786f6340096a",
                                     "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
                                     "Ye Olde Tavern": "c05dec491e954e53e050c6e9d60d7a25",
                                     "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
@@ -1686,6 +1686,11 @@ class GitDown {
 
         // SLIDER FIELDS
         $( s + ' .field.slider input' ).unbind().on('input change', function(e) {
+            // add .no-transition class to .inner while sliders are being dragged
+            const transition = $(gd.eid_inner).css('transition');
+            $(gd.eid_inner).css( 'transition', 'none' );
+
+            // get field details
             const name = $(this).attr('name');
             let suffix = $(this).attr('data-suffix');
             if ( suffix === undefined ) suffix = '';
@@ -1699,6 +1704,9 @@ class GitDown {
                 $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
             }
             gd.update_from_css_vars(name);
+
+            // restore transition state to .inner
+            $(gd.eid_inner).css('transition', transition);
         });
 
         // CHOICE FIELDS

@@ -49,7 +49,7 @@ Example Gists <!-- {$gd_gist} -->
 Themes <!-- {$gd_css} -->
 - [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
 - [Console](https://gist.github.com/a634da7b7130fd40d682360154cc4e2e)
-- [Tech Archaic](https://gist.github.com/2d004ce3de0abc7a27be84f48ea17591)
+- [Tech Archaic](https://gist.github.com/e27b284231488b349f35786f6340096a)
 - [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
 - [Ye Olde Tavern](https://gist.github.com/c05dec491e954e53e050c6e9d60d7a25)
 - [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
