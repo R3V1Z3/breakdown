@@ -687,7 +687,6 @@ class GitDown {
         urls.push( [type, id, file_path + id + ext] );
         urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + id + ext] );
         urls.push( [type, id, `//api.github.com/gists/${id}`] );
-        console.log(urls);
         return urls;
     }
 
@@ -1684,10 +1683,6 @@ class GitDown {
 
         // SLIDER FIELDS
         $( s + ' .field.slider input' ).unbind().on('input change', function(e) {
-            // add .no-transition class to .inner while sliders are being dragged
-            const transition = $(gd.eid_inner).css('transition');
-            $(gd.eid_inner).css( 'transition', 'none' );
-
             // get field details
             const name = $(this).attr('name');
             let suffix = $(this).attr('data-suffix');
@@ -1697,15 +1692,11 @@ class GitDown {
             $(this).parent().attr( 'data-value', value );
             gd.settings[name] = value;
             gd.set_param( name, value );
-            // font-size
+            // special consideration for font-size
             if ( name === 'fontsize' ) {
                 $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
             }
             gd.update_from_css_vars(name);
-
-            // restore transition state to .inner
-            //todo
-            //$(gd.eid_inner).css( 'transition', transition );
         });
 
         // CHOICE FIELDS
