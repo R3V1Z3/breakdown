@@ -2,7 +2,6 @@
 // - downslide fadeout animations not working after loading new content
 // must be related to z-index
 
-// add .docked class to #wrapper when .info is set to docked mode
 // add .inactive to .sections
 // .visible
 // .unlisted
@@ -1488,7 +1487,7 @@ class GitDown {
                     return [ c, 'before' ];
                 } else return [ c, 'after' ];
             } else if ( gd.begins( v, 'gd_hide' ) ) {
-                c = '<a class="hide"><kbd>Esc</kbd> - show/hide this panel.</a>';
+                c = '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>';
                 return [ c, 'html' ];
             } else if ( gd.begins( v, 'gd_theme_variables' ) ) {
                 c = '<div class="theme-vars"></div>';
@@ -1726,6 +1725,41 @@ class GitDown {
         }
     }
 
+    update_from_css_vars(name) {
+        if ( name in gd.css_vars ) {
+            gd.update_parameter(name);
+            var css = window.localStorage.getItem('gd_theme');
+            gd.render_theme_css(css);
+        }
+    }
+
+    // helper to remove or toggle visible class for specified elements
+    hide( elements, remove ) {
+        if ( remove === null ) remove = false;
+        [].map.call(document.querySelectorAll(elements), (el) => {
+            if ( remove ) {
+                el.classList.remove('visible');
+            } else el.classList.toggle('visible');
+        });
+    }
+
+    // helper function to avoid replication of example content
+    list_html( items, is_gist_id ) {
+        var content = '';
+        if ( items.length < 1 ) return content;
+        for ( const key in items) {
+            var url = '';
+            if (is_gist_id) {
+                url = `//gist.github.com/${items[key]}`;
+            } else {
+                url = items[key];
+            }
+            content += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
+            content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
+        }
+        return content;
+    };
+
     // s: wrapper selector within which to register newly created fields
     register_field_events(s) {
 
@@ -1889,6 +1923,24 @@ class GitDown {
             });
         });
 
+        var body = document.querySelector('body');
+        body.onkeydown = function (e) {
+            if ( !e.metaKey && e.which > 111 && e.which < 114 ) {
+                e.preventDefault();
+            }
+            if( e.which === 112 ) {
+                // F1 key to hide/unhide info panel
+                const wrapper = document.querySelector(gd.eid);
+                wrapper.classList.toggle('panels-hidden');
+                // gd.hide(gd.eid + ' .panel');
+                gd.hide(gd.eid + ' .selector .dialog', true);
+            } else if( e.which === 113 ) {
+                // F2 key to dock/undock
+                const wrapper = document.querySelector(gd.eid);
+                wrapper.classList.toggle('panels-docked');
+            }
+        };
+
         /* Document based events such as keypresses and general clicks */
         $(document).unbind().click((e) => {
             // return if no .selector .dialog is visible
@@ -1900,48 +1952,7 @@ class GitDown {
             if ( !closest.contains(target) ) {
                 dialog.classList.remove('visible');
             }
-        }).keyup(function(e) {
-            if( e.which === 27 ) {
-                // ESC key to hide/unhide info panel
-                gd.hide(gd.eid + ' .panel');
-                gd.hide(gd.eid + ' .selector .dialog', true);
-            }
-        });
-    };
-
-    update_from_css_vars(name) {
-        if ( name in gd.css_vars ) {
-            gd.update_parameter(name);
-            var css = window.localStorage.getItem('gd_theme');
-            gd.render_theme_css(css);
-        }
-    }
-
-    // helper to remove or toggle visible class for specified elements
-    hide( elements, remove ) {
-        if ( remove === null ) remove = false;
-        [].map.call(document.querySelectorAll(elements), (el) => {
-            if ( remove ) {
-                el.classList.remove('visible');
-            } else el.classList.toggle('visible');
-        });
-    }
-
-    // helper function to avoid replication of example content
-    list_html( items, is_gist_id ) {
-        var content = '';
-        if ( items.length < 1 ) return content;
-        for ( const key in items) {
-            var url = '';
-            if (is_gist_id) {
-                url = `//gist.github.com/${items[key]}`;
-            } else {
-                url = items[key];
-            }
-            content += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
-            content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
-        }
-        return content;
+        })
     };
 
 }
