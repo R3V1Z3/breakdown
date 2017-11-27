@@ -1,3 +1,55 @@
+// todo
+// - when loading default content after app is loaded, toc has blank slots at start
+// - downslide fadeout animations not working after loading new content
+
+// minimize selector when other selector is clicked
+
+// add .docked class to #wrapper when .info is set to docked mode
+// add .inactive to .sections
+// .visible
+// .unlisted
+
+// add range sliders
+
+/**
+ * This class provides an easy way to keep track of all available sections and
+ * attributes and also should help simplify the task of porting to local apps.
+ * 
+ * @param {string} flags initial flags to set
+ * 
+ */
+class Section {
+    
+    constructor(s) {
+        this.sections = s;
+        // sections
+        // {name, classes}
+        // classes contains css classes for respective section
+    }
+
+    log() {
+        console.log(this.s);
+        return this;
+    }
+
+    create(name, content) {
+        //
+    }
+
+    html(name) {
+        let html = '';
+        let classes = 'header';
+        html += `<h1 class="handle-heading>`;
+        html += `<a class="handle app-title ${name}" name="${name}"/>`;
+        html += `</h1>`;
+        html += `<section class="section ${classes}" id="${name}"/>`;
+        html += `<div class="content"/>`;
+        return html;
+    }
+
+}
+
+
 /**
  * GitDown core
  * @param {string} el HTML element
@@ -799,8 +851,6 @@ class GitDown {
                 gd.render_theme_css(data);
                 if ( gd.status.has('content') ) gd.load_done();
             } else {
-                // clear content from .info and .inner
-                gd.clear_content();
                 gd.render_content(data);
                 gd.status.add('content');
                 // remove 'gist' content from urls since we have the content
@@ -839,6 +889,9 @@ class GitDown {
         if ( !gd.status.has('initial') && gd.settings.gist !== 'default' ) {
             return;
         }
+
+        // clear content from .info and .inner
+        gd.clear_content();
 
         // render content and info panel
         gd.render( data, gd.eid_inner, true );
@@ -1061,9 +1114,6 @@ class GitDown {
         var header = gd.settings.header;
         var heading = gd.settings.heading;
         if ( heading === 'lyrics' ) heading = 'p';
-
-        // todo: setup a factory for generating sections
-        // so we can easily port to Juce
 
         if ( $( gd.eid_inner + ' ' + header ).length ) {
             $( gd.eid_inner + ' ' + header ).each(function() {
