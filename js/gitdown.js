@@ -1,8 +1,6 @@
 // todo
-// - when loading default content after app is loaded, toc has blank slots at start
 // - downslide fadeout animations not working after loading new content
-
-// minimize selector when other selector is clicked
+// must be related to z-index
 
 // add .docked class to #wrapper when .info is set to docked mode
 // add .inactive to .sections
@@ -1868,6 +1866,8 @@ class GitDown {
 
         // Gist and CSS selectors
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
+            // first remove any open dialogs
+            $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
             var c = gd.get_selector_class( $(this) );
             var prefix = '.' + c;
             // show selector dialog
@@ -1891,7 +1891,7 @@ class GitDown {
 
         /* Document based events such as keypresses and general clicks */
         $(document).unbind().click((e) => {
-            // return if no .selector dialog is visible
+            // return if no .selector .dialog is visible
             let dialog = document.querySelector(gd.eid + ' .info .field.selector .dialog.visible');
             if ( dialog === null ) return;
             let closest = dialog.closest('.field.selector');
