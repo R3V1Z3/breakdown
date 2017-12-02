@@ -1124,40 +1124,42 @@ class GitDown {
         var heading = gd.settings.heading;
         if ( heading === 'lyrics' ) heading = 'p';
 
-        if ( $( gd.eid_inner + ' ' + header ).length ) {
-            $( gd.eid_inner + ' ' + header ).each(function() {
-                var name = gd.clean( $(this).text() );
-                $(this).addClass('handle-heading');
-                $(this).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
-                $(this).nextUntil(heading).andSelf().wrapAll('<section class="section header" id="' + name + '"/>');
-                $(this).nextUntil(heading).wrapAll('<div class="content"/>');
-            });
+        // Header
+        const headers = document.querySelector(`${gd.eid_inner} ${header}`);
+        if ( headers !== null ) {
+            var name = gd.clean( headers.textContent );
+            headers.classList.add('handle-heading');
+            $(headers).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
+            $(headers).nextUntil(heading).andSelf().wrapAll('<section class="section header" id="' + name + '"/>');
+            $(headers).nextUntil(heading).wrapAll('<div class="content"/>');
         } else {
             // add a header if none already exists
-            if ( $( gd.eid_inner + '.section.header').length > 0 ) {
-                $( gd.eid_inner ).append('<section class="section header"></section>');
-            }
+            headers.innerHTML += '<section class="section header"></section>';
         }
 
-        // create sections
-        $( gd.eid_inner + ' ' + heading ).each(function() {
-            var name =  gd.clean( $(this).text() );
-            // ensure section name/id is unique
-            if ( name !== '' ) {
-                var $exists = $( gd.eid_inner + ' .section#' + name );
-                if ( $exists.length > 0 ) {
-                    // name already exists so give it a new suffix
-                    name = gd.unique( name, '#' );
+        // Headings
+        const headings = document.querySelectorAll(`${gd.eid_inner} ${heading}`);
+        if ( headings !== null ) {
+            headings.forEach( (val, i) => {
+                const $h2 = $(val);
+                var name =  gd.clean( $h2.text() );
+                // ensure section name/id is unique
+                if ( name !== '' ) {
+                    var $exists = $( gd.eid_inner + ' .section#' + name );
+                    if ( $exists.length > 0 ) {
+                        // name already exists so give it a new suffix
+                        name = gd.unique( name, '#' );
+                    }
+                } else {
+                    // name is empty so assign it blank with suffix
+                    name = gd.unique( 'blank', '#' );
                 }
-            } else {
-                // name is empty so assign it blank with suffix
-                name = gd.unique( 'blank', '#' );
-            }
-            $(this).addClass('handle-heading');
-            $(this).wrapInner('<a class="handle" name="' + name + '"/>');
-            $(this).nextUntil(heading).andSelf().wrapAll('<section class="section heading" id="' + name + '"/>');
-            $(this).nextUntil(heading).wrapAll('<div class="content"/>');
-        });
+                $h2.addClass('handle-heading');
+                $h2.wrapInner('<a class="handle" name="' + name + '"/>');
+                $h2.nextUntil(heading).andSelf().wrapAll('<section class="section heading" id="' + name + '"/>');
+                $h2.nextUntil(heading).wrapAll('<div class="content"/>');
+            });
+        }
 
         // for lyrics mode, add heading content to .content div
         if ( this.settings.heading === 'lyrics' ) {
