@@ -6,7 +6,8 @@
 // .visible
 // .unlisted
 
-// add range sliders
+// what to call sections that just serve as visual elements???
+// .gd-visuals - audio-visual elements that aren't accessible as sections
 
 /**
  * This class provides an easy way to keep track of all available sections and
@@ -20,7 +21,7 @@ class Section {
     constructor(s) {
         this.sections = s;
         // sections
-        // {name, classes}
+        // {name, content, classes}
         // classes contains css classes for respective section
     }
 
@@ -33,14 +34,21 @@ class Section {
         //
     }
 
+    // returns true if specified section has class c
+    has(c) {
+        return false;
+    }
+
     html(name) {
         let html = '';
-        let classes = 'header';
+        const classes = 'header';
+        const content = '';
         html += `<h1 class="handle-heading>`;
         html += `<a class="handle app-title ${name}" name="${name}"/>`;
+        html += `${name}</a>`;
         html += `</h1>`;
         html += `<section class="section ${classes}" id="${name}"/>`;
-        html += `<div class="content"/>`;
+        html += `<div class="content"/>${content}</div>`;
         return html;
     }
 
@@ -92,17 +100,15 @@ class GitDown {
         el.innerHTML += content;
         // helper variables to simplify access to container elements
         this.eid_inner = ' .' + this.settings.inner;
-        // setup default info content
     };
 
+    // setup basic examples
     set_examples() {
         this.example_gist = {};
         this.example_css = {};
-        // we'll use jquery $.extend later to merge these
         this.example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
                                     "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
         };
-
         this.example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
                                     "Console": "a634da7b7130fd40d682360154cc4e2e",
                                     "Tech Archaic": "e27b284231488b349f35786f6340096a",
@@ -163,6 +169,18 @@ class GitDown {
         return defaults;
     }
 
+    default_info_content() {
+        var n = '\n\n';
+        var info = '# Info <!-- {$gd_info} -->' + n;
+        info += '<!-- {$gd_help_ribbon} -->' + n;
+        info += '<!-- {$gd_element_count} -->' + n;
+        info += 'GIST <!-- {$gd_gist} -->' + n;
+        info += 'CSS <!-- {$gd_css} -->' + n;
+        info += '## Table of Contents <!-- {$gd_toc} -->' + n;
+        info += '<!-- {$gd_hide} -->' + n;
+        return info;
+    };
+
     // PUBLIC METHODS ------------------------------------------------------
 
     // detect specified url parameter, clean and add it to settings
@@ -211,6 +229,9 @@ class GitDown {
         return base + q + location.hash;
     };
 
+    /**
+     * Ridiculously lengthy functino for fullscreen switching
+     */
     toggleFullscreen(e) {
         e = e || document.documentElement;
         if (!document.fullscreenElement && !document.mozFullScreenElement &&
@@ -301,7 +322,9 @@ class GitDown {
         return -1;
     };
 
-    // load user specified highlight style
+    /**
+     * load user specified highlight style
+     */
     render_highlight() {
         var h = this.settings['highlight'];
         var hlight = document.querySelector('#gd-highlight');
@@ -324,10 +347,12 @@ class GitDown {
         }
     }
 
-    // add style to head either inline or external stylesheet
-    // type: link or style
-    // id: optional id so we can alter href later
-    // content: either href or actual style content
+    /**
+     * Add style to head either inline or external stylesheet
+     * @param {string} type link or inline style
+     * @param {string} id so we can alter href later
+     * @param {string} content either href or actual style content
+     */
     append_style( type, id, content ){
         let s  = document.createElement(type);
         s.type = 'text/css';
@@ -493,52 +518,51 @@ class GitDown {
     // update fields based on url parameters
     update_fields_with_params(type) {
         if ( type === '' || type === undefined ) type = '';
-        var $fields = $( `${gd.eid} .info .field${type}` );
-        $fields.each((i, val) => {
-            var field_class = '';
-            var $f = $(val);
-            if ( $f.hasClass('slider') ) {
-                var $slider = $f.find('input');
-                var name = $slider.attr('name');
+        const s = `${gd.eid} .info .field${type}`;
+        const fields = document.querySelectorAll(s);
+        fields.forEach((el, i) => {
+            var $f = $(el);
+            if ( el.classList.contains('slider') ) {
+                const slider = el.querySelector('input');
+                const name = slider.getAttribute('name');
                 // get parameter value if user specified
-                var p = gd.update_parameter( name, $slider.val() );
-                if ( p != '' ) {
-                    $slider.val(p);
-                    $slider.attr( 'value', p );
-                    $slider.parent().attr( 'data-value', p );
-                    // update inner element based on fontsize
+                var p = gd.update_parameter( name, slider.value );
+                if ( p !== '' ) {
+                    slider.value = p;
+                    slider.setAttribute( 'value', p );
+                    slider.parentElement.setAttribute( 'data-value', p );
+                    // update font size based on slider value
                     if ( name == 'fontsize' ) {
-                        $( gd.eid_inner ).css('font-size', $slider.val() + '%');
+                        const inner = document.querySelector(gd.eid_inner);
+                        inner.setAttribute( 'style', `font-size: ${slider.value}%`);
                     }
                 }
-                gd.settings[name] = $slider.val();
-            } else if ( $f.hasClass('select') ) {
-                var $select = $f.find('select');
-                var name = $select.attr('name');
-                var p = gd.update_parameter( name, $select.val() );
+                gd.settings[name] = slider.value;
+            } else if ( el.classList.contains('select') ) {
+                const select = el.querySelector('select');
+                const name = select.getAttribute('name');
+                const p = gd.update_parameter( name, select.value );
                 if ( p != '' ) {
-                    $select.val(p);
-                    $select.change();
+                    select.value;
+                    // $select.change();
                 }
-                gd.settings[name] = $select.val();
-            } else if ( $f.hasClass('choices') ) {
-                let $choices = $f.find('a');
-                let name = $choices.parent().attr('data-name');
-                let v = $f.find('a.selected').attr('data-value');
-                let p = gd.update_parameter( name, v );
+                gd.settings[name] = select.value;
+            } else if ( el.classList.contains('choices') ) {
+                const name = el.getAttribute('data-name');
+                const v = el.querySelector('a.selected').getAttribute('data-value');
+                const p = gd.update_parameter( name, v );
                 if ( p != '' ) {
-                    let $c = $f.find(`a[data-value="${p}"]`);
-                    if ( $c.length > 0 ) {
+                    const c = el.querySelector(`a[data-value="${p}"]`);
+                    if ( c !== null ) {
                         // remove previously selected class
-                        $f.find('a.selected').removeClass('selected');
-                        $c.addClass('selected');
+                        el.querySelector('a.selected').classList.remove('selected');
+                        c.classList.add('selected');
                     }
                 }
                 gd.settings[name] = v;
-            } else if ( $f.hasClass('selector') ) {
-                let type = gd.get_selector_class($f);
-                let $display_name = $f.find(`.${type}-url`);
-                let fname = gd.settings[`${type}_filename`];
+            } else if ( el.classList.contains('selector') ) {
+                const type = gd.get_selector_class(el);
+                const fname = gd.settings[`${type}_filename`];
                 gd.update_selector_url( type, fname );
             }
         });
@@ -620,18 +644,6 @@ class GitDown {
             $pre.parent().append($clone);
             $clone.hide();
         }
-    };
-
-    default_info_content() {
-        var n = '\n\n';
-        var info = '# Info <!-- {$gd_info} -->' + n;
-        info += '<!-- {$gd_help_ribbon} -->' + n;
-        info += '<!-- {$gd_element_count} -->' + n;
-        info += 'GIST <!-- {$gd_gist} -->' + n;
-        info += 'CSS <!-- {$gd_css} -->' + n;
-        info += '## Table of Contents <!-- {$gd_toc} -->' + n;
-        info += '<!-- {$gd_hide} -->' + n;
-        return info;
     };
 
     update_toc(s) {
@@ -1657,8 +1669,13 @@ class GitDown {
     };
 
     // simple helper to reduce repitition for getting selector class
-    get_selector_class($c) {
+    jget_selector_class($c) {
         return $c.closest('.field.selector').attr('data-name');
+    }
+
+    // simple helper to reduce repitition for getting selector class
+    get_selector_class(c) {
+        return c.closest('.field.selector').getAttribute('data-name');
     }
 
     render_info(app_title) {
@@ -1843,7 +1860,7 @@ class GitDown {
                     if ( e !== null ) e.innerHTML = '';
                     e = document.querySelector( eid_inner );
                     if ( e !== null ) e.innerHTML = '';
-                    var content = data.content + '\n' + this.default_info_content();
+                    var content = data.content + '\n' + this.info_content;
                     //content = this.extract_info_content(content);
                     window.localStorage.setItem( 'gd_content', content );
                     this.render_content(content);
@@ -1892,7 +1909,7 @@ class GitDown {
         $( gd.eid + ' .info .selector-input' ).unbind().keyup(function(e) {
             if( e.which == 13 ) {
                 // get parent class
-                var c = gd.get_selector_class( $(this).parent() );
+                var c = gd.jget_selector_class( $(this).parent() );
                 var id = $(this).val();
                 gd.selector_changed(c, id);
             }
@@ -1902,7 +1919,7 @@ class GitDown {
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
             // first remove any open dialogs
             $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
-            var c = gd.get_selector_class( $(this) );
+            var c = gd.jget_selector_class( $(this) );
             var prefix = '.' + c;
             // show selector dialog
             $( `${gd.eid} ${prefix}-selector` ).addClass('visible');
