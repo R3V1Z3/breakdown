@@ -521,12 +521,11 @@ class GitDown {
         const s = `${gd.eid} .info .field${type}`;
         const fields = document.querySelectorAll(s);
         fields.forEach((el, i) => {
-            var $f = $(el);
             if ( el.classList.contains('slider') ) {
                 const slider = el.querySelector('input');
                 const name = slider.getAttribute('name');
                 // get parameter value if user specified
-                var p = gd.update_parameter( name, slider.value );
+                const p = gd.update_parameter( name, slider.value );
                 if ( p !== '' ) {
                     slider.value = p;
                     slider.setAttribute( 'value', p );

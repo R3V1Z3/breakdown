@@ -14,10 +14,6 @@ html, body {
   margin: 0;
 }
 
-p {
-  margin: 0.5em 0;
-}
-
 #wrapper, .inner {
   width: 100%;
   height: 100%;
@@ -25,9 +21,15 @@ p {
   float: left;
 }
 
+#wrapper { position: absolute;}
+
 .inner {
   transition: none;
   animation: none;
+}
+
+p {
+  margin: 0.5em 0;
 }
 
 /* Section */
