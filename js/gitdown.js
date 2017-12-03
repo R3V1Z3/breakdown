@@ -1134,7 +1134,7 @@ class GitDown {
             $(headers).nextUntil(heading).wrapAll('<div class="content"/>');
         } else {
             // add a header if none already exists
-            headers.innerHTML += '<section class="section header"></section>';
+            document.querySelector(gd.eid_inner).innerHTML += '<section class="section header"></section>';
         }
 
         // Headings
@@ -1947,7 +1947,9 @@ class GitDown {
             });
         });
 
-        var body = document.querySelector('body');
+        const body = document.querySelector('body');
+        // check for focus and apply keystrokes to appropriate wrapper div
+        // to allow for more than one .gd wrapper per page
         body.onkeydown = function (e) {
             if ( !e.metaKey && e.which > 111 && e.which < 114 ) {
                 e.preventDefault();
@@ -1965,10 +1967,9 @@ class GitDown {
             }
         };
 
-        const eid = document.querySelector(gd.eid);
         /* Document based events such as keypresses and general clicks */
+        const eid = document.querySelector(gd.eid);
         eid.addEventListener('click', (e) => {
-        // $(document).unbind().click((e) => {
             // return if no .selector .dialog is visible
             let dialog = document.querySelector(gd.eid + ' .info .field.selector .dialog.visible');
             if ( dialog === null ) return;
