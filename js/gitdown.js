@@ -1361,20 +1361,19 @@ class GitDown {
         gd.status.add('css');
     };
 
-    extract_list_items( $next, is_gist ) {
+    extract_list_items( next, is_gist ) {
         const items = {};
-        if ( !$next.is('ul') ) return items;
-        // iterate over list and popular items
-        $next.find('li').each(function(){
+        if ( !next.nodeName == "UL" ) return items;
+        next.querySelectorAll('li').forEach((el, i) => {
             const $li = $(this);
-            const name = $li.text();
-            let id = $li.find('a').attr('href');
+            const name = el.textContent;
+            let id = el.querySelector('a').getAttribute('href');
             if (is_gist) {
                 id = id.substr( id.lastIndexOf('/') + 1 );
             }
             items[name] = id;
         });
-        $next.remove();
+        next.parentElement.removeChild(next);
         return items;
     }
 
@@ -1401,7 +1400,7 @@ class GitDown {
         }
     }
 
-    selector_html( n, $t, placeholder, items ) {
+    selector_html( n, t, placeholder, items ) {
 
         let file = '';
         let is_gist = false;
@@ -1414,7 +1413,7 @@ class GitDown {
         let proper = gd.proper_filename(file);
         placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
 
-        let txt = $t.text();
+        let txt = t.textContent;
         let fname = txt;
         let url = '';
         // current item
@@ -1447,9 +1446,13 @@ class GitDown {
         return c;
     }
 
+    merge_arrays(a1, a2) {
+        for ( const key in a2 ) { a1[key] = a2[key]; }
+        return a1;
+    }
+
     // and return the html along with instructions for handling it
     variable_html( v, t ) {
-        var $t = $(t);
         // c is the html content we'll return
         var c = '';
         var title = gd.settings.title;
@@ -1466,27 +1469,28 @@ class GitDown {
                 return [ c, 'append' ];
             } else if ( v === 'gd_gist' ) {
                 // first extract contents of list for examples
-                var items = gd.extract_list_items( $t.next(), true );
+                let next = t.nextElementSibling;
+                var items = gd.extract_list_items( next, true );
                 // check settings and merge examples if needed
                 if ( gd.settings.merge_gists ) {
-                    gd.example_gist = $.extend( gd.example_gist_default, items );
+                    gd.example_gist = gd.merge_arrays( gd.example_gist_default, items );
                 } else {
                     gd.example_gist = items;
                 }
-                c = gd.selector_html( 'gist', $t, 'Gist ID', gd.example_gist );
+                c = gd.selector_html( 'gist', t, 'Gist ID', gd.example_gist );
                 if ( !gd.is_param_allowed('gist') ) c = '';
                 return [ c, 'html' ];
             } else if ( v === 'gd_css' ) {
                 // first extract contents of list for examples
-                var items = gd.extract_list_items( $t.next(), true );
+                let next = t.nextElementSibling;
+                var items = gd.extract_list_items( next, true );
                 // check settings and merge examples if needed
                 if ( gd.settings.merge_themes === 'false' ) {
                     gd.example_css = items;
                 } else {
-                    gd.example_css = $.extend( gd.example_css_default, items );
+                    gd.example_css = gd.merge_arrays( gd.example_css_default, items );
                 }
-                c = gd.selector_html( 'css', $t, 'Gist ID for CSS theme', gd.example_css );
-                $t.next('br').remove();
+                c = gd.selector_html( 'css', t, 'Gist ID for CSS theme', gd.example_css );
                 if (!gd.is_param_allowed('css')) c = '';
                 return [ c, 'html' ];
             } else if ( gd.begins( v, 'gd_toc' ) ) {
@@ -1497,7 +1501,7 @@ class GitDown {
                     c += '<h3 class="toc-heading">' + toc + '</h3>';
                 }
                 c += '<div class="toc"></div>';
-                if ( $t.is('p') ) {
+                if ( t.nodeName === 'P' ) {
                     return [ c, 'before' ];
                 } else return [ c, 'after' ];
             } else if ( gd.begins( v, 'gd_hide' ) ) {
@@ -1509,8 +1513,9 @@ class GitDown {
             } else if ( gd.begins( v, 'gd_selector_' ) ) {
                 var v_name = v.split('gd_selector_')[1];
                 // first extract contents of list for examples
-                var items = gd.extract_list_items( $t.next(), false );
-                c = gd.selector_html( v_name, $t, v_name, items );
+                let next = t.nextElementSibling;
+                var items = gd.extract_list_items( next, false );
+                c = gd.selector_html( v_name, t, v_name, items );
                 return [ c, 'html' ];
             } else if ( gd.begins( v, 'gd_choice_' ) ) {
                 var v_name = v.split('gd_choice_')[1];
@@ -1960,8 +1965,10 @@ class GitDown {
             }
         };
 
+        const eid = document.querySelector(gd.eid);
         /* Document based events such as keypresses and general clicks */
-        $(document).unbind().click((e) => {
+        eid.addEventListener('click', (e) => {
+        // $(document).unbind().click((e) => {
             // return if no .selector .dialog is visible
             let dialog = document.querySelector(gd.eid + ' .info .field.selector .dialog.visible');
             if ( dialog === null ) return;

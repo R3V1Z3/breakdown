@@ -25,7 +25,6 @@ Several projects now use the framework:
 While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
 
 ### Core dependencies
-- [jQuery](https://jquery.com/) - used for ajax calls and simplify_life()
 - [Markdown-it](https://markdown-it.github.io/) - does all the heavy lifting of Markdown rendering
 - [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
