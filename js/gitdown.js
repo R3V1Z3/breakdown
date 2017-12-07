@@ -172,7 +172,7 @@ class GitDown {
             // GitDown stores a bunch of examples by default
             // set these to false to not merge them into your app
             merge_themes: true,
-            merge_gists: false,
+            merge_gists: true,
 
             origin: '//ugotsta.github.io',
         };
@@ -1554,6 +1554,12 @@ class GitDown {
         const value = el.getAttribute('data-value');
         let content = el.innerHTML;
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
+        // special handler for gist and theme selectors
+        if ( v_name === 'gist' ) {
+            el.parentNode.innerHTML = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
+        } else if ( v_name === 'css' ) {
+            el.parentNode.innerHTML = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
+        }
         // special handler for fields
         let type = gd.get_field_type_from_name(v_name);
         if ( type === '' ) return;
@@ -1597,8 +1603,6 @@ class GitDown {
         return {
             'gd_info': gd.settings.title,
             'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.title}">?</a>`,
-            'gd_gist': gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.examples('gist') ),
-            'gd_css': gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.examples('css') ),
             'gd_theme_variables': '<div class="theme-vars"></div>',
             'gd_toc': '<div class="toc"></div>',
             'gd_hide': '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>',
