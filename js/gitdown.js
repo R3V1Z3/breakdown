@@ -1376,11 +1376,14 @@ class GitDown {
 
     extract_list_items( next, is_gist ) {
         const items = {};
-        if ( next === null ) return null;
-        if ( !next.nodeName == "UL" ) return null;
-        next.querySelectorAll('li').forEach((el, i) => {
+        if ( next === null || next.nodeName !== "UL" ) return null;
+        next.querySelectorAll('li').forEach( (el) => {
             const name = el.textContent;
-            let id = el.querySelector('a').getAttribute('href');
+            let id = '';
+            let a = el.querySelector('a');
+            if ( a === null ) {
+                id = name;
+            } else id = a.getAttribute('href');
             if (is_gist) {
                 id = id.substr( id.lastIndexOf('/') + 1 );
             }
@@ -1549,7 +1552,7 @@ class GitDown {
         const value = el.getAttribute('data-value');
         let content = el.innerHTML;
         if ( vars.hasOwnProperty(name) ) {
-            // make sure property is allowed first
+            // make sure property is allowed before adding it
             if ( gd.is_param_allowed(v_name) ) {
                 el.parentNode.innerHTML = vars[name];
             }
@@ -1570,7 +1573,14 @@ class GitDown {
             }
             el.parentNode.innerHTML = gd.field_html( 'collapsible ' + pos, v_name);
         } else {
-            el.parentNode.innerHTML = gd.field_html( type, v_name, value.split(',') );
+            let list = [];
+            // special consideration for select fields which allow UL or values in quotes
+            if ( type === 'select' && value === null ) {
+                Object.keys(items).forEach( (val) => {
+                    list.push(val);
+                });
+            } else list = value.split(',');
+            el.parentNode.innerHTML = gd.field_html( type, v_name, list );
         }
     }
 
