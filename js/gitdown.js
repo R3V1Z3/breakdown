@@ -1200,6 +1200,8 @@ class GitDown {
                 $(this).appendTo( gd.eid_inner );
             }
         });
+
+        gd.render_variable_spans( gd.eid + ' .section' );
     };
 
     // to help with incorrectly formatted Markdown (which is very common)
@@ -1519,16 +1521,16 @@ class GitDown {
         return c;
     }
 
-    update_variables(container) {
-        const vars = document.querySelectorAll(container + ' .gd-var');
-        vars.forEach((el,i) => {
+    update_variables(container, vars) {
+        const v = document.querySelectorAll(container + ' .gd-var');
+        v.forEach( (el) => {
             const name = el.getAttribute('name');
             const value = el.getAttribute('data-value');
             const next = el.parentNode.nextElementSibling;
             let list = gd.extract_list_items( next, false );
             list = gd.merge_examples( name, list );
             // remove any lists that follow the variable
-            gd.replace_variable_span( el, list, gd.variable_defaults() );
+            gd.replace_variable_span( el, list, vars );
             if ( list !== null && Object.keys(list).length > 0 ) {
                 next.parentElement.removeChild(next);
             }
@@ -1551,12 +1553,7 @@ class GitDown {
         let v_name = name.split('gd_')[1];
         const value = el.getAttribute('data-value');
         let content = el.innerHTML;
-        if ( vars.hasOwnProperty(name) ) {
-            // make sure property is allowed before adding it
-            if ( gd.is_param_allowed(v_name) ) {
-                el.parentNode.innerHTML = vars[name];
-            }
-        }
+        if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
         // special handler for fields
         let type = gd.get_field_type_from_name(v_name);
         if ( type === '' ) return;
@@ -1580,6 +1577,7 @@ class GitDown {
                     list.push(val);
                 });
             } else list = value.split(',');
+            if ( type === 'choice' ) type = 'choices';
             el.parentNode.innerHTML = gd.field_html( type, v_name, list );
         }
     }
@@ -1627,7 +1625,8 @@ class GitDown {
 
     variable_span_html( v, t ) {
         const v_name = gd.get_variable_name(v);
-        if ( v_name === '' ) return [];
+        // ensure the variable isn't blank and that it is allowed
+        if ( v_name === '' || !gd.is_param_allowed(v_name) ) return [];
         const value = gd.get_variable_assignment(v);
         let data_value = '';
         if ( value !== '' ) data_value = `data-value="${value}"`;
@@ -1692,7 +1691,7 @@ class GitDown {
 
         // render all variables in comments
         this.render_variable_spans( gd.eid + ' .info *' );
-        this.update_variables( gd.eid + ' .info *' );
+        this.update_variables( gd.eid + ' .info *', this.variable_defaults() );
 
         // arrange content within collapsible fields
         $( gd.eid + ' .info .field.collapsible').unwrap();
