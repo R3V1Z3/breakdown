@@ -29,7 +29,10 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
 # Examples <!-- {$gd_info} -->
+Simple web app framework
+
 <!-- {$gd_help_ribbon} -->
+
 <!-- {$gd_element_count} -->
 
 Example Gists <!-- {$gd_gist} -->

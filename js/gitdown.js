@@ -73,7 +73,6 @@ class GitDown {
         // get URL parameters
         this.status = new Status();
         this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
-        this.set_examples();
         this.initial_content = '';
         this.info_content = this.default_info_content();
         this.sections = [];
@@ -82,6 +81,8 @@ class GitDown {
         this.params = (new URL(location)).searchParams;
         this.path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
         this.settings = this.default_options(options);
+        this.example_gists = this.examples('gist');
+        this.example_themes = this.examples('css');
         if ( typeof el === 'string' ) el = document.querySelector(el);
         // ensure element has an id, then store it in eid
         this.eid = '#' + el.getAttribute('id');
@@ -103,26 +104,40 @@ class GitDown {
     };
 
     // setup basic examples
-    set_examples() {
-        this.example_gist = {};
-        this.example_css = {};
-        this.example_gist_default = { "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
-                                    "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3"
-        };
-        this.example_css_default = { "Technology": "adc373c2d5a5d2b07821686e93a9630b",
-                                    "Console": "a634da7b7130fd40d682360154cc4e2e",
-                                    "Tech Archaic": "e27b284231488b349f35786f6340096a",
-                                    "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
-                                    "Ye Olde Tavern": "e9dc237da3d9bda63302fe4b659c20b5",
-                                    "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
-                                    "Woodwork": "ece15baa3b80cd95bc0b7a0a2b5a24bd",
-                                    "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
-                                    "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
-                                    "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
-                                    "Ghastly": "d1a6d5621b883bf6af886855d853d502",
-                                    "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
-                                    "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
-        };
+    // returns defaults if merged is not provided
+    // other return examples with merged added
+    examples( type, merged ) {
+        let ex = {};
+        if ( type === 'gist' ) {
+            ex = {
+                "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
+                "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3" };
+        } else if ( type === 'css' ) {
+            ex = {
+                "Technology": "adc373c2d5a5d2b07821686e93a9630b",
+                "Console": "a634da7b7130fd40d682360154cc4e2e",
+                "Tech Archaic": "e27b284231488b349f35786f6340096a",
+                "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
+                "Ye Olde Tavern": "e9dc237da3d9bda63302fe4b659c20b5",
+                "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
+                "Woodwork": "ece15baa3b80cd95bc0b7a0a2b5a24bd",
+                "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
+                "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
+                "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
+                "Ghastly": "d1a6d5621b883bf6af886855d853d502",
+                "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
+                "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
+            };
+        }
+
+        if ( merged === null ) return ex;
+
+        let do_merge = false;
+        if ( type === 'gist' ) do_merge = this.settings.merge_gists;
+        if ( type === 'css' ) do_merge = this.settings.merge_themes;
+        
+        if ( do_merge ) return this.merge_arrays( ex, merged );
+        return ex;
     }
 
     default_options(options) {
@@ -148,7 +163,6 @@ class GitDown {
             title: 'GitDown',
             hide_info: false,
             hide_help_ribbon: false,
-            hide_element_count: false,
             hide_gist_details: false,
             hide_css_details: false,
             hide_toc: false,
@@ -173,7 +187,6 @@ class GitDown {
         var n = '\n\n';
         var info = '# Info <!-- {$gd_info} -->' + n;
         info += '<!-- {$gd_help_ribbon} -->' + n;
-        info += '<!-- {$gd_element_count} -->' + n;
         info += 'GIST <!-- {$gd_gist} -->' + n;
         info += 'CSS <!-- {$gd_css} -->' + n;
         info += '## Table of Contents <!-- {$gd_toc} -->' + n;
@@ -543,6 +556,7 @@ class GitDown {
                 const p = gd.update_parameter( name, select.value );
                 if ( p != '' ) {
                     select.value;
+                    //todo: change event needs to be called to set select values at start
                     // $select.change();
                 }
                 gd.settings[name] = select.value;
@@ -735,9 +749,9 @@ class GitDown {
         if ( type === 'css' ) {
             file_path = 'css/';
             ext = '.css';
-            // push named file for ids that exist in example_css_default
-            for ( const key in gd.example_css_default ) {
-                if ( gd.example_css_default[key] === id ) {
+            // push named file for ids that exist in example_themes
+            for ( const key in gd.example_themes ) {
+                if ( gd.example_themes[key] === id ) {
                     let f = 'gitdown-' + gd.clean(key) + ext;
                     urls.push( [type, id, file_path + f] );
                     urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + f] );
@@ -989,7 +1003,7 @@ class GitDown {
     }
 
     update_ui_from_settings() {
-        const elements = ['info','help_ribbon','element_count','gist_details','css_details'];
+        const elements = ['info','help_ribbon','gist_details','css_details'];
         elements.forEach(function(i){
             if( gd.settings[`hide_${i}`] ) {
                 var e = document.querySelector( `${gd.eid} .${ gd.clean(i)}` );
@@ -1346,8 +1360,8 @@ class GitDown {
 
             // when using a local css file, get the theme name
             let id = gd.settings.css;
-            for ( const key in gd.example_css_default ) {
-                if ( gd.example_css_default[key] === id ) {
+            for ( const key in gd.example_themes ) {
+                if ( gd.example_themes[key] === id ) {
                     gd.settings.css_filename = key;
                 }
             }
@@ -1362,9 +1376,9 @@ class GitDown {
 
     extract_list_items( next, is_gist ) {
         const items = {};
-        if ( !next.nodeName == "UL" ) return items;
+        if ( next === null ) return null;
+        if ( !next.nodeName == "UL" ) return null;
         next.querySelectorAll('li').forEach((el, i) => {
-            const $li = $(this);
             const name = el.textContent;
             let id = el.querySelector('a').getAttribute('href');
             if (is_gist) {
@@ -1372,7 +1386,6 @@ class GitDown {
             }
             items[name] = id;
         });
-        next.parentElement.removeChild(next);
         return items;
     }
 
@@ -1399,7 +1412,7 @@ class GitDown {
         }
     }
 
-    selector_html( n, t, placeholder, items ) {
+    selector_html( n, txt, placeholder, items ) {
 
         let file = '';
         let is_gist = false;
@@ -1412,7 +1425,6 @@ class GitDown {
         let proper = gd.proper_filename(file);
         placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
 
-        let txt = t.textContent;
         let fname = txt;
         let url = '';
         // current item
@@ -1449,127 +1461,6 @@ class GitDown {
         for ( const key in a2 ) { a1[key] = a2[key]; }
         return a1;
     }
-
-    // and return the html along with instructions for handling it
-    variable_html( v, t ) {
-        // c is the html content we'll return
-        var c = '';
-        var title = gd.settings.title;
-        if ( v != '' ) {
-            if ( gd.begins( v, 'gd_info' ) ) {
-                //$t.text( title ).addClass(  this.clean(title) + ' app-title' );
-                return [ title, 'text' ];
-            } else if (  gd.begins( v, 'gd_help_ribbon' ) ) {
-                c = '<a class="help-ribbon" href="//github.com' + gd.path;
-                c += '#' + title.toLowerCase() + '">?</a>';
-                return [ c, 'html' ];
-            } else if ( gd.begins( v, 'gd_element_count' ) ) {
-                c = '<div class="element-count">.section total:</div>';
-                return [ c, 'append' ];
-            } else if ( v === 'gd_gist' ) {
-                // first extract contents of list for examples
-                let next = t.nextElementSibling;
-                var items = gd.extract_list_items( next, true );
-                // check settings and merge examples if needed
-                if ( gd.settings.merge_gists ) {
-                    gd.example_gist = gd.merge_arrays( gd.example_gist_default, items );
-                } else {
-                    gd.example_gist = items;
-                }
-                c = gd.selector_html( 'gist', t, 'Gist ID', gd.example_gist );
-                if ( !gd.is_param_allowed('gist') ) c = '';
-                return [ c, 'html' ];
-            } else if ( v === 'gd_css' ) {
-                // first extract contents of list for examples
-                let next = t.nextElementSibling;
-                var items = gd.extract_list_items( next, true );
-                // check settings and merge examples if needed
-                if ( gd.settings.merge_themes === 'false' ) {
-                    gd.example_css = items;
-                } else {
-                    gd.example_css = gd.merge_arrays( gd.example_css_default, items );
-                }
-                c = gd.selector_html( 'css', t, 'Gist ID for CSS theme', gd.example_css );
-                if (!gd.is_param_allowed('css')) c = '';
-                return [ c, 'html' ];
-            } else if ( gd.begins( v, 'gd_toc' ) ) {
-                // handle assignment, letting user provide header text
-                if ( v.indexOf('=') != -1 ) {
-                    var toc = v.split('=')[1];
-                    toc = toc.replace(/["'“”]/g, '');
-                    c += '<h3 class="toc-heading">' + toc + '</h3>';
-                }
-                c += '<div class="toc"></div>';
-                if ( t.nodeName === 'P' ) {
-                    return [ c, 'before' ];
-                } else return [ c, 'after' ];
-            } else if ( gd.begins( v, 'gd_hide' ) ) {
-                c = '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>';
-                return [ c, 'html' ];
-            } else if ( gd.begins( v, 'gd_theme_variables' ) ) {
-                c = '<div class="theme-vars"></div>';
-                return [ c, 'html' ];
-            } else if ( gd.begins( v, 'gd_selector_' ) ) {
-                var v_name = v.split('gd_selector_')[1];
-                // first extract contents of list for examples
-                let next = t.nextElementSibling;
-                var items = gd.extract_list_items( next, false );
-                c = gd.selector_html( v_name, t, v_name, items );
-                return [ c, 'html' ];
-            } else if ( gd.begins( v, 'gd_choice_' ) ) {
-                var v_name = v.split('gd_choice_')[1];
-                // return if there's no assignment after variable
-                if ( v_name.indexOf('=') === -1 ) return;
-                // remove assignment text from name
-                v_name = v_name.split('=')[0];
-                // get the assigned string
-                var v_items = v.split('=')[1];
-                // remove parens
-                v_items = v_items.substring(1);
-                v_items = v_items.substring( 0, v_items.length - 1 );
-                // get user assigned string
-                var items = v_items.split(',');
-                c = gd.field_html( 'choices', v_name, items);
-                return [ c, 'html' ];
-            } else if (  this.begins( v, 'gd_select_' ) ) {
-                var v_name = v.split('gd_select_')[1];
-                var next = t.nextElementSibling;
-                var items = {};
-                if ( next !== null && next.tagName === 'UL' ) {
-                    items = next.getElementsByTagName('li');
-                }
-                c = gd.field_html( 'select', v_name, items );
-                next.parentNode.removeChild(next);
-                return [ c, 'html' ];
-            } else if (  gd.begins( v, 'gd_slider_' ) ) {
-                var v_name = v.split('gd_slider_')[1];
-                // return if there's no assignment after variable
-                if ( v_name.indexOf('=') === -1 ) return;
-                // remove assignment text from name and ensure it's clean (no malicious HTML)
-                v_name = gd.clean( v_name.split('=')[0] );
-                // get the assigned string
-                var v_items = v.split('=')[1];
-                // remove parens
-                v_items = v_items.substring(1).substring( 0, v_items.length - 1 );
-                v_items = v_items.substring( 0, v_items.length - 1 );
-                // get user assigned string
-                var items = v_items.split(',');
-                // generate slider html
-                c = gd.field_html( 'slider', v_name, items);
-                return [ c, 'append' ];
-            } else if (  gd.begins( v, 'gd_collapsible_' ) ) {
-                var v_name = v.split('gd_collapsible_')[1];
-                var pos = 'start';
-                if ( v_name.startsWith('end_') ) {
-                    pos = 'end';
-                    v_name = v_name.split('end_')[1];
-                }
-                v_name = gd.clean(v_name);
-                c = gd.field_html( 'collapsible ' + pos, v_name);
-                return [ c, 'html' ];
-            }
-        }
-    };
 
     field_html( type, name, items ) {
         var c = `<div class="field ${type} ${name}" data-name="${name}"`;
@@ -1625,28 +1516,124 @@ class GitDown {
         return c;
     }
 
-    render_variables(container) {
-        const variables = gd.get_variables(container);
-        variables.forEach((v) => {
-            const variable = v[0], el = v[1];
-            const result = gd.variable_html( variable, el );
-            if ( result.length < 1 ) return;
-            const content = result[0], r = result[1];
-            if ( r === 'html' ) {
-                el.innerHTML = content;
-            } else if ( r === 'text' ) {
-                el.textContent = content;
-            } else if ( r === 'append' ) {
-                el.innerHTML += content;
-            } else if ( r === 'before' ) {
-                el.innerHTML = content + el.innerHTML;
-            } else if ( r === 'after' ) {
-                el.innerHTML += content;
+    update_variables(container) {
+        const vars = document.querySelectorAll(container + ' .gd-var');
+        vars.forEach((el,i) => {
+            const name = el.getAttribute('name');
+            const value = el.getAttribute('data-value');
+            const next = el.parentNode.nextElementSibling;
+            let list = gd.extract_list_items( next, false );
+            list = gd.merge_examples( name, list );
+            // remove any lists that follow the variable
+            gd.replace_variable_span( el, list, gd.variable_defaults() );
+            if ( list !== null && Object.keys(list).length > 0 ) {
+                next.parentElement.removeChild(next);
             }
         });
     }
 
-    get_variables(container) {
+    merge_examples( name, list ) {
+        if ( name === 'gd_gist' ) {
+            gd.example_gists = gd.examples('gist', list);
+            return gd.example_gists;
+        } else if ( name === 'gd_css' ) {
+            gd.example_themes = gd.examples('css', list);
+            return gd.example_themes;
+        }
+        return list;
+    }
+
+    replace_variable_span(el, items, vars) {
+        const name = el.getAttribute('name');
+        let v_name = name.split('gd_')[1];
+        const value = el.getAttribute('data-value');
+        let content = el.innerHTML;
+        if ( vars.hasOwnProperty(name) ) {
+            // make sure property is allowed first
+            if ( gd.is_param_allowed(v_name) ) {
+                el.parentNode.innerHTML = vars[name];
+            }
+        }
+        // special handler for fields
+        let type = gd.get_field_type_from_name(v_name);
+        if ( type === '' ) return;
+
+        v_name = v_name.split( type + '_' )[1];
+
+        if ( type === 'selector' ) {
+            el.parentNode.innerHTML = gd.selector_html( v_name, type, v_name, items );
+        } else if ( type === 'collapsible' ) {
+            let pos = 'start';
+            if ( v_name.startsWith('end_') ) {
+                pos = 'end';
+                v_name = v_name.split('end_')[1];
+            }
+            el.parentNode.innerHTML = gd.field_html( 'collapsible ' + pos, v_name);
+        } else {
+            el.parentNode.innerHTML = gd.field_html( type, v_name, value.split(',') );
+        }
+    }
+
+    get_field_type_from_name(name) {
+        const type = name.split('_');
+        if ( type.length > 1 ) {
+            const types = ['slider', 'choice', 'select', 'collapsible', 'selector'];
+            if ( types.indexOf(type[0]) !== -1 ) {
+                return type[0];
+            }
+        }
+        return '';
+    }
+
+    variable_defaults() {
+        return {
+            'gd_info': gd.settings.title,
+            'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.title}">?</a>`,
+            'gd_gist': gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.examples('gist') ),
+            'gd_css': gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.examples('css') ),
+            'gd_theme_variables': '<div class="theme-vars"></div>',
+            'gd_toc': '<div class="toc"></div>',
+            'gd_hide': '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>',
+        }
+    }
+
+    render_variable_spans(container) {
+        const variables = gd.get_variables_from_comments(container);
+        variables.forEach((v) => {
+            const variable = v[0], el = v[1];
+            const result = gd.variable_span_html( variable, el );
+            if ( result.length < 1 ) return;
+            el.innerHTML = result;
+        });
+    }
+
+    get_variable_name(v) {
+        if ( !gd.begins( v, 'gd_' ) ) return '';
+        const start = 0;
+        const index = v.substring(start).search(/[^A-Za-z_]/);
+        if ( index < 0 ) return v;
+        return v.substring(0, index);
+    }
+
+    variable_span_html( v, t ) {
+        const v_name = gd.get_variable_name(v);
+        if ( v_name === '' ) return [];
+        const value = gd.get_variable_assignment(v);
+        let data_value = '';
+        if ( value !== '' ) data_value = `data-value="${value}"`;
+        let html = `<span class="gd-var" name="${v_name}" ${data_value}></span>`;
+        return html;
+    };
+
+    // simple function to get variable assignment values (ie. x="hello")
+    get_variable_assignment(v) {
+        let result = '';
+        const assignment = v.split('=');
+        if ( assignment.length > 1 ) result = assignment[1].substring(1);
+        return result.substring( 0, result.length - 1 );
+    }
+
+    get_variables_from_comments(container) {
         let result = [];
         const c = document.querySelectorAll(container);
         c.forEach((el) => {
@@ -1694,7 +1681,8 @@ class GitDown {
         }
 
         // render all variables in comments
-         this.render_variables( gd.eid + ' .info *' );
+        this.render_variable_spans( gd.eid + ' .info *' );
+        this.update_variables( gd.eid + ' .info *' );
 
         // arrange content within collapsible fields
         $( gd.eid + ' .info .field.collapsible').unwrap();
@@ -1715,16 +1703,6 @@ class GitDown {
 
         // update TOC
         this.update_toc( this.get_sections() );
-
-        // element count
-        var c = $( gd.eid + ' .element-count' ).text();
-        c = c.split(' total')[0];
-        gd.render_count(c);
-    };
-
-    render_count(el) {
-        var count = $( gd.eid_inner + ' ' + el ).length;
-        $( gd.eid + ' .element-count' ).html(`<code>${el}</code> total: ${count}`);
     };
 
     selector_changed(type, id) {
@@ -1806,7 +1784,7 @@ class GitDown {
 
         // CHOICE FIELDS
         $( s + ' .field.choices .choice' ).unbind().click(function() {
-            var name = $(this).parent().attr('data-name');
+            const name = $(this).parent().attr('data-name');
             $(this).parent().find('.selected').removeClass('selected');
             const value = $(this).attr('data-value');
             $(this).addClass('selected');
@@ -1880,35 +1858,14 @@ class GitDown {
             gd.toggleFullscreen(e);
         });
 
-        // commmand count
-        $( gd.eid + ' .element-count' ).unbind().click(function() {
-            var count_array = ['.section','kbd','li','code'];
-            // get current count option
-            var c = $( gd.eid + ' .element-count' ).text();
-            c = c.split(' total')[0];
-
-            // find current item in count_array
-            var x = count_array.indexOf(c);
-            // increment current item
-            if ( x === count_array.length - 1 ) {
-                x = 0;
-            } else {
-                x += 1;
-            }
-            c = count_array[x];
-            gd.render_count(c);
-        });
-
         // event handler to toggle info panel
         $( gd.eid + ' .info .hide' ).unbind().click(function() {
-            $( gd.eid + ' .panel' ).toggleClass('visible');
+            $( gd.eid ).toggleClass('panels-hidden');
         });
 
         // hide/unhide panel
         $( gd.eid + ' .unhide' ).unbind().on('click', function (e) {
-            if ( $(e.target).closest('.section').length === 0 ) {
-                $( gd.eid + ' .panel' ).addClass('visible');
-            }
+            $( gd.eid ).removeClass('panels-hidden');
         });
 
         // SELECTOR KEYPRESS
