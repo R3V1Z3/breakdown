@@ -66,8 +66,6 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_slider_fontsize="120,50,300,1,%"} -->
 
-<!-- {$gd_choice_columns="1,*2,3,4"} -->
-
 <!-- {$gd_theme_variables} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
@@ -77,5 +75,15 @@ Themes <!-- {$gd_css} -->
 <!-- {$gd_toc} -->
 
 <!-- {$gd_collapsible_end_contents} -->
+
+
+Highlight Styles <!-- {$gd_select_highlight} -->
+- None
+- Default
+- *Agate
+- Androidstudio
+- Arduino Light
+- Arta
+- Ascetic
 
 <!-- {$gd_hide} -->

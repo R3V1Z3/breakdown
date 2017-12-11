@@ -555,9 +555,8 @@ class GitDown {
                 const name = select.getAttribute('name');
                 const p = gd.update_parameter( name, select.value );
                 if ( p != '' ) {
-                    select.value;
-                    //todo: change event needs to be called to set select values at start
-                    // $select.change();
+                    //todo: need to implement without jquery
+                    gd.update_field(select);
                 }
                 gd.settings[name] = select.value;
             } else if ( el.classList.contains('choices') ) {
@@ -1762,20 +1761,29 @@ class GitDown {
 
     // helper function to avoid replication of example content
     list_html( items, is_gist_id ) {
-        var content = '';
+        let content = '';
+        let data_id = '';
         if ( items.length < 1 ) return content;
         for ( const key in items) {
-            var url = '';
+            let url = '';
             if (is_gist_id) {
                 url = `//gist.github.com/${items[key]}`;
+                data_id = gd.get_gist_id( items[key] );
             } else {
                 url = items[key];
+                data_id = items[key];
             }
             content += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
-            content += `<a class="id" data-id="${items[key]}">${key}</a><br/>`;
+            content += `<a class="id" data-id="${data_id}">${key}</a><br/>`;
         }
         return content;
     };
+
+    get_gist_id(gist_url) {
+        let s = gist_url.split('/');
+        if ( s.length < 1 ) return gist_url;
+        return s[s.length - 1];
+    }
 
     // s: wrapper selector within which to register newly created fields
     register_field_events(s) {
@@ -1810,17 +1818,7 @@ class GitDown {
 
         // SELECT FIELDS
         $( s + ' .field.select select' ).unbind().change(function() {
-            let name = $(this).parent().attr('data-name');
-            name =  gd.clean(name);
-            const value = $(this).val();
-            gd.settings[name] = value;
-            gd.set_param( name, value );
-            // load user provided highlight style
-            if ( name === 'highlight' ) {
-                gd.render_highlight();
-            }
-            // update css_vars with key
-            gd.update_from_css_vars(name);
+            gd.update_field(this);
         });
 
         // COLLAPSIBLE FIELDS
@@ -1828,6 +1826,20 @@ class GitDown {
             if (e.target !== this) return;
             this.parentNode.classList.toggle('collapsed');
         });
+    }
+
+    update_field(el) {
+        let name = el.parentElement.getAttribute('data-name');
+        name =  gd.clean(name);
+        const value = el.value;
+        gd.settings[name] = value;
+        gd.set_param( name, value );
+        // load user provided highlight style
+        if ( name === 'highlight' ) {
+            gd.render_highlight();
+        }
+        // update css_vars with key
+        gd.update_from_css_vars(name);
     }
 
     register_events() {
