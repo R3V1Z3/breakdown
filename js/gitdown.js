@@ -200,6 +200,7 @@ class GitDown {
     update_parameter( key, default_value ) {
         let val = default_value;
         if ( val === undefined ) val = this.settings[key];
+        if ( val === undefined ) return '';
         // check if specified key exists as url param
         if ( this.params.has(key) ) {
             // ensure the parameter is allowed
@@ -554,9 +555,11 @@ class GitDown {
                 const select = el.querySelector('select');
                 const name = select.getAttribute('name');
                 const p = gd.update_parameter( name, select.value );
-                if ( p != '' ) {
-                    //todo: need to implement without jquery
-                    gd.update_field(select);
+                if ( p !== '' ) {
+                    // this call should update the select value
+                    // but it's retaining default value
+                    // todo
+                    gd.update_field(select, p);
                 }
                 gd.settings[name] = select.value;
             } else if ( el.classList.contains('choices') ) {
@@ -1828,10 +1831,11 @@ class GitDown {
         });
     }
 
-    update_field(el) {
-        let name = el.parentElement.getAttribute('data-name');
+    update_field(field, value) {
+        let name = field.parentElement.getAttribute('data-name');
         name =  gd.clean(name);
-        const value = el.value;
+        if ( value === undefined ) value = field.value;
+        field.value = value;
         gd.settings[name] = value;
         gd.set_param( name, value );
         // load user provided highlight style
