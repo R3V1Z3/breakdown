@@ -927,6 +927,8 @@ class GitDown {
         gd.tag_replace( 'i', gd.eid );
         gd.tag_replace( '<!--', gd.eid );
 
+        gd.render_variables();
+
         // render info panel and toc based on current section
         gd.render_info( gd.settings.title );
 
@@ -934,6 +936,13 @@ class GitDown {
         gd.render_raw( data, gd.eid_inner, gd.settings.markdownit );
         
         gd.update_ui();
+    }
+
+    render_variables() {
+        // render all variables in comments
+        this.render_variable_spans( gd.eid + ' .info *' );
+        this.update_variables( gd.eid + ' .info *', this.variable_defaults() );
+        this.render_variable_spans( gd.eid_inner + ' .section *' );
     }
 
     load_done() {
@@ -1200,8 +1209,6 @@ class GitDown {
                 $(this).appendTo( gd.eid_inner );
             }
         });
-
-        gd.render_variable_spans( gd.eid + ' .section' );
     };
 
     // to help with incorrectly formatted Markdown (which is very common)
@@ -1619,6 +1626,21 @@ class GitDown {
         });
     }
 
+    get_variables_from_comments(container) {
+        let result = [];
+        const c = document.querySelectorAll(container);
+        c.forEach((el) => {
+            el.childNodes.forEach((node) => {
+                if ( node.nodeType === Node.COMMENT_NODE ) {
+                    let v = gd.extract_variable(node.nodeValue);
+                    v = gd.clean( v, 'value' );
+                    result.push( [v, el] );
+                }
+            });
+        });
+        return result;
+    };
+
     get_variable_name(v) {
         if ( !gd.begins( v, 'gd_' ) ) return '';
         const start = 0;
@@ -1645,21 +1667,6 @@ class GitDown {
         if ( assignment.length > 1 ) result = assignment[1].substring(1);
         return result.substring( 0, result.length - 1 );
     }
-
-    get_variables_from_comments(container) {
-        let result = [];
-        const c = document.querySelectorAll(container);
-        c.forEach((el) => {
-            el.childNodes.forEach((node) => {
-                if ( node.nodeType === 8 ) {
-                    let v = gd.extract_variable(node.nodeValue);
-                    v = gd.clean( v, 'value' );
-                    result.push( [v, el] );
-                }
-            });
-        });
-        return result;
-    };
 
     // simple functin to get variable content between open and close symbols
     //
@@ -1692,10 +1699,6 @@ class GitDown {
             $( gd.eid ).append('<div class="unhide"></div>');
             $( gd.eid ).append('<div class="fullscreen"></div>');
         }
-
-        // render all variables in comments
-        this.render_variable_spans( gd.eid + ' .info *' );
-        this.update_variables( gd.eid + ' .info *', this.variable_defaults() );
 
         // arrange content within collapsible fields
         $( gd.eid + ' .info .field.collapsible').unwrap();
