@@ -1,6 +1,7 @@
 // todo
 // - downslide fadeout animations not working after loading new content
 // must be related to z-index
+// only occurs after user selects new gist
 
 // add .inactive to .sections
 // .visible
@@ -556,9 +557,6 @@ class GitDown {
                 const name = select.getAttribute('name');
                 const p = gd.update_parameter( name, select.value );
                 if ( p !== '' ) {
-                    // this call should update the select value
-                    // but it's retaining default value
-                    // todo
                     gd.update_field(select, p);
                 }
                 gd.settings[name] = select.value;
@@ -1646,7 +1644,7 @@ class GitDown {
     get_variable_name(v) {
         if ( !gd.begins( v, 'gd_' ) ) return '';
         const start = 0;
-        const index = v.substring(start).search(/[^A-Za-z_]/);
+        const index = v.substring(start).search(/[^A-Za-z_-]/);
         if ( index < 0 ) return v;
         return v.substring(0, index);
     }

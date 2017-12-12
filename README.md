@@ -76,4 +76,9 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_contents} -->
 
+<!-- {$gd_select_svg-filter} -->
+- *None
+- Test
+- Test B
+
 <!-- {$gd_hide} -->
