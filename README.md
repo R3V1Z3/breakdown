@@ -33,8 +33,6 @@ Simple web app framework
 
 <!-- {$gd_help_ribbon} -->
 
-<!-- {$gd_element_count} -->
-
 Example Gists <!-- {$gd_gist} -->
 - [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
@@ -75,10 +73,5 @@ Themes <!-- {$gd_css} -->
 <!-- {$gd_toc} -->
 
 <!-- {$gd_collapsible_end_contents} -->
-
-<!-- {$gd_select_svg-filter} -->
-- *None
-- Test
-- Test B
 
 <!-- {$gd_hide} -->
