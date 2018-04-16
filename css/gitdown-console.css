@@ -116,7 +116,7 @@ pre code, pre, .hljs, pre.hljs {
     background-size: 100% 6px;
     mix-blend-mode: hard-light;
     background-position-y: 0px;
-    background-color: $color;
+    background-color: $primary-color;
     background-blend-mode: hard-light;
 }
 

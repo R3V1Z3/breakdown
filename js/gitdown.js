@@ -71,7 +71,6 @@ class GitDown {
     }
 
     init( el, options ) {
-        // get URL parameters
         this.status = new Status();
         this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
         this.initial_content = '';
@@ -106,7 +105,7 @@ class GitDown {
 
     // setup basic examples
     // returns defaults if merged is not provided
-    // other return examples with merged added
+    // otherwise returns examples with merged added
     examples( type, merged ) {
         let ex = {};
         if ( type === 'gist' ) {
@@ -184,6 +183,8 @@ class GitDown {
         return defaults;
     }
 
+    // returns default info panel content
+    // for cases where no info panel content is provided
     default_info_content() {
         var n = '\n\n';
         var info = '# Info <!-- {$gd_info} -->' + n;
@@ -1154,12 +1155,13 @@ class GitDown {
             $(headers).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
             $(headers).nextUntil(heading).andSelf().wrapAll('<section class="section header" id="' + name + '"/>');
             $(headers).nextUntil(heading).wrapAll('<div class="content"/>');
-        } else {
-            // add a header if none already exists
-            document.querySelector(gd.eid_inner).innerHTML += '<section class="section header"></section>';
         }
 
         // Headings
+
+        // ensure a header exists by adding header class if headers array is null
+        let h_class = "heading";
+        if ( headers === null ) h_class = "header";
         const headings = document.querySelectorAll(`${gd.eid_inner} ${heading}`);
         if ( headings !== null ) {
             headings.forEach( (val, i) => {
@@ -1178,7 +1180,9 @@ class GitDown {
                 }
                 $h2.addClass('handle-heading');
                 $h2.wrapInner('<a class="handle" name="' + name + '"/>');
-                $h2.nextUntil(heading).andSelf().wrapAll('<section class="section heading" id="' + name + '"/>');
+                // make first heading a header if header doesn't exist
+                if ( i > 0 ) h_class = "heading";
+                $h2.nextUntil(heading).andSelf().wrapAll(`<section class="section ${h_class}" id="${name}"/>`);
                 $h2.nextUntil(heading).wrapAll('<div class="content"/>');
             });
         }
