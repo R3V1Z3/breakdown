@@ -246,7 +246,7 @@ class GitDown {
     };
 
     /**
-     * Ridiculously lengthy functino for fullscreen switching
+     * Ridiculously lengthy function for fullscreen switching
      */
     toggleFullscreen(e) {
         e = e || document.documentElement;
@@ -377,12 +377,12 @@ class GitDown {
             s.href = content;
         } else if ( type === 'style' ) {
             if (s.styleSheet) {
-                s.styleSheet.cssText = content;
+                    s.styleSheet.cssText = content;
                 } else {
-                // attempt to sanitize content so hacker don't splodes our website
-                const parser = new HtmlWhitelistedSanitizer(true);
-                const css = parser.sanitizeString(content);
-                s.appendChild(document.createTextNode(css));
+                    // attempt to sanitize content so hacker don't splode our website
+                    const parser = new HtmlWhitelistedSanitizer(true);
+                    const css = parser.sanitizeString(content);
+                    s.appendChild(document.createTextNode(css));
                 }
         }
         if ( id !== null ) s.id = id;
@@ -489,6 +489,9 @@ class GitDown {
         let lines = css.split('\n');
         let pre_css = '';
         for ( var i = 0; i < lines.length; i++ ) {
+            // todo: change regex to find --variables
+            // we'll use native css vars instead of sass based ones
+            // this should make variable changes fluid, and far more efficient
             let re = lines[i].match(/\$(.*?):(.*?);/);
             if (re) {
                 let key = re[1].trim();
@@ -962,8 +965,8 @@ class GitDown {
             gd.update_theme_vars();
             // finally register events
             gd.register_events();
-            gd.execute_callback();
         }
+        gd.execute_callback();
     }
 
     execute_callback() {
@@ -994,7 +997,7 @@ class GitDown {
         let v = document.querySelector( gd.eid + ' .info .theme-vars' );
         if ( v !== null ) v.innerHTML = '';
 
-        // update fields based on params
+        // update fields based on url params
         gd.update_fields_with_params();
         
         gd.update_ui_from_settings();
@@ -1051,6 +1054,9 @@ class GitDown {
         }
     }
     
+    // returns html used to represent theme variables in info panel
+    // for example, if a theme variable involves color selection
+    // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
         if ( gd.begins( v, 'select_' ) ) {
@@ -1114,7 +1120,7 @@ class GitDown {
     // extra info panel contents if they exist
     // does nothing if no info content is found
     // this allows users to create a custom info panel for their files
-    // useful for apps like Entwine so users can create a panel that fits their game
+    // useful for apps like Entwine so users can create a panel that fits their story
     //
     // returns array with content and info panel content separated
     extract_info_content(content) {
@@ -1141,6 +1147,9 @@ class GitDown {
     };
 
     sectionize() {
+
+        // todo: add logic to keep track of heading type (h1, h2, h3)
+        // then add padding to toc representing level in hierarchy
 
         // header section
         var header = gd.settings.header;
@@ -1178,6 +1187,7 @@ class GitDown {
                     // name is empty so assign it blank with suffix
                     name = gd.unique( 'blank', '#' );
                 }
+                // todo: write function to handle wrapping content
                 $h2.addClass('handle-heading');
                 $h2.wrapInner('<a class="handle" name="' + name + '"/>');
                 // make first heading a header if header doesn't exist
@@ -1217,14 +1227,14 @@ class GitDown {
 
     // to help with incorrectly formatted Markdown (which is very common)
     preprocess(data) {
-        var processed = '';
-        var lines = data.split('\n');
+        let processed = '';
+        const lines = data.split('\n');
         lines.forEach((val) => {
             // start by checking if # is the first character in the line
             if ( val.charAt(0) === '#' ) {
-                var x =  this.find_first_char_not('#', val);
+                const x =  this.find_first_char_not('#', val);
                 if ( x > 0 ) {
-                    var c = val.charAt(x);
+                    const c = val.charAt(x);
                     // check if character is a space
                     if (c != ' ') {
                         val = [val.slice(0, x), ' ', val.slice(x)].join('');
