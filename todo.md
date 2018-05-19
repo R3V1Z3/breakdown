@@ -2,29 +2,15 @@
 
 In-progress
 - allow $gd_info to be hidden with html comments
-- make it possible to create a theme like this: https://upload.wikimedia.org/wikipedia/commons/7/75/Aleppo_Codex_Joshua_1_1.jpg
 
 TODO
-- .info should be movable so style it with position:relative so it works with both relative and absolute position
-- change load_gist() to use callbacks and make load_gist public
-- add function to handle dependencies internally so user doesn't need to add <script> and <style> references on their own.
+- currently, theme variables are unavailable in default themes. use native browser stylesheet methods to extract variables after all stylesheets are loaded
+- ensure theme changes don't break layout in EntwinED and Emphases.
+- in sectionize() add logic to keep track of heading type (h1, h2, h3) then add padding to toc representing level in hierarchy
+- change css variables to native css variables (--*) instead of sass based $ variables.
+- preprocess variables in default theme as well as specified theme.
+- for list fields, at theme variable as first item in list
+- only change url parameters if fields have been changed by user (don't change url parameters at load time unless defaults have been changed).
+- add function to handle dependencies internally so user doesn't need to add `<script>` and `<style>` references on their own.
 - for ease with compiling into local apps, first try and access dependencies in a local folder. Or maybe just add a flag that uses the local folder rather than CDN, etc.
 - when parsing gist or README, get preferred theme to allow user to specify a theme. This can be overriden if needed by the host project (ie. someone forks the project and doesn't want to allow users access to custom themes).
-- allow html comments for adding data elements to sections such as section positions.
-- let user specify initial file other than README.md
-
-DONE
-- ~~Remove Example Gists and add code for pulling examples from $gd_info using list items~~
-- ~~add .hi and .lo styles so user can style sections based on index~~
-- ~~re-style selector drop-boxes to better suit info panel~~
-- ~~ensure tag_replace() sanitizes - now using sanitizer.js for this as well~~
-- ~~add .panel class to .info to allow apps to create panels that are hidden with .info~~
-- ~~include exampe themes in core for easy access by child projects~~
-- ~~update variable logic and add simple routine for operators ( $gd_toc="Contents" ), also hide toc when there are no sections as it won't be helpful~~
-- ~~add a general style for app-title~~
-- ~~change css_name() to clean_name()~~
-- ~~use template system for Info panel~~
-- ~~change #hide styling to display:block and float:right~~
-- ~~remove height from #info~~
-- ~~remove $gd_info from toc~~
-- ~~rewrote pull_options()~~

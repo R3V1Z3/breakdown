@@ -3,7 +3,9 @@
   URL: https://gist.github.com/Ugotsta/a634da7b7130fd40d682360154cc4e2e
 */
 
-$primary-color: green;
+:root {
+    --primary-color: green;
+}
 
 @import url('https://fonts.googleapis.com/css?family=Cousine');
 
@@ -116,7 +118,7 @@ pre code, pre, .hljs, pre.hljs {
     background-size: 100% 6px;
     mix-blend-mode: hard-light;
     background-position-y: 0px;
-    background-color: $primary-color;
+    background-color: var(--primary-color);
     background-blend-mode: hard-light;
 }
 

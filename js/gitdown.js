@@ -365,28 +365,29 @@ class GitDown {
 
     /**
      * Add style to head either inline or external stylesheet
-     * @param {string} type link or inline style
+     * @param {string} type link or style
      * @param {string} id so we can alter href later
      * @param {string} content either href or actual style content
      */
     append_style( type, id, content ){
-        let s  = document.createElement(type);
-        s.type = 'text/css';
         if ( type === 'link' ){
+            let s  = document.createElement(type);
+            s.type = 'text/css';
+            if ( id !== null ) s.id = id;
             s.rel  = 'stylesheet';
             s.href = content;
+            document.head.appendChild(s);
         } else if ( type === 'style' ) {
-            if (s.styleSheet) {
-                    s.styleSheet.cssText = content;
-                } else {
-                    // attempt to sanitize content so hacker don't splode our website
-                    const parser = new HtmlWhitelistedSanitizer(true);
-                    const css = parser.sanitizeString(content);
-                    s.appendChild(document.createTextNode(css));
-                }
+            // attempt to sanitize content before adding
+            const parser = new HtmlWhitelistedSanitizer(true);
+            const css = parser.sanitizeString(content);
+            const div = document.createElement("div");
+            div.innerHTML = `<style id="${id}">${css}</style>`;
+            // todo: check and ensure this overwrites previously loaded style
+            // rather than just appending. we don't want stylesheet constantly
+            // growing with each theme change
+            document.head.appendChild(div);
         }
-        if ( id !== null ) s.id = id;
-        document.head.appendChild(s);
     }
 
     get_setting(s) {
@@ -462,7 +463,7 @@ class GitDown {
         return '';
     }
 
-    // basically, tries to find a unique name for an element by adding
+    // tries to find a unique name for an element by adding
     // -number at the end and checking for any element with that name
     //
     // prefix: section, room or some other identifier
@@ -482,56 +483,37 @@ class GitDown {
         while (x < max);
     }
 
-    preprocess_css(css) {
-        // setup vars to store css variables
-        let vars = {};
-        // iterate over css to get variables
-        let lines = css.split('\n');
-        let pre_css = '';
-        for ( var i = 0; i < lines.length; i++ ) {
-            // todo: change regex to find --variables
-            // we'll use native css vars instead of sass based ones
-            // this should make variable changes fluid, and far more efficient
-            let re = lines[i].match(/\$(.*?):(.*?);/);
-            if (re) {
-                let key = re[1].trim();
-                let value = re[2].trim();
-                // check for existence of url parameter
-                let v = this.update_parameter(key);
-                if ( v !== undefined && v !== '' && v.toLowerCase() !== 'default' ) {
-                    // ensure css variable name isn't already used in settings
-                    if ( this.settings['key'] === undefined ) {
-                        value = v;
+    // extracts css variables into this.css_vars[]
+    // css_vars[key] = {value, optional variable decalaration, optional selector}
+    extract_css_vars() {
+        // start by clearing existing css vars
+        const styleSheets = document.styleSheets;
+        const styleSheetsLength = styleSheets.length;
+        for (var i = 0; i < styleSheetsLength; i++) {
+            // get cssRules from internal stylesheets only
+            try {
+                const classes = styleSheets[i].rules || styleSheets[i].cssRules;
+                const classesLength = classes.length;
+                for (var c = 0; c < classesLength; c++) {
+                    const cssClass = classes[c];
+                    if (cssClass.selectorText === undefined) {
+                        continue;
+                    }
+                    const regex = cssClass.cssText.match(/\-\-(.*?):(.*?);/gi);
+                    if ( regex !== null ) {
+                        const input = regex.input;
+                        regex.forEach((str) => {
+                            const r = str.match(/\-\-(.*?):(.*?);/);
+                            const key = r[1].trim();
+                            const value = r[2].trim();
+                            this.css_vars[key] = value;
+                        });
                     }
                 }
-                let val = [];
-                val.push(value);
-                // get variable declaration from comment if it exists
-                let d = lines[i].split('{$gd_');
-                if ( d.length > 1 ) {
-                    val.push(d[1].split('}')[0]);
-                    let selector = d[0];
-                    // add any user specific selector to array
-                    selector = selector.split('/*');
-                    if ( selector.length > 1 ) {
-                        val.push( selector[1].trim() );
-                    } else val.push('');
-                } else {
-                    val.push(key);
-                    val.push('');
-                }
-                // css_vars[key] = {value, optional variable decalaration, optional selector}
-                this.css_vars[key] = val;
-            } else {
-                pre_css += lines[i];
+            } catch (e) {
+                // leaving open for error message reporting
             }
         }
-        // iterate over vars and replace occurences in css
-        for ( const key in this.css_vars ) {
-            let value = this.css_vars[key][0];
-            pre_css = pre_css.split( '$' + key ).join(value);
-        }
-        return pre_css;
     }
 
     // update fields based on url parameters
@@ -588,6 +570,7 @@ class GitDown {
     // update parameter values in storage and url
     set_param( key, value ) {
         gd.params.set( key, value );
+        // todo: adjust url history only if a change has occurred
         history.replaceState( {}, gd.settings.title, gd.uri() );
     };
 
@@ -950,6 +933,8 @@ class GitDown {
     }
 
     load_done() {
+        // get variables from css
+        gd.extract_css_vars();
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
@@ -1039,14 +1024,19 @@ class GitDown {
         if ( theme_vars !== null && gd.css_vars.length !== {} ) {
             for ( const key in gd.css_vars ) {
                 const value = gd.css_vars[key][0];
-                const variable = gd.css_vars[key][1];
-                const selector = gd.css_vars[key][2];
+                // by displaying fields only when relevant selectors are available
+                // we can ensure themes are usable across apps that might not utilize
+                // certain selectors
+                //
+                // example: BeatDown has an EQ so themes that style the EQ
+                // can include configurable values that won't show up in other apps
+                const selector = '';
                 if ( selector === '' ) {
-                    html += gd.theme_var_html( variable, value );
+                    html += gd.theme_var_html( key, value );
                 } else {
                     // add field only if selector exists
                     let s = document.querySelector(selector);
-                    if ( s !== null ) html += gd.theme_var_html( variable, value );
+                    if ( s !== null ) html += gd.theme_var_html( key, value );
                 }
             }
             theme_vars.innerHTML = html;
@@ -1148,9 +1138,6 @@ class GitDown {
 
     sectionize() {
 
-        // todo: add logic to keep track of heading type (h1, h2, h3)
-        // then add padding to toc representing level in hierarchy
-
         // header section
         var header = gd.settings.header;
         var heading = gd.settings.heading;
@@ -1187,7 +1174,7 @@ class GitDown {
                     // name is empty so assign it blank with suffix
                     name = gd.unique( 'blank', '#' );
                 }
-                // todo: write function to handle wrapping content
+                // todo: write native/non-jquery function to handle wrapping content
                 $h2.addClass('handle-heading');
                 $h2.wrapInner('<a class="handle" name="' + name + '"/>');
                 // make first heading a header if header doesn't exist
@@ -1378,9 +1365,6 @@ class GitDown {
             gd.settings.css_filename = 'style.css';
             gd.settings.css = 'default';
         } else {
-            // preprocess_css is our sissy lttle sass wannabe :)
-            let preprocessed = gd.preprocess_css(css);
-
             // when using a local css file, get the theme name
             let id = gd.settings.css;
             for ( const key in gd.example_themes ) {
@@ -1390,7 +1374,7 @@ class GitDown {
             }
 
             // create style tag with css content
-            gd.append_style( 'style', 'gd-theme-css', preprocessed );
+            gd.append_style( 'style', 'gd-theme-css', css );
         }
         // store cleaned css in browser
         window.localStorage.setItem( 'gd_theme', css );
@@ -1741,7 +1725,7 @@ class GitDown {
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
-            gd.status.remove('css,done,changed');
+            gd.status.remove('css,done,changed,var-updated');
             gd.status.add('theme-changed');
             gd.css_vars = {};
             gd.loop();
@@ -1758,9 +1742,14 @@ class GitDown {
 
     update_from_css_vars(name) {
         if ( name in gd.css_vars ) {
+            // set flag so we can know that a css var value has changed
+            gd.status.add('var-updated');
             gd.update_parameter(name);
-            var css = window.localStorage.getItem('gd_theme');
-            gd.render_theme_css(css);
+            const value = gd.css_vars[name][0];
+            document.documentElement.style.setProperty(`--${name}`, value);
+            // const css = window.localStorage.getItem('gd_theme');
+            // gd.render_theme_css(css);
+            // todo
         }
     }
 
@@ -1996,6 +1985,7 @@ class GitDown {
  *   'callback'         call to user-provided callback made, added AFTER callback completed
  *   'content-changed'  app loaded and user selected different content
  *   'theme-changed'    app loaded and user selected different theme
+ *   'var-updated'      app loaded and user has made an update to a css variable field
  * ];
  */
 class Status {

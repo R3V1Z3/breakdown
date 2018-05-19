@@ -1,5 +1,5 @@
 # GitDown
-jQuery + MarkdownIt + GitHub Pages = ~~jMarkdownItPages~~ GitDown
+MarkdownIt + GitHub Pages = ~~MarkdownItPages~~ GitDown
 
 GitDown is an experimental framework for quickly building apps on GitHub Pages that use Markdown, and with a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
 

@@ -9,6 +9,15 @@
 
 @page { size:8.5in 11in; margin: 0.25cm }
 
+:root {
+  --bg-color: white;
+  --love: red;
+}
+
+body {
+  background-color: var(--bg-color);
+}
+
 html, body {
   padding: 0;
   margin: 0;
