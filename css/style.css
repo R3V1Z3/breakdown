@@ -532,6 +532,7 @@ kbd:hover {
 
 .info input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   margin: 7.3px 0;
 }
@@ -556,6 +557,7 @@ kbd:hover {
   background: #ffffff;
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: none;
   margin-top: -7.5px;
 }
 .info input[type=range]:focus::-webkit-slider-runnable-track {
@@ -582,6 +584,7 @@ kbd:hover {
 
 .info input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   margin: 7.3px 0;
 }
@@ -606,6 +609,7 @@ kbd:hover {
   background: #ffffff;
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: none;
   margin-top: -7.5px;
 }
 .info input[type=range]:focus::-webkit-slider-runnable-track {
