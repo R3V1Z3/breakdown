@@ -7,8 +7,6 @@
   --primary-color: slategrey;
 }
 
-$primary-color: slategrey;
-
 @import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
 
 #gd-beatdown .section .handle-heading {
