@@ -106,7 +106,7 @@ class GitDown {
     // setup basic examples
     // returns defaults if merged is not provided
     // otherwise returns examples with merged added
-    examples( type, merged ) {
+    examples( type, user_examples ) {
         let ex = {};
         if ( type === 'gist' ) {
             ex = {
@@ -130,22 +130,22 @@ class GitDown {
             };
         }
 
-        if ( merged === null ) return ex;
+        if ( user_examples === null ) return ex;
 
         let do_merge = false;
         if ( type === 'gist' ) do_merge = this.settings.merge_gists;
         if ( type === 'css' ) do_merge = this.settings.merge_themes;
-        
-        if ( do_merge ) return this.merge_arrays( ex, merged );
-        return ex;
+
+        if ( do_merge ) return this.merge_arrays( ex, user_examples );
+        return user_examples;
     }
 
     default_options(options) {
         const defaults = {
-            initial: 'README.md',       // initial content, either a local filename or 'HTML'
-            header: 'h1',               // element to use for header
-            heading: 'h2',              // element to use for sections
-            inner: 'inner',   // inner container for styling
+            initial: 'README.md',    // initial content, either a local filename or 'HTML'
+            header: 'h1',            // element to use for header
+            heading: 'h2',           // element to use for sections
+            inner: 'inner',          // inner container for styling
             fontsize: '',
             content: 'default',
             content_filename: '',
