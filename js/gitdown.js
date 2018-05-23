@@ -146,7 +146,6 @@ class GitDown {
             header: 'h1',            // element to use for header
             heading: 'h2',           // element to use for sections
             inner: 'inner',          // inner container for styling
-            fontsize: '',
             content: 'default',
             content_filename: '',
             gist: 'default',
@@ -499,7 +498,7 @@ class GitDown {
                     if (cssClass.selectorText === undefined) {
                         continue;
                     }
-                    const regex = cssClass.cssText.match(/\-\-(.*?):(.*?);/gi);
+                    const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
                     if ( regex !== null ) {
                         const input = regex.input;
                         regex.forEach((str) => {
@@ -531,13 +530,9 @@ class GitDown {
                     slider.value = p;
                     slider.setAttribute( 'value', p );
                     slider.parentElement.setAttribute( 'data-value', p );
-                    // update font size based on slider value
-                    if ( name == 'fontsize' ) {
-                        const inner = document.querySelector(gd.eid_inner);
-                        inner.setAttribute( 'style', `font-size: ${slider.value}%`);
-                    }
                 }
                 gd.settings[name] = slider.value;
+                gd.update_field(slider, p);
             } else if ( el.classList.contains('select') ) {
                 const select = el.querySelector('select');
                 const name = select.getAttribute('name');
@@ -935,10 +930,11 @@ class GitDown {
     load_done() {
         // get variables from css
         gd.extract_css_vars();
+
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
-            gd.update_theme_vars();
+            gd.render_theme_vars();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
         } else {
@@ -947,7 +943,7 @@ class GitDown {
             gd.update_ui();
             gd.update_wrapper_classes();
             // update theme vars and render fields
-            gd.update_theme_vars();
+            gd.render_theme_vars();
             // finally register events
             gd.register_events();
         }
@@ -1018,7 +1014,9 @@ class GitDown {
         }
     };
 
-    update_theme_vars() {
+    // called at start and when theme changes
+    // renders html representing theme variables (css_vars)
+    render_theme_vars() {
         let html = '';
         let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
         if ( theme_vars !== null && gd.css_vars.length !== {} ) {
@@ -1033,6 +1031,7 @@ class GitDown {
                 const selector = '';
                 if ( selector === '' ) {
                     html += gd.theme_var_html( key, value );
+                    html +'1';
                 } else {
                     // add field only if selector exists
                     let s = document.querySelector(selector);
@@ -1049,6 +1048,33 @@ class GitDown {
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
+
+        // COLOR fields
+        // handle field as Select if its name contains keyword 'color'
+        // or if its value is in list of color names
+        if ( v.indexOf('color') !== -1 || gd.color_names(true).includes(value) ) {
+            let items = gd.color_names();
+            const upper = value.charAt(0).toUpperCase() + value.substr(1);
+            items.unshift(upper);
+            // ensure asterisk is added to default item
+            items.forEach((val,i)=>{
+                if ( val.toLowerCase() === value.toLowerCase() ) {
+                    items[i] = '*' + items[i];
+                }
+            });
+            c = gd.field_html( 'select', v, items);
+            return c;
+        }
+
+        // FONTSIZE fields
+        // handle field as Slider if its name contains keyword 'fontsize'
+        if ( v.indexOf('fontsize') !== -1 ) {
+            const suffix = value.replace(/[0-9]/g, '');
+            const items = [parseInt(value), 10, 300, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+
         if ( gd.begins( v, 'select_' ) ) {
             let name = v.split('select_');
             // get assignment after var name
@@ -1056,8 +1082,10 @@ class GitDown {
             let items = [];
             if ( assignment.length < 2 ) {
                 name = assignment[0];
-                if ( name.indexOf('color') !== -1 ) {
-                    items = gd.get_color_names(value);
+                if ( name.indexOf('color') !== -1 || gd.color_names(true).includes(value) ) {
+                    items = gd.color_names();
+                    const upper = value.charAt(0).toUpperCase() + value.substr(1);
+                    items.unshift(upper);
                 }
             } else {
                 let v_items = assignment[1];
@@ -1095,17 +1123,17 @@ class GitDown {
             c = gd.field_html( 'slider', name, items);
             return [ c ];
         } else {
-            // for special cases where variable includes keyword 'color';
-            if ( v.indexOf('color') !== -1 ){
-                // todo: add default value specific in css as first item
-                return gd.theme_var_html( 'select_' + v, value );
-            }
+            //
         }
+        return 'NULL |';
     }
 
-    get_color_names(value) {
-        const color_names = [value, "AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
-        return color_names;
+    color_names(lowercase) {
+        let l = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
+        if ( lowercase ) {
+            l = l.map( function(x){ return x.toLowerCase() } );
+        }
+        return l;
     }
 
     // extra info panel contents if they exist
@@ -1741,15 +1769,13 @@ class GitDown {
         }
     }
 
-    update_from_css_vars(name) {
+    update_from_css_vars(name, suffix) {
+        if ( suffix === null || suffix === undefined ) suffix = '';
         if ( name in gd.css_vars ) {
             // set flag so we can know that a css var value has changed
             gd.status.add('var-updated');
-            let value = gd.update_parameter(name);
-            document.documentElement.style.setProperty(`--${name}`, value);
-            // const css = window.localStorage.getItem('gd_theme');
-            // gd.render_theme_css(css);
-            // todo
+            const value = gd.update_parameter(name);
+            document.documentElement.style.setProperty(`--${name}`, value + suffix);
         }
     }
 
@@ -1803,11 +1829,7 @@ class GitDown {
             $(this).parent().attr( 'data-value', value );
             gd.settings[name] = value;
             gd.set_param( name, value );
-            // special consideration for font-size
-            if ( name === 'fontsize' ) {
-                $(gd.eid_inner).css( 'font-size', gd.settings['fontsize'] + suffix );
-            }
-            gd.update_from_css_vars(name);
+            gd.update_from_css_vars(name, suffix);
         });
 
         // CHOICE FIELDS
@@ -1843,8 +1865,10 @@ class GitDown {
         if ( name === 'highlight' ) {
             gd.render_highlight();
         }
+        let suffix = field.getAttribute('data-suffix');
+        if ( suffix === null ) suffix = '';
         // update css_vars with key
-        gd.update_from_css_vars(name);
+        gd.update_from_css_vars(name, suffix);
     }
 
     register_events() {

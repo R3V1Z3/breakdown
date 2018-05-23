@@ -1,17 +1,14 @@
 # GitDown
 MarkdownIt + GitHub Pages = ~~MarkdownItPages~~ GitDown
 
-GitDown is an experimental framework for quickly building apps on GitHub Pages that use Markdown, and with a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
+GitDown is an experimental framework for quickly building very specific types of web apps on GitHub Pages; apps that use Markdown and have a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
 
 ## What does it do?
 The framework provides:
-- a base for ready-made projects that can easily be forked on GitHub.
+- a base projects that can easily be forked on GitHub.
 - Markdown rendering function using MarkdownIt
-- Configurable info panel with routine to update it
-- Section renderer
-- URL parameters
+- Configuration through URL parameter
 - Preprocess and postprocess functions for special cases including tag_replace()
-- URI handler
 
 ## What uses it?
 Several projects now use the framework:
@@ -29,7 +26,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 - [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
 
 # Examples <!-- {$gd_info} -->
-Simple web app framework
+Experimental web app framework
 
 <!-- {$gd_help_ribbon} -->
 
@@ -61,8 +58,6 @@ Themes <!-- {$gd_css} -->
 - [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
 - [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
-
-<!-- {$gd_slider_fontsize="120,50,300,1,%"} -->
 
 <!-- {$gd_theme_variables} -->
 

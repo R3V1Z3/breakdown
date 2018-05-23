@@ -10,11 +10,12 @@
 @page { size:8.5in 11in; margin: 0.25cm }
 
 :root {
-  --bg-color: white;
+  --bg: white;
+  --fontsize: 120%;
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: var(--bg);
 }
 
 html, body {
@@ -32,6 +33,7 @@ html, body {
 #wrapper { position: absolute;}
 
 .inner {
+  font-size: var(--fontsize);
   transition: none;
   animation: none;
 }
