@@ -14,16 +14,19 @@
  * This class provides an easy way to keep track of all available sections and
  * attributes and also should help simplify the task of porting to local apps.
  * 
+ * We'll parse provided content for lines beginning with #
+ * 
  * @param {string} flags initial flags to set
  * 
  */
 class Section {
     
-    constructor(s) {
-        this.sections = s;
+    constructor(content) {
         // sections
         // {name, content, classes}
         // classes contains css classes for respective section
+        this.header = '';
+        this.content = '';
     }
 
     log() {
@@ -997,7 +1000,6 @@ class GitDown {
         }
 
         // hide info/nav panel if cap setting true
-        console.log(gd.settings.nav);
         if ( gd.settings.nav === 'hide' ) {
             $( gd.eid ).addClass('panels-hidden');
         }
@@ -1918,7 +1920,7 @@ class GitDown {
 
         // fullscreen request
         $( this.eid + ' .fullscreen').unbind().click(function(){
-            var e = document.getElementById( gd.eid.substring(1) );
+            var e = document.documentElement;
             gd.toggleFullscreen(e);
         });
 
