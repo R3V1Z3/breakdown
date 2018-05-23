@@ -154,6 +154,7 @@ class GitDown {
             css_filename: '',
             highlight: 'default',
             preprocess: false,
+            nav: 'show',
 
             // set false to not render markdown
             markdownit: true,
@@ -783,7 +784,7 @@ class GitDown {
             this.status.add('initial');
         } else {
             this.load_initial(initial);
-        }    
+        }
     };
     
     load_initial(url) {
@@ -993,6 +994,12 @@ class GitDown {
             [].map.call(document.querySelectorAll(elements), (el) => {
                 el.classList.add('collapsed');
             });
+        }
+
+        // hide info/nav panel if cap setting true
+        console.log(gd.settings.nav);
+        if ( gd.settings.nav === 'hide' ) {
+            $( gd.eid ).addClass('panels-hidden');
         }
     }
 
