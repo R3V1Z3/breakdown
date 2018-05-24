@@ -567,10 +567,13 @@ class GitDown {
     }
 
     // update parameter values in storage and url
+    // called only when field changes occur (user drags a slider or selects an option)
     set_param( key, value ) {
         gd.params.set( key, value );
         // todo: adjust url history only if a change has occurred
-        history.replaceState( {}, gd.settings.title, gd.uri() );
+        if ( gd.status.has('var-updated') ) {
+            history.replaceState( {}, gd.settings.title, gd.uri() );
+        }
     };
 
     remove_class_by_prefix( e, prefix ) {
@@ -1763,7 +1766,7 @@ class GitDown {
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
-            gd.status.remove('css,done,changed,var-updated');
+            gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
             gd.css_vars = {};
             gd.loop();
@@ -1781,8 +1784,6 @@ class GitDown {
     update_from_css_vars(name, suffix) {
         if ( suffix === null || suffix === undefined ) suffix = '';
         if ( name in gd.css_vars ) {
-            // set flag so we can know that a css var value has changed
-            gd.status.add('var-updated');
             const value = gd.update_parameter(name);
             document.documentElement.style.setProperty(`--${name}`, value + suffix);
         }
@@ -1838,6 +1839,7 @@ class GitDown {
             $(this).parent().attr( 'data-value', value );
             gd.settings[name] = value;
             gd.set_param( name, value );
+            gd.status.add('var-updated');
             gd.update_from_css_vars(name, suffix);
         });
 
@@ -1866,7 +1868,11 @@ class GitDown {
     update_field(field, value) {
         let name = field.parentElement.getAttribute('data-name');
         name =  gd.clean(name);
-        if ( value === undefined ) value = field.value;
+        if ( value === undefined ) {
+            // this indicates user initiated action so we'll update status
+            gd.status.add('var-updated');
+            value = field.value;
+        }
         field.value = value;
         gd.settings[name] = value;
         gd.set_param( name, value );
@@ -1876,7 +1882,6 @@ class GitDown {
         }
         let suffix = field.getAttribute('data-suffix');
         if ( suffix === null ) suffix = '';
-        // update css_vars with key
         gd.update_from_css_vars(name, suffix);
     }
 

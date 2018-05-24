@@ -3,11 +3,11 @@
   URL: https://gist.github.com/Ugotsta/a634da7b7130fd40d682360154cc4e2e
 */
 
+@import url('https://fonts.googleapis.com/css?family=Cousine');
+
 :root {
     --primary-color: green;
 }
-
-@import url('https://fonts.googleapis.com/css?family=Cousine');
 
 * {
     font-family: 'Cousine', monospace;

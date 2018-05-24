@@ -3,11 +3,11 @@
   Gist URL: https://gist.github.com/Ugotsta/adc373c2d5a5d2b07821686e93a9630b/
 */
 
+@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
+
 :root {
   --primary-color: slategrey;
 }
-
-@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
 
 #gd-beatdown .section .handle-heading {
   display: none;
