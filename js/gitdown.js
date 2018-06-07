@@ -123,6 +123,8 @@ class GitDown {
                     const parser = new HtmlWhitelistedSanitizer(true);
                     val = parser.sanitizeString(val);
                 }
+                console.log(key, val);
+                // todo
                 this.settings.set_value(key, val);
             }
         }
@@ -2054,10 +2056,11 @@ class Settings {
         if ( found === undefined ) {
             // we'll set the default value as the value used when first setting the value
             new_setting = [name, value, value];
+            this.settings.push(new_setting);
         } else {
-            new_setting = [name, value];
+            // change exist value
+            found[1] = value;
         }
-        this.settings.push(new_setting);
     }
 
     initial_settings() {
