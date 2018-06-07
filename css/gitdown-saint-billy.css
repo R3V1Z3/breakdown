@@ -1,11 +1,14 @@
 /*
   Theme name: Saint Billy
+  URL: https://gist.github.com/Ugotsta/76c39d26b1b44e07bd7a783311caded8
 */
 
-$primary-color: tan;
-$secondary-color: brown;
-
 @import url('https://fonts.googleapis.com/css?family=Rye|Sancreek');
+
+:root {
+  --bg: tan;
+  --section-color: brown;
+}
 
 /* App-specific styles */
 #custom .eq .band {
@@ -320,7 +323,7 @@ connection {
 .inner::before {
   content: "";
   pointer-events: none;
-  background-color: $primary-color;
+  background-color: var(--bg);
   background-image: url(https://www.transparenttextures.com/patterns/natural-paper.png);
   position: fixed;
   top: 0;
@@ -354,7 +357,7 @@ connection {
   mix-blend-mode: color-burn;
   opacity: 0.5;
   background: linear-gradient(to right, rgba(181,189,200,1) 0%,rgba(130,140,149,1) 36%,rgba(40,52,59,1) 100%);
-  background-color: brown;
+  background-color: var(--section-color);
   background-blend-mode: screen;
   box-shadow: inset 0 0 400px;
 }

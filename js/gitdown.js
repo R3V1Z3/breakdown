@@ -1,63 +1,8 @@
-// todo
-// - downslide fadeout animations not working after loading new content
-// must be related to z-index
-// only occurs after user selects new gist
+// currently, when themes use same names as default themes like --bg
+// the non-default theme's default values aren't updated in fields
 
-// add .inactive to .sections
-// .visible
-// .unlisted
-
-// what to call sections that just serve as visual elements???
-// .gd-visuals - audio-visual elements that aren't accessible as sections
-
-/**
- * This class provides an easy way to keep track of all available sections and
- * attributes and also should help simplify the task of porting to local apps.
- * 
- * We'll parse provided content for lines beginning with #
- * 
- * @param {string} flags initial flags to set
- * 
- */
-class Section {
-    
-    constructor(content) {
-        // sections
-        // {name, content, classes}
-        // classes contains css classes for respective section
-        this.header = '';
-        this.content = '';
-    }
-
-    log() {
-        console.log(this.s);
-        return this;
-    }
-
-    create(name, content) {
-        //
-    }
-
-    // returns true if specified section has class c
-    has(c) {
-        return false;
-    }
-
-    html(name) {
-        let html = '';
-        const classes = 'header';
-        const content = '';
-        html += `<h1 class="handle-heading>`;
-        html += `<a class="handle app-title ${name}" name="${name}"/>`;
-        html += `${name}</a>`;
-        html += `</h1>`;
-        html += `<section class="section ${classes}" id="${name}"/>`;
-        html += `<div class="content"/>${content}</div>`;
-        return html;
-    }
-
-}
-
+// gitdown-saint-billy theme uses --bg with tan default color
+// that color is not updated in the field when 
 
 /**
  * GitDown core
@@ -75,6 +20,12 @@ class GitDown {
 
     init( el, options ) {
         this.status = new Status();
+        this.settings = new Settings(options);
+        // this.sectionz = new Sectionz();
+        // this.css_vars = new CSS_Varz();
+        // this.parameterz = new Parameterz();
+        // this.fieldz = new Fieldz();
+
         this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
         this.initial_content = '';
         this.info_content = this.default_info_content();
@@ -83,7 +34,6 @@ class GitDown {
         this.css_vars = {};
         this.params = (new URL(location)).searchParams;
         this.path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
-        this.settings = this.default_options(options);
         this.example_gists = this.examples('gist');
         this.example_themes = this.examples('css');
         if ( typeof el === 'string' ) el = document.querySelector(el);
@@ -98,12 +48,12 @@ class GitDown {
             }
         }
         // add container div and inner content
-        let content = '<div class="' + this.settings.inner + '">';
+        let content = '<div class="' + this.settings.get_value('inner') + '">';
         content += '</div>';
         content += '<div class="info panel visible"></div>';
         el.innerHTML += content;
         // helper variables to simplify access to container elements
-        this.eid_inner = ' .' + this.settings.inner;
+        this.eid_inner = ' .' + this.settings.get_value('inner');
     };
 
     // setup basic examples
@@ -136,54 +86,11 @@ class GitDown {
         if ( user_examples === null ) return ex;
 
         let do_merge = false;
-        if ( type === 'gist' ) do_merge = this.settings.merge_gists;
-        if ( type === 'css' ) do_merge = this.settings.merge_themes;
+        if ( type === 'gist' ) do_merge = this.settings.get_value('merge_gists');
+        if ( type === 'css' ) do_merge = this.settings.get_value('merge_themes');
 
         if ( do_merge ) return this.merge_arrays( ex, user_examples );
         return user_examples;
-    }
-
-    default_options(options) {
-        const defaults = {
-            initial: 'README.md',    // initial content, either a local filename or 'HTML'
-            header: 'h1',            // element to use for header
-            heading: 'h2',           // element to use for sections
-            inner: 'inner',          // inner container for styling
-            content: 'default',
-            content_filename: '',
-            gist: 'default',
-            gist_filename: '',
-            css: 'default',
-            css_filename: '',
-            highlight: 'default',
-            preprocess: false,
-            nav: 'show',
-
-            // set false to not render markdown
-            markdownit: true,
-
-            // defaults unavailable as url parameters
-            title: 'GitDown',
-            hide_info: false,
-            hide_help_ribbon: false,
-            hide_gist_details: false,
-            hide_css_details: false,
-            hide_toc: false,
-            disable_hide: false,
-            parameters_disallowed: 'title,hide_any',
-
-            // GitDown stores a bunch of examples by default
-            // set these to false to not merge them into your app
-            merge_themes: true,
-            merge_gists: true,
-
-            origin: '//ugotsta.github.io',
-        };
-        // merge options with defaults, preferring user-specified options
-        for ( const key in options ) {
-            defaults[key] = options[key];
-        }
-        return defaults;
     }
 
     // returns default info panel content
@@ -204,7 +111,7 @@ class GitDown {
     // detect specified url parameter, clean and add it to settings
     update_parameter( key, default_value ) {
         let val = default_value;
-        if ( val === undefined ) val = this.settings[key];
+        if ( val === undefined ) val = this.settings.get_value(key);
         if ( val === undefined ) return '';
         // check if specified key exists as url param
         if ( this.params.has(key) ) {
@@ -216,16 +123,17 @@ class GitDown {
                     const parser = new HtmlWhitelistedSanitizer(true);
                     val = parser.sanitizeString(val);
                 }
-                this.settings[key] = val;
+                this.settings.set_value(key, val);
             }
         }
         return val;
     };
 
     is_param_allowed(p) {
-        let allowed = this.settings.parameters_disallowed.split(',');
-        let pro = this.parameters_protected.split(',');
-        if ( pro.indexOf(p) === -1 && allowed.indexOf(p) === -1 ) {
+        let allowed = this.settings.get_value('parameters_disallowed');
+        allowed = allowed.split(',');
+        let prot = this.parameters_protected.split(',');
+        if ( prot.indexOf(p) === -1 && allowed.indexOf(p) === -1 ) {
             return true;
         }
         return false;
@@ -324,10 +232,7 @@ class GitDown {
      * @returns {bool} whether t begins with str
      */
     begins( t, str ) {
-        if ( t.indexOf(str) === 0 ) {
-            return true;
-        }
-        return false;
+        return ( t.indexOf(str) === 0 );
     };
 
     // find first character in str that is not char and return its location
@@ -345,7 +250,7 @@ class GitDown {
      * load user specified highlight style
      */
     render_highlight() {
-        var h = this.settings['highlight'];
+        var h = this.settings.get_value('highlight');
         var hlight = document.querySelector('#gd-highlight');
         if ( h === undefined || h === null ) h = 'default';
         if ( h.toLowerCase() === 'none' ) {
@@ -386,9 +291,6 @@ class GitDown {
             const css = parser.sanitizeString(content);
             const div = document.createElement("div");
             div.innerHTML = `<style id="${id}">${css}</style>`;
-            // todo: check and ensure this overwrites previously loaded style
-            // rather than just appending. we don't want stylesheet constantly
-            // growing with each theme change
             document.head.appendChild(div);
         }
     }
@@ -406,16 +308,16 @@ class GitDown {
 
     update_selector_url( type, fname ) {
         
-        // update url field with filanem
+        // update url field with filename
         let url_field = document.querySelector( `${gd.eid} .info .${type}-url` );
         if ( url_field !== null ) url_field.textContent = fname + ' ▾';
 
-        let id = gd.settings[`${type}`];
-        let filename = gd.settings[`${type}_filename`];
+        let id = gd.settings.get_value(type);
+        let filename = gd.settings.get_value( type + '_filename' );
 
         let href = '';
         if ( id === 'default' ) {
-            href = gd.gist_url( gd.settings.content, false );
+            href = gd.gist_url( gd.settings.get_value('content'), false );
         } else {
             href = '//gist.github.com/' + id;
         }
@@ -535,7 +437,7 @@ class GitDown {
                     slider.setAttribute( 'value', p );
                     slider.parentElement.setAttribute( 'data-value', p );
                 }
-                gd.settings[name] = slider.value;
+                gd.settings.set_value( name, slider.value );
                 gd.update_field(slider, p);
             } else if ( el.classList.contains('select') ) {
                 const select = el.querySelector('select');
@@ -544,7 +446,7 @@ class GitDown {
                 if ( p !== '' ) {
                     gd.update_field(select, p);
                 }
-                gd.settings[name] = select.value;
+                gd.settings.set_value( name, select.value );
             } else if ( el.classList.contains('choices') ) {
                 const name = el.getAttribute('data-name');
                 const v = el.querySelector('a.selected').getAttribute('data-value');
@@ -557,22 +459,25 @@ class GitDown {
                         c.classList.add('selected');
                     }
                 }
-                gd.settings[name] = v;
+                gd.settings.set_value( name, v );
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
-                const fname = gd.settings[`${type}_filename`];
+                const fname = gd.settings.get_value( type + '_filename' );
                 gd.update_selector_url( type, fname );
             }
         });
     }
 
     // update parameter values in storage and url
-    // called only when field changes occur (user drags a slider or selects an option)
     set_param( key, value ) {
-        gd.params.set( key, value );
-        // todo: adjust url history only if a change has occurred
+        const default_value = 'asdfasdfjasdf';//gd.settings.get_default(key);
+        if ( value === default_value ) {
+            gd.params.delete(key);
+        } else {
+            gd.params.set( key, value );
+        }
         if ( gd.status.has('var-updated') ) {
-            history.replaceState( {}, gd.settings.title, gd.uri() );
+            history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );
         }
     };
 
@@ -755,11 +660,11 @@ class GitDown {
 
     // adjust response if content is pulled from GitHub Gist
     gistify_response( type, url, response ) {
-        const filename = this.settings[type + '_filename'];
+        const filename = this.settings.get_value(type + '_filename');
         if ( url.indexOf('api.github.com') != -1 ) {
             const parsed = JSON.parse(response);
             const file = this.get_gist_filename( parsed, filename );
-            this.settings[type + '_filename'] = file.filename;
+            this.settings.set_value( type + '_filename', file.filename );
             return file.content;
         }
         return response;
@@ -778,11 +683,11 @@ class GitDown {
     // 4. load_done() - update ui elements and call any user provided callback
     main() {
         // update settings with URL parameters
-        for (var key in  this.settings) {
+        for (var key in this.settings.get_settings()) {
              this.update_parameter(key);
         }
 
-        let initial =  this.settings.initial;
+        let initial =  this.settings.get_value('initial');
         if ( initial.toLowerCase === 'html' ) {
             let html = document.querySelector(gd.eid);
             if ( html !== null ) this.initial_content = html.innerHTML;
@@ -820,10 +725,10 @@ class GitDown {
             // load initial content
             if ( !gd.status.has('content') && gd.status.has('callback') ) {
                 gd.status.remove('initial');
-                gd.load_initial(gd.settings.initial);
+                gd.load_initial( gd.settings.get_value('initial') );
             }
             gd.status.add('content');
-            gd.settings.gist_filename =  gd.settings.content;
+            gd.settings.set_value( 'gist_filename', gd.settings.get_value('content') );
         } else if ( !gd.status.has('content') ) {
             // add content urls to urls array
             const content_urls = gd.prepare_urls( gist, 'gist' );
@@ -855,8 +760,8 @@ class GitDown {
         let type = a[0], id = a[1], url = a[2];
         /* PROMISE CHAIN */
         gd.get(url).then( (response ) => {
-            gd.settings[type] = id;
-            gd.settings[type + '_filename'] = url;
+            gd.settings.set_value(type, id);
+            gd.settings.set_value(type + '_filename', url);
             let data =  gd.gistify_response(type, url, response);
             if ( type === 'css' ) {
                 gd.render_theme_css(data);
@@ -879,7 +784,7 @@ class GitDown {
     };
 
     render_content(data) {
-        if ( gd.settings.initial.toLowerCase === 'html' ){
+        if ( gd.settings.get_value('initial').toLowerCase === 'html' ){
             //
         } else {
             // best practice, files should end with newline, we'll ensure it.
@@ -887,7 +792,7 @@ class GitDown {
         }
 
         // preprocess data if user specified
-        if( gd.settings.preprocess ) {
+        if( gd.settings.get_value('preprocess') ) {
             data = preprocess(data);
         }
 
@@ -897,7 +802,7 @@ class GitDown {
         if ( extract[1] !== '' ) gd.info_content = extract[1];
 
         // if we're just getting info content from initial, return at this point
-        if ( !gd.status.has('initial') && gd.settings.gist !== 'default' ) {
+        if ( !gd.status.has('initial') && gd.settings.get_value('gist') !== 'default' ) {
             return;
         }
 
@@ -919,10 +824,10 @@ class GitDown {
         gd.render_variables();
 
         // render info panel and toc based on current section
-        gd.render_info( gd.settings.title );
+        gd.render_info( gd.settings.get_value('title') );
 
         // render raw text if user specified
-        gd.render_raw( data, gd.eid_inner, gd.settings.markdownit );
+        gd.render_raw( data, gd.eid_inner, gd.settings.get_value('markdownit') );
         
         gd.update_ui();
     }
@@ -941,6 +846,8 @@ class GitDown {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
+            // todo: render_theme_vars doesn't update vars from default theme
+            gd.update_fields_with_params();
             gd.render_theme_vars();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
@@ -959,8 +866,9 @@ class GitDown {
 
     execute_callback() {
         // pass control back to user provided callback if it exists
-        if ( typeof gd.settings.callback == 'function' ) {
-            gd.settings.callback.call();
+        const callback = gd.settings.get_value('callback');
+        if ( typeof callback == 'function' ) {
+            callback.call();
             gd.status.add('callback');
         }
     }
@@ -969,12 +877,12 @@ class GitDown {
     update_wrapper_classes() {
         let wrapper = document.querySelector(gd.eid);
         // add .gd-default class to wrapper if using default theme
-        if ( gd.settings.css === 'default' ) {
+        if ( gd.settings.get_value('css') === 'default' ) {
             wrapper.classList.add('gd-default');
         } else wrapper.classList.remove('gd-default');
 
         // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
-        if ( gd.settings.heading === 'lyrics' ) {
+        if ( gd.settings.get_value('heading') === 'lyrics' ) {
             wrapper.classList.add('gd-lyrics');
         }
     }
@@ -1003,7 +911,7 @@ class GitDown {
         }
 
         // hide info/nav panel if cap setting true
-        if ( gd.settings.nav === 'hide' ) {
+        if ( gd.settings.get_value('nav') === 'hide' ) {
             $( gd.eid ).addClass('panels-hidden');
         }
     }
@@ -1011,16 +919,16 @@ class GitDown {
     update_ui_from_settings() {
         const elements = ['info','help_ribbon','gist_details','css_details'];
         elements.forEach(function(i){
-            if( gd.settings[`hide_${i}`] ) {
+            if( gd.settings.get_value('hide_' + i) ) {
                 var e = document.querySelector( `${gd.eid} .${ gd.clean(i)}` );
                 if ( e !== null) e.parentNode.removeChild(e);
             }
         });
-        if( gd.settings['disable_hide'] ) {
+        if( gd.settings.get_value('disable_hide') ) {
             var e = document.querySelector( `${gd.eid} .hide` );
             if ( e !== null) e.parentNode.removeChild(e);
         }
-        if( gd.settings['hide_toc'] ) {
+        if( gd.settings.get_value('hide_toc') ) {
             var e = document.querySelector( `${gd.eid} .info .toc` );
             if ( e !== null) e.parentNode.removeChild(e);
         }
@@ -1180,8 +1088,8 @@ class GitDown {
     sectionize() {
 
         // header section
-        var header = gd.settings.header;
-        var heading = gd.settings.heading;
+        var header = gd.settings.get_value('header');
+        var heading = gd.settings.get_value('heading');
         if ( heading === 'lyrics' ) heading = 'p';
 
         // Header
@@ -1226,7 +1134,7 @@ class GitDown {
         }
 
         // for lyrics mode, add heading content to .content div
-        if ( this.settings.heading === 'lyrics' ) {
+        if ( this.settings.get_value('heading') === 'lyrics' ) {
             $( gd.eid_inner + ' .section.heading' ).each(function() {
                 var heading = $(this).find('a.handle').html();
                 var $c = $(this).find('.handle-heading');
@@ -1403,14 +1311,14 @@ class GitDown {
         if ( el !== null ) el.parentNode.removeChild(el);
 
         if ( css === '' ) {
-            gd.settings.css_filename = 'style.css';
-            gd.settings.css = 'default';
+            gd.settings.set_value( 'css_filename', 'style.css' );
+            gd.settings.set_value( 'css', 'default' );
         } else {
             // when using a local css file, get the theme name
-            let id = gd.settings.css;
+            let id = gd.settings.get_value('css');
             for ( const key in gd.example_themes ) {
                 if ( gd.example_themes[key] === id ) {
-                    gd.settings.css_filename = key;
+                    gd.settings.set_value('css_filename', key);
                 }
             }
 
@@ -1468,7 +1376,7 @@ class GitDown {
         let file = '';
         let is_gist = false;
         if ( n === 'gist' ){
-            file = gd.settings.content;
+            file = gd.settings.get_value('content');
         } else if ( n === 'css' ) {
             file = 'css/style.css';
         }
@@ -1518,14 +1426,14 @@ class GitDown {
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
-            gd.settings[name] = '';
+            gd.settings.set_value( name, '' );
             for ( var i = 0; i < items.length; i++ ) {
                 var li = items[i].innerHTML;
                 if ( li === undefined ) li = items[i];
                 var s = '';
                 if ( li.charAt(0) === '*' ) {
                     li = li.substr(1);
-                     this.settings['name'] = li;
+                     this.settings.set_value(name, li);
                     s = 'selected';
                 }
                 c += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
@@ -1540,7 +1448,7 @@ class GitDown {
             c += `<input name="${name}" type="range" `;
             // get slider attributes
             c += ` value="${items[0]}"`;
-            gd.settings[name] = items[0];
+            gd.settings.set_value( name, items[0] );
             c += ` min="${items[1]}"`;
             c += ` max="${items[2]}"`;
             c += ` step="${items[3]}"`;
@@ -1551,13 +1459,13 @@ class GitDown {
             c += '>';
         } else if ( type === 'choices' ) {
             c += `>`;
-            gd.settings[name] = '';
+            gd.settings.set_value( name, '' );
             for ( var i = 0; i < items.length; i++ ) {
                 var v = items[i];
                 var s = '';
                 if ( v.charAt(0) === '*' ) {
                     v = v.substr(1);
-                    gd.settings[name] = v;
+                    gd.settings.set_value( name, v );
                     s = 'selected';
                 }
                 c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
@@ -1647,8 +1555,8 @@ class GitDown {
 
     variable_defaults() {
         return {
-            'gd_info': gd.settings.title,
-            'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.title}">?</a>`,
+            'gd_info': gd.settings.get_value('title'),
+            'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.get_value('title')}">?</a>`,
             'gd_theme_variables': '<div class="theme-vars"></div>',
             'gd_toc': '<div class="toc"></div>',
             'gd_hide': '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>',
@@ -1768,6 +1676,7 @@ class GitDown {
         if ( type === 'css' ) {
             gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
+            // we shouldn't clear css_vars since default variables might be re-used in child themes
             gd.css_vars = {};
             gd.loop();
         } else if ( type === 'gist' ) {
@@ -1782,10 +1691,10 @@ class GitDown {
     }
 
     update_from_css_vars(name, suffix) {
-        if ( suffix === null || suffix === undefined ) suffix = '';
+        // update field with specified name if it exists in css_vars
         if ( name in gd.css_vars ) {
-            const value = gd.update_parameter(name);
-            document.documentElement.style.setProperty(`--${name}`, value + suffix);
+            const value = gd.update_parameter( name, gd.css_vars[name] );
+            document.documentElement.style.setProperty( `--${name}`, value + suffix );
         }
     }
 
@@ -1837,10 +1746,10 @@ class GitDown {
             const value = $(this).val();
             $(this).attr( 'value', value );
             $(this).parent().attr( 'data-value', value );
-            gd.settings[name] = value;
+            gd.settings.set_value( name, value );
             gd.set_param( name, value );
             gd.status.add('var-updated');
-            gd.update_from_css_vars(name, suffix);
+            gd.update_from_css_vars(name, suffix, true);
         });
 
         // CHOICE FIELDS
@@ -1849,7 +1758,7 @@ class GitDown {
             $(this).parent().find('.selected').removeClass('selected');
             const value = $(this).attr('data-value');
             $(this).addClass('selected');
-            gd.settings[name] = value;
+            gd.settings.set_value( name, value );
             gd.set_param( name, value );
         });
 
@@ -1873,8 +1782,9 @@ class GitDown {
             gd.status.add('var-updated');
             value = field.value;
         }
+        // todo:
         field.value = value;
-        gd.settings[name] = value;
+        gd.settings.set_value( name, value );
         gd.set_param( name, value );
         // load user provided highlight style
         if ( name === 'highlight' ) {
@@ -1896,12 +1806,12 @@ class GitDown {
 
         // send Ready message to whatever window opened this app
         if ( !this.status.has('done') && window.opener != null ) {
-            window.opener.postMessage( 'Ready.',  this.settings.origin );
+            window.opener.postMessage( 'Ready.',  this.settings.get_value('origin ') );
         }
         
         // listen for return messages from parent window
         window.addEventListener( 'message', function(event) {
-            var o =  this.settings.origin;
+            var o =  this.settings.get_value('origin');
             if ( o === '*' || event.origin === o ) {
                 if ( event.data === 'Ready.') {
                     //
@@ -2012,7 +1922,7 @@ class GitDown {
 }
 
 /**
- * Simle way to track loading process 
+ * Simple way to track loading process 
  * @param {string} flags initial flags to set
  * 
  * this.flags = [
@@ -2079,6 +1989,127 @@ class Status {
             });
             return result;
         }
+    }
+
+}
+
+/**
+ * Simple way to keep track of app settings and default values
+ * @param {object} options user provided initial settings
+ */
+class Settings {
+    
+    constructor( options = [] ) {
+        this.initial_options = options;
+        this.settings = this.initial_settings();
+    }
+
+    clear() {
+        this.settings = this.initial_settings();
+    }
+
+    // return a key/value array of settings without defaults
+    get_settings() {
+        let result = [];
+        for ( const i in this.settings ) {
+            var key = this.settings[i][0];
+            var value = this.settings[i][1];
+            result[key] = value;
+        }
+        return result;
+    }
+
+    // return a setting's value by specified setting name
+    get_value(name) {
+        var found = this.settings.find(function(e) {
+            return e[0] === name;
+        });
+        return found[1];
+    }
+
+    // returns the default value for a specific setting by name
+    get_default(name) {
+        var found = this.settings.find(function(e) {
+            return e[0] === name;
+        });
+        return found[2];
+    }
+
+    // set a value by specified setting name
+    set_default(name, value) {
+        var found = this.settings.find(function(e) {
+            return e[0] === name;
+        });
+        if ( found === undefined ) return false;
+        found[2] = value;
+        return value;
+    }
+
+    // set a value by specified setting name
+    set_value(name, value) {
+        var found = this.settings.find(function(e) {
+            return e[0] === name;
+        });
+        let new_setting;
+        if ( found === undefined ) {
+            // we'll set the default value as the value used when first setting the value
+            new_setting = [name, value, value];
+        } else {
+            new_setting = [name, value];
+        }
+        this.settings.push(new_setting);
+    }
+
+    initial_settings() {
+        let result = [];
+        const defaults = {
+            initial: 'README.md',    // initial content, either a local filename or 'HTML'
+            header: 'h1',            // element to use for header
+            heading: 'h2',           // element to use for sections
+            inner: 'inner',          // inner container for styling
+            content: 'default',
+            content_filename: '',
+            gist: 'default',
+            gist_filename: '',
+            css: 'default',
+            css_filename: '',
+            highlight: 'default',
+            preprocess: false,
+            nav: 'show',
+
+            // set false to not render markdown
+            markdownit: true,
+
+            // defaults unavailable as url parameters
+            title: 'GitDown',
+            hide_info: false,
+            hide_help_ribbon: false,
+            hide_gist_details: false,
+            hide_css_details: false,
+            hide_toc: false,
+            disable_hide: false,
+            parameters_disallowed: 'title,hide_any',
+
+            // GitDown stores a bunch of examples by default
+            // set these to false to not merge them into your app
+            merge_themes: true,
+            merge_gists: true,
+
+            origin: '//ugotsta.github.io',
+        };
+
+        // merge user pvovided options, these options will become new defaults
+        for ( const key in this.initial_options ) {
+            defaults[key] = this.initial_options[key];
+        }
+
+        // now we'll create an object, assign defaults and return it
+        for ( const key in defaults ) {
+            const d = defaults[key];
+            const setting = [key, d, d];
+            result.push(setting);
+        }
+        return result;
     }
 
 }

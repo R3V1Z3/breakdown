@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css?family=Cousine');
 
 :root {
-    --primary-color: green;
+    --bg: green;
 }
 
 * {
@@ -118,7 +118,7 @@ pre code, pre, .hljs, pre.hljs {
     background-size: 100% 6px;
     mix-blend-mode: hard-light;
     background-position-y: 0px;
-    background-color: var(--primary-color);
+    background-color: var(--bg);
     background-blend-mode: hard-light;
 }
 
