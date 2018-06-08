@@ -20,13 +20,13 @@ class GitDown {
 
     init( el, options ) {
         this.status = new Status();
-        this.settings = new Settings(options);
+        this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin,parameters_disallowed';
+        this.settings = new Settings(options, this.parameters_protected);
         // this.sectionz = new Sectionz();
         // this.css_vars = new CSS_Varz();
         // this.parameterz = new Parameterz();
         // this.fieldz = new Fieldz();
 
-        this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin';
         this.initial_content = '';
         this.info_content = this.default_info_content();
         this.sections = [];
@@ -149,7 +149,8 @@ class GitDown {
      * @returns {string} url with base, query vars and hash
      */
     uri() {
-        let q = this.params.toString();
+        //let q = this.params.toString();
+        let q = this.settings.to_string('all');
         if ( q.length > 0 ) q = '?' + q;
         let base = window.location.href.split('?')[0];
         base = base.split('#')[0];
@@ -423,12 +424,16 @@ class GitDown {
         }
     }
 
-    // update fields based on url parameters
+    // iterates over all fields of specific type and updates their values based on url params
     update_from_params(type) {
+        // problem: theme vars aren't rendered yet so they're not updated here
+
+        // get field set
         if ( type === '' || type === undefined ) type = '';
         const s = `${gd.eid} .info .field${type}`;
         const fields = document.querySelectorAll(s);
-        fields.forEach((el, i) => {
+        // iterate over fields
+        fields.forEach(el => {
             if ( el.classList.contains('slider') ) {
                 const slider = el.querySelector('input');
                 const name = slider.getAttribute('name');
@@ -472,12 +477,7 @@ class GitDown {
 
     // update parameter values in storage and url
     set_param( key, value ) {
-        const default_value = gd.settings.get_default(key);
-        if ( value === default_value ) {
-            gd.params.delete(key);
-        } else {
-            gd.params.set( key, value );
-        }
+        gd.params.set( key, value );
         if ( gd.status.has('var-updated') ) {
             history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );
         }
@@ -848,8 +848,10 @@ class GitDown {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
-            //gd.update_from_params();
+            // render cssvars with defaults from extract_css_vars
             gd.render_theme_vars();
+            // update fields from url param values which should reflect cssvar defaults
+            gd.update_from_params();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
         } else {
@@ -859,6 +861,7 @@ class GitDown {
             gd.update_wrapper_classes();
             // update theme vars and render fields
             gd.render_theme_vars();
+            gd.update_from_params();
             // finally register events
             gd.register_events();
         }
@@ -893,9 +896,6 @@ class GitDown {
         /// clear any existing theme-var fields
         let v = document.querySelector( gd.eid + ' .info .theme-vars' );
         if ( v !== null ) v.innerHTML = '';
-
-        // update fields based on url params
-        gd.update_from_params();
         
         gd.update_ui_from_settings();
         gd.render_highlight();
@@ -945,13 +945,6 @@ class GitDown {
         if ( theme_vars !== null && css_vars.length !== {} ) {
             for ( const key in css_vars ) {
                 const value = css_vars[key];
-                //console.log(key, value);
-                // by displaying fields only when relevant selectors are available
-                // we can ensure themes are usable across apps that might not utilize
-                // certain selectors
-                //
-                // example: BeatDown has an EQ so themes that style the EQ
-                // can include configurable values that won't show up in other apps
                 const selector = '';
                 if ( selector === '' ) {
                     html += gd.theme_var_html( key, value );
@@ -1674,6 +1667,7 @@ class GitDown {
     selector_changed(type, id) {
         // hide any visible selector field first
         $( gd.eid + ' .field.selector .dialog.visible' ).removeClass('visible');
+        gd.settings.set_value(type, id);
         gd.status.add('var-updated');
         gd.set_param( type, id );
         gd.update_parameter(type, id);
@@ -1696,7 +1690,6 @@ class GitDown {
     update_from_css_vars(name, suffix) {
         // update field with specified name if it exists in css_vars
         const css_vars = gd.settings.get_settings('cssvar');
-        // TODO: by the time we get here the values have been reverted
         if ( name in css_vars ) {
             const value = gd.update_parameter( name, css_vars[name] );
             document.documentElement.style.setProperty( `--${name}`, value + suffix );
@@ -2003,13 +1996,54 @@ class Status {
  */
 class Settings {
     
-    constructor( options = [] ) {
+    constructor( options = [], parameters_protected ) {
         this.initial_options = options;
         this.settings = this.initial_settings();
+        this.parameters_protected = parameters_protected;
     }
 
     reset() {
         this.settings = this.initial_settings();
+    }
+
+    // helper function to determine if a setting should be included in query string
+    should_include(setting) {
+        const name = setting.name;
+        const value = String(setting.value);
+        const default_value = String(setting.default);
+        const suffix = setting.suffix;
+
+        // exclude any settings with _filename for now
+        if ( name.includes('_filename') ) return false;
+        
+        // exclude setting if its value = default_value
+        if ( value + suffix == default_value ) return false;
+        
+        // exclude protected params
+        if ( this.parameters_protected.includes(name) ) return false;
+
+        // exclude params
+        const disallowed = this.get_value('parameters_disallowed');
+        if ( disallowed.includes(name) ) return false;
+
+        console.log(setting);
+
+        return true;
+    }
+
+    // returns a string of settings in url parameter format
+    to_string(type) {
+        let count = 0;
+        let result = '';
+        for ( const i in this.settings ) {
+            if ( this.should_include( this.settings[i] ) ) {
+                const s = this.settings[i];
+                if ( count > 0 ) result += '&';
+                result += `${s.name}=${s.value}`;
+                count += 1;
+            }
+        }
+        return result;
     }
 
     // delete settings of specified type
@@ -2057,16 +2091,24 @@ class Settings {
         return key.default = value;
     }
 
+    get_suffix(s){
+        if ( s.match(/^\d/) ) return s.replace(/[0-9]/g, '');
+        return '';
+    }
+
     // set a value by specified setting name
     set_value(name, value, type) {
         if ( type === undefined ) type = 'init';
         const key = this.settings.find(i => i.name === name);
+        let suffix = '';
+        if ( type === 'cssvar' ) suffix = this.get_suffix(value);
         if ( key === undefined ) {
             const setting = {
                 name: name,
                 value: value,
                 default: value,
-                type: type
+                type: type,
+                suffix: suffix
             }
             this.settings.push(setting);
             return;
@@ -2107,7 +2149,7 @@ class Settings {
             hide_css_details: false,
             hide_toc: false,
             disable_hide: false,
-            parameters_disallowed: 'title,hide_any',
+            parameters_disallowed: 'initial,title,disable_hide,hide_any',
 
             // GitDown stores a bunch of examples by default
             // set these to false to not merge them into your app
@@ -2128,7 +2170,8 @@ class Settings {
                 name: key,
                 value: defaults[key],
                 default: defaults[key],
-                type: 'init'
+                type: 'init',
+                suffix: ''
             }
             result.push(setting);
         }
