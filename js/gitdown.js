@@ -123,8 +123,6 @@ class GitDown {
                     const parser = new HtmlWhitelistedSanitizer(true);
                     val = parser.sanitizeString(val);
                 }
-                console.log(key, val);
-                // todo
                 this.settings.set_value(key, val);
             }
         }
@@ -357,14 +355,15 @@ class GitDown {
             return parser.sanitizeString(value);
         }
         // return empty string if key doesn't exist
-        return '';            
+        return '';
     };
 
     // returns value of css_var at key k
     get_css_var(k) {
-        for ( const key in gd.css_vars ) {
+        const css_vars = gd.settings.get_settings('cssvar');
+        for ( const key in css_vars ) {
             if ( key === k ) {
-                return gd.css_vars[k];
+                return css_vars[k];
             }
         }
         return '';
@@ -390,8 +389,6 @@ class GitDown {
         while (x < max);
     }
 
-    // extracts css variables into this.css_vars[]
-    // css_vars[key] = {value, optional variable decalaration, optional selector}
     extract_css_vars() {
         // start by clearing existing css vars
         const styleSheets = document.styleSheets;
@@ -399,13 +396,16 @@ class GitDown {
         for (var i = 0; i < styleSheetsLength; i++) {
             // get cssRules from internal stylesheets only
             try {
+                let defaultsh = false;
+                // use default to determine whether this stylesheet is the default one (style.css)
+                if ( styleSheets[i].href !== null &&
+                    styleSheets[i].href.includes('style.css') )
+                    defaultsh = true;
                 const classes = styleSheets[i].rules || styleSheets[i].cssRules;
                 const classesLength = classes.length;
                 for (var c = 0; c < classesLength; c++) {
                     const cssClass = classes[c];
-                    if (cssClass.selectorText === undefined) {
-                        continue;
-                    }
+                    if (cssClass.selectorText === undefined) continue;
                     const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
                     if ( regex !== null ) {
                         const input = regex.input;
@@ -413,7 +413,7 @@ class GitDown {
                             const r = str.match(/\-\-(.*?):(.*?);/);
                             const key = r[1].trim();
                             const value = r[2].trim();
-                            this.css_vars[key] = value;
+                            this.settings.set_value( key, value, 'cssvar' );
                         });
                     }
                 }
@@ -424,7 +424,7 @@ class GitDown {
     }
 
     // update fields based on url parameters
-    update_fields_with_params(type) {
+    update_from_params(type) {
         if ( type === '' || type === undefined ) type = '';
         const s = `${gd.eid} .info .field${type}`;
         const fields = document.querySelectorAll(s);
@@ -472,7 +472,7 @@ class GitDown {
 
     // update parameter values in storage and url
     set_param( key, value ) {
-        const default_value = 'asdfasdfjasdf';//gd.settings.get_default(key);
+        const default_value = gd.settings.get_default(key);
         if ( value === default_value ) {
             gd.params.delete(key);
         } else {
@@ -848,8 +848,7 @@ class GitDown {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
-            // todo: render_theme_vars doesn't update vars from default theme
-            gd.update_fields_with_params();
+            //gd.update_from_params();
             gd.render_theme_vars();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
@@ -896,7 +895,7 @@ class GitDown {
         if ( v !== null ) v.innerHTML = '';
 
         // update fields based on url params
-        gd.update_fields_with_params();
+        gd.update_from_params();
         
         gd.update_ui_from_settings();
         gd.render_highlight();
@@ -941,9 +940,12 @@ class GitDown {
     render_theme_vars() {
         let html = '';
         let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
-        if ( theme_vars !== null && gd.css_vars.length !== {} ) {
-            for ( const key in gd.css_vars ) {
-                const value = gd.css_vars[key];
+        // first ensure theme var section exists and that there's at least one css_var
+        const css_vars = gd.settings.get_settings('cssvar');
+        if ( theme_vars !== null && css_vars.length !== {} ) {
+            for ( const key in css_vars ) {
+                const value = css_vars[key];
+                //console.log(key, value);
                 // by displaying fields only when relevant selectors are available
                 // we can ensure themes are usable across apps that might not utilize
                 // certain selectors
@@ -961,7 +963,6 @@ class GitDown {
                 }
             }
             theme_vars.innerHTML = html;
-            gd.update_fields_with_params();
         }
     }
     
@@ -1673,13 +1674,13 @@ class GitDown {
     selector_changed(type, id) {
         // hide any visible selector field first
         $( gd.eid + ' .field.selector .dialog.visible' ).removeClass('visible');
+        gd.status.add('var-updated');
         gd.set_param( type, id );
         gd.update_parameter(type, id);
         if ( type === 'css' ) {
             gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
-            // we shouldn't clear css_vars since default variables might be re-used in child themes
-            gd.css_vars = {};
+            gd.settings.delete('cssvar');
             gd.loop();
         } else if ( type === 'gist' ) {
             gd.status.remove('content,done,changed');
@@ -1694,8 +1695,10 @@ class GitDown {
 
     update_from_css_vars(name, suffix) {
         // update field with specified name if it exists in css_vars
-        if ( name in gd.css_vars ) {
-            const value = gd.update_parameter( name, gd.css_vars[name] );
+        const css_vars = gd.settings.get_settings('cssvar');
+        // TODO: by the time we get here the values have been reverted
+        if ( name in css_vars ) {
+            const value = gd.update_parameter( name, css_vars[name] );
             document.documentElement.style.setProperty( `--${name}`, value + suffix );
         }
     }
@@ -1784,7 +1787,6 @@ class GitDown {
             gd.status.add('var-updated');
             value = field.value;
         }
-        // todo:
         field.value = value;
         gd.settings.set_value( name, value );
         gd.set_param( name, value );
@@ -1996,7 +1998,7 @@ class Status {
 }
 
 /**
- * Simple way to keep track of app settings and default values
+ * Centralized handler for app settings and default values
  * @param {object} options user provided initial settings
  */
 class Settings {
@@ -2006,61 +2008,75 @@ class Settings {
         this.settings = this.initial_settings();
     }
 
-    clear() {
+    reset() {
         this.settings = this.initial_settings();
     }
 
-    // return a key/value array of settings without defaults
-    get_settings() {
+    // delete settings of specified type
+    delete(type) {
         let result = [];
         for ( const i in this.settings ) {
-            var key = this.settings[i][0];
-            var value = this.settings[i][1];
-            result[key] = value;
+            const s = this.settings[i];
+            if ( type !== undefined && type !== s.type ) {
+                result.push(s);
+            }
+        }
+        this.settings = result;
+    }
+
+    // return a key/value array of settings without defaults
+    get_settings(type) {
+        let result = [];
+        for ( const i in this.settings ) {
+            const s = this.settings[i];
+            if ( type === undefined ) {
+                result[s.name] = s.value;
+            } else if ( type === s.type ) {
+                result[s.name] = s.value;
+            }
         }
         return result;
     }
 
     // return a setting's value by specified setting name
     get_value(name) {
-        var found = this.settings.find(function(e) {
-            return e[0] === name;
-        });
-        return found[1];
+        const key = this.settings.find(i => i.name === name);
+        return key.value;
     }
 
     // returns the default value for a specific setting by name
     get_default(name) {
-        var found = this.settings.find(function(e) {
-            return e[0] === name;
-        });
-        return found[2];
+        const key = this.settings.find(i => i.name === name);
+        return key.default;
     }
 
     // set a value by specified setting name
     set_default(name, value) {
-        var found = this.settings.find(function(e) {
-            return e[0] === name;
-        });
-        if ( found === undefined ) return false;
-        found[2] = value;
-        return value;
+        const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return false;
+        return key.default = value;
     }
 
     // set a value by specified setting name
-    set_value(name, value) {
-        var found = this.settings.find(function(e) {
-            return e[0] === name;
-        });
-        let new_setting;
-        if ( found === undefined ) {
-            // we'll set the default value as the value used when first setting the value
-            new_setting = [name, value, value];
-            this.settings.push(new_setting);
-        } else {
-            // change exist value
-            found[1] = value;
+    set_value(name, value, type) {
+        if ( type === undefined ) type = 'init';
+        const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) {
+            const setting = {
+                name: name,
+                value: value,
+                default: value,
+                type: type
+            }
+            this.settings.push(setting);
+            return;
         }
+        // if setting is a cssvar, update the default value
+        if ( type === 'cssvar' ) {
+            key.default = value;
+            key.value = value;
+        }
+        return key.value = value;
     }
 
     initial_settings() {
@@ -2108,8 +2124,12 @@ class Settings {
 
         // now we'll create an object, assign defaults and return it
         for ( const key in defaults ) {
-            const d = defaults[key];
-            const setting = [key, d, d];
+            const setting = {
+                name: key,
+                value: defaults[key],
+                default: defaults[key],
+                type: 'init'
+            }
             result.push(setting);
         }
         return result;
