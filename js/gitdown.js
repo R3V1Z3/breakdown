@@ -192,7 +192,7 @@ class GitDown {
         if ( o === 'css' ) {
             str = str.toLowerCase();
             // remove non-alphanumerics
-            str = str.replace(/[^a-z0-9_\s-]/g, '-');
+            str = str.replace(/[^#a-z0-9_\s-]/g, '-');
             // clean up multiple dashes or whitespaces
             str = str.replace(/[\s-]+/g, ' ');
             // remove leading and trailing spaces
@@ -2012,8 +2012,6 @@ class Settings {
         const value = String(setting.value);
         const default_value = String(setting.default);
         const suffix = setting.suffix;
-
-        if ( name === 'gist' ) console.log(setting);
 
         // exclude any settings with _filename for now
         if ( name.includes('_filename') ) return false;
