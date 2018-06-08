@@ -2013,6 +2013,8 @@ class Settings {
         const default_value = String(setting.default);
         const suffix = setting.suffix;
 
+        if ( name === 'gist' ) console.log(setting);
+
         // exclude any settings with _filename for now
         if ( name.includes('_filename') ) return false;
         
@@ -2020,13 +2022,12 @@ class Settings {
         if ( value + suffix == default_value ) return false;
         
         // exclude protected params
-        if ( this.parameters_protected.includes(name) ) return false;
+        let p = this.parameters_protected.split(',');
+        if ( p.includes(name) ) return false;
 
         // exclude params
-        const disallowed = this.get_value('parameters_disallowed');
-        if ( disallowed.includes(name) ) return false;
-
-        console.log(setting);
+        p = this.get_value('parameters_disallowed').split(',');
+        if ( p.includes(name) ) return false;
 
         return true;
     }
