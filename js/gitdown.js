@@ -470,7 +470,16 @@ class GitDown {
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
                 const fname = gd.settings.get_value( type + '_filename' );
-                gd.update_selector_url( type, fname );
+                if ( fname === undefined ) {
+                    const name = el.getAttribute('data-name');
+                    // get the first child as default value
+                    const a = el.querySelector('.selector-wrapper a.id');
+                    const value = a.getAttribute('data-id');
+                    const p = gd.update_parameter( name, value );
+                    gd.settings.set_value( name, value, 'var' );
+                } else {
+                    gd.update_selector_url( type, fname );
+                }
             }
         });
     }
@@ -850,8 +859,8 @@ class GitDown {
             gd.update_wrapper_classes();
             // render cssvars with defaults from extract_css_vars
             gd.render_theme_vars();
-            // update fields from url param values which should reflect cssvar defaults
-            gd.update_from_params();
+            // update fields from newly rendered theme vars
+            gd.update_from_css_vars();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
         } else {
@@ -936,7 +945,7 @@ class GitDown {
     };
 
     // called at start and when theme changes
-    // renders html representing theme variables (css_vars)
+    // renders html representing theme variables
     render_theme_vars() {
         let html = '';
         let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
@@ -1688,11 +1697,19 @@ class GitDown {
     }
 
     update_from_css_vars(name, suffix) {
-        // update field with specified name if it exists in css_vars
-        const css_vars = gd.settings.get_settings('cssvar');
-        if ( name in css_vars ) {
+        let css_vars = gd.settings.get_settings('cssvar');
+        const doc = document.documentElement.style;
+        if ( name === undefined ) {
+            css_vars = gd.settings.get('cssvar');
+            css_vars.forEach(e=>{
+                doc.setProperty( `--${e.name}`, e.value + e.suffix );
+                history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );                
+            });
+        } else if ( name in css_vars ) {
+            // update field with specified name if it exists in css_vars
+            css_vars = gd.settings.get_settings('cssvar');
             const value = gd.update_parameter( name, css_vars[name] );
-            document.documentElement.style.setProperty( `--${name}`, value + suffix );
+            doc.setProperty( `--${name}`, value + suffix );
         }
     }
 
@@ -2070,10 +2087,15 @@ class Settings {
         }
         return result;
     }
+    
+    get(type) {
+        return this.settings.filter(i => i.type === type);
+    }
 
     // return a setting's value by specified setting name
     get_value(name) {
         const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return key;
         return key.value;
     }
 
@@ -2100,7 +2122,7 @@ class Settings {
         if ( type === undefined ) type = 'init';
         const key = this.settings.find(i => i.name === name);
         let suffix = '';
-        if ( type === 'cssvar' ) suffix = this.get_suffix(value);
+        if ( type.includes('var') ) suffix = this.get_suffix(value);
         if ( key === undefined ) {
             const setting = {
                 name: name,
