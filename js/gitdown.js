@@ -406,9 +406,14 @@ class GitDown {
                 const classesLength = classes.length;
                 for (var c = 0; c < classesLength; c++) {
                     const cssClass = classes[c];
-                    if (cssClass.selectorText === undefined) continue;
+                    const selector = cssClass.selectorText;
+                    // skip if there's no selector, denoting external stylesheet
+                    if (selector === undefined) continue;
                     const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
                     if ( regex !== null ) {
+                        const elements = document.querySelectorAll(selector);
+                        // skip if there are no elements with selector
+                        if ( elements.length < 1 ) continue;
                         const input = regex.input;
                         regex.forEach((str) => {
                             const r = str.match(/\-\-(.*?):(.*?);/);
@@ -973,6 +978,7 @@ class GitDown {
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
+        const suffix = value.replace(/[0-9]/g, '');
 
         // COLOR fields
         // handle field as Select if its name contains keyword 'color'
@@ -991,10 +997,31 @@ class GitDown {
             return c;
         }
 
+        // TRANSFORMS
+        if ( v.indexOf('translate') !== -1 ) {
+            const items = [parseInt(value), -2000, 2000, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        if ( v.indexOf('rotate') !== -1 ) {
+            const items = [parseInt(value), 0, 360, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        if ( v.indexOf('scale') !== -1 ) {
+            const items = [parseFloat(value), 0.15, 30, 0.1, ''];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        if ( v.indexOf('perspective') !== -1 ) {
+            const items = [parseFloat(value), 100, 2000, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+
         // FONTSIZE fields
         // handle field as Slider if its name contains keyword 'fontsize'
         if ( v.indexOf('fontsize') !== -1 ) {
-            const suffix = value.replace(/[0-9]/g, '');
             const items = [parseInt(value), 10, 300, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
@@ -1707,7 +1734,6 @@ class GitDown {
             });
         } else if ( name in css_vars ) {
             // update field with specified name if it exists in css_vars
-            css_vars = gd.settings.get_settings('cssvar');
             const value = gd.update_parameter( name, css_vars[name] );
             doc.setProperty( `--${name}`, value + suffix );
         }

@@ -5,26 +5,32 @@
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
 
-$scale:1.1;           /* .gd-slides {$gd_slider_scale="1.1,0.15,30,0.1"} */
-$translateX:-100;     /* .gd-slides {$gd_slider_translateX="-100,-2000,2000,1,px"} */
-$translateY:10;     /* .gd-slides {$gd_slider_translateY="10,-2000,2000,1,px"} */
-$perspective:900;     /* .gd-slides {$gd_slider_perspective="900,100,2000,1,px"} */
-$rotateX:15;          /* .gd-slides {$gd_slider_rotateX="15,0,360,1,deg"} */
-$rotateY:4;           /* .gd-slides {$gd_slider_rotateY="4,0,360,1,deg"} */
-$rotateZ:0;           /* .gd-slides {$gd_slider_rotateZ="0,0,360,1,deg"} */
-$translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
+:root {
+  --fontsize: 140%;
+}
 
+.gd-slides .inner {
+  --scale:1.0;
+  --translateX:0px;
+  --translateY:0px;
+  --perspective:1500px;
+  --rotateX:0deg;
+  --rotateY:0deg;
+  --rotateZ:0deg;
+  --translateZ:0px;
+}
+  
 /* BeatDown styling */
-.gd-slides #custom .inner {
+.gd-slides .inner {
     position: fixed;
-    transform: scale($scale)
-        translateX($translateXpx)
-        translateY($translateYpx)
-        perspective($perspectivepx)
-        rotateX($rotateXdeg)
-        rotateY($rotateYdeg)
-        rotateZ($rotateZdeg)
-        translateZ($translateZpx);
+    transform: scale(var(--scale))
+        translateX(var(--translateX))
+        translateY(var(--translateY))
+        perspective(var(--perspective))
+        rotateX(var(--rotateX))
+        rotateY(var(--rotateY))
+        rotateZ(var(--rotateZ))
+        translateZ(var(--translateZ));
     padding: 10%;
 }
 
@@ -47,7 +53,6 @@ $translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
 }
 
 #custom .section {
-    padding: 0.5em;
     box-shadow: none;
     background: rgba(169, 169, 169, 0.75);
     border-radius: 0;
@@ -83,9 +88,17 @@ $translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
     mix-blend-mode: color-dodge;
 }
 
+#custom .section {
+    padding: 0.5em;
+}
+
 .gd-columns #custom .section {
     padding: 0.25em;
     margin: 40px 20px;
+}
+
+.gd-slides #custom .container {
+  overflow: hidden;
 }
 
 .gd-modular #custom a.n-reference {
@@ -105,7 +118,7 @@ $translateZ:0;        /* .gd-slides {$gd_slider_translateZ="0,-500,500,1,px"} */
 
 #custom .inner {
   background: none;
-  font-size: 140%;
+  font-size: var(--fontsize);
 }
 
 .section a {
@@ -221,8 +234,6 @@ connection {
 #custom .info .field.selector .dialog {
   background: black;
 }
-
-/* BeatDown-specific styling */
 
 #custom .eq {
     position: absolute;
