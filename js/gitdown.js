@@ -978,6 +978,7 @@ class GitDown {
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
+        console.log(v, value);
         const suffix = value.replace(/[0-9]/g, '');
 
         // COLOR fields
@@ -1553,7 +1554,12 @@ class GitDown {
         v_name = v_name.split( type + '_' )[1];
 
         if ( type === 'selector' ) {
-            el.parentNode.innerHTML = gd.selector_html( v_name, type, v_name, items );
+            let item1 = Object.values(items)[0];
+            if ( item1.includes('/') ) {
+                let i = item1.split('/');
+                item1 = i[i.length - 1];
+            }
+            el.parentNode.innerHTML = gd.selector_html( v_name,item1, v_name, items );
         } else if ( type === 'collapsible' ) {
             let pos = 'start';
             if ( v_name.startsWith('end_') ) {
