@@ -996,20 +996,6 @@ class GitDown {
             return c;
         }
 
-        // PERCENTAGE-based values like fontsize
-        if ( suffix === '%' ) {
-            const items = [parseInt(value), 100, 300, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
-        }
-
-        // DEGREE-based values (rotation-based params like rotateX)
-        if ( suffix.toLowerCase() === 'deg' ) {
-            const items = [parseInt(value), 0, 360, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
-        }
-
         // TRANSFORMS
         if ( v.indexOf('translate') !== -1 ) {
             const items = [parseInt(value), -2000, 2000, 1, suffix];
@@ -1027,17 +1013,33 @@ class GitDown {
             return [ c ];
         }
 
-        // BRIGHTNESS
-        if ( v.indexOf('brightness') !== -1 ) {
-            const items = [parseFloat(value), 1, 3, 0.05, ''];
+        // PX and EM based values
+        if ( suffix.toLowerCase() === 'px' ) {
+            const items = [parseInt(value), 100, 2000, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        if ( suffix.toLowerCase() === 'em' ) {
+            const items = [parseInt(value), 10, 400, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        // PERCENTAGE-based values like fontsize
+        if ( suffix === '%' ) {
+            const items = [parseInt(value), 100, 300, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+        // DEGREE-based values (rotation-based params like rotateX)
+        if ( suffix.toLowerCase() === 'deg' ) {
+            const items = [parseInt(value), 0, 360, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
 
-        // FONTSIZE fields
-        // handle field as Slider if its name contains keyword 'fontsize'
-        if ( v.indexOf('fontsize') !== -1 ) {
-            const items = [parseInt(value), 10, 300, 1, suffix];
+        // BRIGHTNESS
+        if ( v.indexOf('brightness') !== -1 ) {
+            const items = [parseFloat(value), 1, 3, 0.05, ''];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
