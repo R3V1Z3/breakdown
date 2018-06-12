@@ -23,7 +23,6 @@ class GitDown {
         this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin,parameters_disallowed';
         this.settings = new Settings(options, this.parameters_protected);
         // this.sectionz = new Sectionz();
-        // this.css_vars = new CSS_Varz();
         // this.parameterz = new Parameterz();
         // this.fieldz = new Fieldz();
 
@@ -978,7 +977,6 @@ class GitDown {
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
-        console.log(v, value);
         const suffix = value.replace(/[0-9]/g, '');
 
         // COLOR fields
@@ -998,14 +996,23 @@ class GitDown {
             return c;
         }
 
-        // TRANSFORMS
-        if ( v.indexOf('translate') !== -1 ) {
-            const items = [parseInt(value), -2000, 2000, 1, suffix];
+        // PERCENTAGE-based values like fontsize
+        if ( suffix === '%' ) {
+            const items = [parseInt(value), 100, 300, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
-        if ( v.indexOf('rotate') !== -1 ) {
+
+        // DEGREE-based values (rotation-based params like rotateX)
+        if ( suffix.toLowerCase() === 'deg' ) {
             const items = [parseInt(value), 0, 360, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+
+        // TRANSFORMS
+        if ( v.indexOf('translate') !== -1 ) {
+            const items = [parseInt(value), -2000, 2000, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
@@ -1016,6 +1023,13 @@ class GitDown {
         }
         if ( v.indexOf('perspective') !== -1 ) {
             const items = [parseFloat(value), 100, 2000, 1, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+
+        // BRIGHTNESS
+        if ( v.indexOf('brightness') !== -1 ) {
+            const items = [parseFloat(value), 1, 3, 0.05, ''];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
@@ -1559,7 +1573,7 @@ class GitDown {
                 let i = item1.split('/');
                 item1 = i[i.length - 1];
             }
-            el.parentNode.innerHTML = gd.selector_html( v_name,item1, v_name, items );
+            el.parentNode.innerHTML = gd.selector_html( v_name, item1, v_name, items );
         } else if ( type === 'collapsible' ) {
             let pos = 'start';
             if ( v_name.startsWith('end_') ) {
@@ -1823,7 +1837,7 @@ class GitDown {
 
     update_field(field, value) {
         let name = field.parentElement.getAttribute('data-name');
-        name =  gd.clean(name);
+        // name =  gd.clean(name);
         if ( value === undefined ) {
             // this indicates user initiated action so we'll update status
             gd.status.add('var-updated');

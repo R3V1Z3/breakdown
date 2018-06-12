@@ -5,10 +5,9 @@ GitDown is an experimental framework for quickly building very specific types of
 
 ## What does it do?
 The framework provides:
-- a base projects that can easily be forked on GitHub.
+- a base project that can easily be forked on GitHub.
 - Markdown rendering function using MarkdownIt
-- Configuration through URL parameter
-- Preprocess and postprocess functions for special cases including tag_replace()
+- configuration through URL parameter
 
 ## What uses it?
 Several projects now use the framework:
@@ -38,11 +37,6 @@ Example Gists <!-- {$gd_gist} -->
 - [R Spacial Analysis](https://gist.github.com/fc661f26ef51eae6377b)
 - [Markdown resources](https://gist.github.com/eba62d45c82d0767a5a0)
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
-
-Stories <!-- {$gd_selector_story} -->
-- [Sorcerer](https://cdn.rawgit.com/darrenaustin/zcode/9e431fcb/games/Sorcerer.z3)
-- [Enchanter](https://cdn.rawgit.com/darrenaustin/zcode/9e431fcb/games/Enchanter.z3)
-- [A Mind Forever Voyaging](https://cdn.rawgit.com/darrenaustin/zcode/9e431fcb/games/A%20Mind%20Forever%20Voyaging.z4)
 
 <!-- {$gd_collapsible_appearance} -->
 
