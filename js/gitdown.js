@@ -1926,6 +1926,7 @@ class GitDown {
 
         // Gist and CSS selectors
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
+            console.log('Selector clicked.');
             // first remove any open dialogs
             $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
             var c = gd.jget_selector_class( $(this) );

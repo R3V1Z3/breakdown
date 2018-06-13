@@ -12,7 +12,6 @@
 :root {
   --bg: white;
   --fontsize: 120%;
-  --hid-padding: 0em;
 }
 
 body {
@@ -20,7 +19,6 @@ body {
 }
 
 html, body {
-  padding: var(--hid-padding);
   margin: 0;
 }
 
