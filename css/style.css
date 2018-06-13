@@ -12,7 +12,6 @@
 :root {
   --bg: white;
   --fontsize: 120%;
-  --hue-rotate: 0deg;
 }
 
 body {
@@ -44,7 +43,6 @@ p {
 
 /* Section */
 .section {
-  filter: hue-rotate(var(--hue-rotate));
   margin: auto;
   page-break-inside: avoid;
   touch-action: none;

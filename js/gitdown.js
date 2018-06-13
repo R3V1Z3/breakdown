@@ -319,7 +319,7 @@ class GitDown {
         if ( id === 'default' ) {
             href = gd.gist_url( gd.settings.get_value('content'), false );
         } else {
-            href = '//gist.github.com/' + id;
+            href = 'https://gist.github.com/' + id;
         }
 
         let src_string = `${gd.eid} .info .field.selector.${type} a.selector-source`;
@@ -474,7 +474,7 @@ class GitDown {
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
                 const fname = gd.settings.get_value( type + '_filename' );
-                if ( fname === undefined ) {
+                if ( fname === false ) {
                     const name = el.getAttribute('data-name');
                     // get the first child as default value
                     const a = el.querySelector('.selector-wrapper a.id');
@@ -859,6 +859,8 @@ class GitDown {
         gd.extract_css_vars();
 
         if ( gd.status.has('theme-changed') ) {
+            // update the input field for the theme selector
+            gd.update_selector_url( 'css', gd.settings.get_value('css_filename') );
             // update theme vars and render fields
             gd.update_wrapper_classes();
             // render cssvars with defaults from extract_css_vars
@@ -1700,11 +1702,6 @@ class GitDown {
     };
 
     // simple helper to reduce repitition for getting selector class
-    jget_selector_class($c) {
-        return $c.closest('.field.selector').attr('data-name');
-    }
-
-    // simple helper to reduce repitition for getting selector class
     get_selector_class(c) {
         return c.closest('.field.selector').getAttribute('data-name');
     }
@@ -1796,7 +1793,7 @@ class GitDown {
         for ( const key in items) {
             let url = '';
             if (is_gist_id) {
-                url = `//gist.github.com/${items[key]}`;
+                url = items[key];
                 data_id = gd.get_gist_id( items[key] );
             } else {
                 url = items[key];
@@ -1928,22 +1925,11 @@ class GitDown {
             $( gd.eid ).removeClass('panels-hidden');
         });
 
-        // SELECTOR KEYPRESS
-        $( gd.eid + ' .info .selector-input' ).unbind().keyup(function(e) {
-            if( e.which == 13 ) {
-                // get parent class
-                var c = gd.jget_selector_class( $(this).parent() );
-                var id = $(this).val();
-                gd.selector_changed(c, id);
-            }
-        });
-
         // Gist and CSS selectors
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
-            console.log('Selector clicked.');
             // first remove any open dialogs
             $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
-            var c = gd.jget_selector_class( $(this) );
+            var c = gd.get_selector_class( this );
             var prefix = '.' + c;
             // show selector dialog
             $( `${gd.eid} ${prefix}-selector` ).addClass('visible');
