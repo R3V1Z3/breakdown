@@ -430,17 +430,17 @@ class GitDown {
 
     // iterates over all fields of specific type and updates their values based on url params
     update_from_params(type) {
-        // problem: theme vars aren't rendered yet so they're not updated here
-
         // get field set
         if ( type === '' || type === undefined ) type = '';
         const s = `${gd.eid} .info .field${type}`;
         const fields = document.querySelectorAll(s);
         // iterate over fields
         fields.forEach(el => {
+            let name = '', value = '';
             if ( el.classList.contains('slider') ) {
                 const slider = el.querySelector('input');
-                const name = slider.getAttribute('name');
+                name = slider.getAttribute('name');
+                value = value = slider.value;
                 // get parameter value if user specified
                 const p = gd.update_parameter( name, slider.value );
                 if ( p !== '' ) {
@@ -448,20 +448,21 @@ class GitDown {
                     slider.setAttribute( 'value', p );
                     slider.parentElement.setAttribute( 'data-value', p );
                 }
-                gd.settings.set_value( name, slider.value );
+                gd.settings.set_value( name, slider.value, 'var' );
                 gd.update_field(slider, p);
             } else if ( el.classList.contains('select') ) {
                 const select = el.querySelector('select');
-                const name = select.getAttribute('name');
+                name = select.getAttribute('name');
+                value = select.value;
                 const p = gd.update_parameter( name, select.value );
                 if ( p !== '' ) {
                     gd.update_field(select, p);
                 }
-                gd.settings.set_value( name, select.value );
+                gd.settings.set_value( name, select.value, 'var' );
             } else if ( el.classList.contains('choices') ) {
-                const name = el.getAttribute('data-name');
-                const v = el.querySelector('a.selected').getAttribute('data-value');
-                const p = gd.update_parameter( name, v );
+                name = el.getAttribute('data-name');
+                value = el.querySelector('a.selected').getAttribute('data-value');
+                const p = gd.update_parameter( name, value );
                 if ( p != '' ) {
                     const c = el.querySelector(`a[data-value="${p}"]`);
                     if ( c !== null ) {
@@ -470,20 +471,25 @@ class GitDown {
                         c.classList.add('selected');
                     }
                 }
-                gd.settings.set_value( name, v );
+                gd.settings.set_value( name, value, 'var' );
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
                 const fname = gd.settings.get_value( type + '_filename' );
                 if ( fname === false ) {
-                    const name = el.getAttribute('data-name');
+                    name = el.getAttribute('data-name');
                     // get the first child as default value
                     const a = el.querySelector('.selector-wrapper a.id');
-                    const value = a.getAttribute('data-id');
+                    value = a.getAttribute('data-id');
                     const p = gd.update_parameter( name, value );
                     gd.settings.set_value( name, value, 'var' );
                 } else {
                     gd.update_selector_url( type, fname );
                 }
+            }
+
+            // set defaults if this is the first time function called for this field
+            if ( name !== '' ) {
+                gd.settings.set_default( name, value );
             }
         });
     }
@@ -847,11 +853,14 @@ class GitDown {
         gd.update_ui();
     }
 
+    // render app variables such as gd_toc
     render_variables() {
-        // render all variables in comments
-        this.render_variable_spans( gd.eid + ' .info *' );
-        this.update_variables( gd.eid + ' .info *', this.variable_defaults() );
-        this.render_variable_spans( gd.eid_inner + ' .section *' );
+        // render app variable spans in nav panel
+        this.render_variable_spans( `${gd.eid} .info *` );
+        // update app variables with respective html contents
+        this.update_variables( `${gd.eid} .info *`, this.variable_defaults() );
+        // render app variable spans within sections/content
+        this.render_variable_spans( `${gd.eid_inner} .section *` );
     }
 
     load_done() {
@@ -1570,7 +1579,6 @@ class GitDown {
         const name = el.getAttribute('name');
         let v_name = name.split('gd_')[1];
         const value = el.getAttribute('data-value');
-        let content = el.innerHTML;
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
         // special handler for gist and theme selectors
         if ( v_name === 'gist' ) {
@@ -2187,7 +2195,9 @@ class Settings {
         if ( type === undefined ) type = 'app';
         const key = this.settings.find(i => i.name === name);
         let suffix = '';
-        if ( type.includes('var') ) suffix = this.get_suffix(value);
+        if ( type.includes('var') ) {
+            suffix = this.get_suffix(value);
+        }
         
         // push new setting to array if it doesn't already exist
         if ( key === undefined ) {
@@ -2204,16 +2214,11 @@ class Settings {
         // if setting is a cssvar, update the default value
         if ( type === 'cssvar' ) {
             key.default = value;
-            key.value = value;
             // for special cases where user adds var to content
             // where var already exists as a cssvar, let that field
             // reference the cssvar
 
             // this lets users place fields for cssvars where they want
-
-            // how do we now remove the css field for this?
-            // by the time we're at theme_var_html, cssvars have been extracted
-            // so we can use the data from the cssvar
             key.type = 'cssvar';
         }
         return key.value = value;

@@ -60,6 +60,28 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_theme_variables} -->
 
+Font <!-- {$gd_select_font} -->
+- Default
+- *Fira Code iScript
+- Fira Code
+- Fira Mono
+- Roboto Mono
+- Inconsolata
+- IBM Plex Mono
+- Source Code Pro
+- VT323
+- PT Mono
+- Ubuntu Mono
+- Cousine
+- Nanum Gothic Coding
+- Space Mono
+- Anonymous Pro
+- Share Tech Mono
+- Oxygen Mono
+- Cutive Mono
+- Nova Mono
+- Overpass Mono
+
 <!-- {$gd_collapsible_end_appearance} -->
 
 <!-- {$gd_collapsible_contents} -->
