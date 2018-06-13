@@ -1925,6 +1925,16 @@ class GitDown {
             $( gd.eid ).removeClass('panels-hidden');
         });
 
+        // Selector keypresses (when a user enters a gist ID and presses ENTER)
+        $( gd.eid + ' .info .selector-input' ).unbind().keyup(function(e) {
+            if( e.which == 13 ) {
+                // get parent class
+                var c = gd.get_selector_class( this.parentElement );
+                var id = $(this).val();
+                gd.selector_changed(c, id);
+            }
+        });
+
         // Gist and CSS selectors
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
             // first remove any open dialogs
