@@ -952,12 +952,17 @@ class GitDown {
     // renders html representing theme variables
     render_theme_vars() {
         let html = '';
-        let theme_vars = document.querySelector(gd.eid + ' .info .theme-vars');
+        let theme_vars = document.querySelector(`${gd.eid} .info .theme-vars`);
         // first ensure theme var section exists and that there's at least one css_var
         const css_vars = gd.settings.get_settings('cssvar');
         if ( theme_vars !== null && css_vars.length !== {} ) {
             for ( const key in css_vars ) {
                 const value = css_vars[key];
+                // check for existence of field provided through gd_var in user provided content
+                let field = document.querySelector(`${gd.eid} .info .field.${key}`);
+                // continue to next theme_var if field exists
+                if ( field !== null ) continue;
+                // check if cssvar's selector and see if it's applicable to current app
                 const selector = '';
                 if ( selector === '' ) {
                     html += gd.theme_var_html( key, value );
@@ -1075,11 +1080,13 @@ class GitDown {
             return c;
         } else if( gd.begins( v, 'slider_' ) ) {
             var name = v.split('slider_');
-            // get assignment after var name
             let assignment = name[1].split('=');
             let items = [];
             if ( assignment.length < 2 ) {
-                return '';
+                // no assignment provided so check if there's a cssvar with this name
+                const n = gd.settings.get_value(name);
+                if ( n === false ) return '';
+                return gd.theme_var_html( name, n );
             } else {
                 let v_items = assignment[1];
                 name = assignment[0];
@@ -1555,6 +1562,7 @@ class GitDown {
     }
 
     replace_variable_span(el, items, vars) {
+        let html = '';
         const name = el.getAttribute('name');
         let v_name = name.split('gd_')[1];
         const value = el.getAttribute('data-value');
@@ -1562,9 +1570,9 @@ class GitDown {
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
         // special handler for gist and theme selectors
         if ( v_name === 'gist' ) {
-            el.parentNode.innerHTML = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
+            html = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
         } else if ( v_name === 'css' ) {
-            el.parentNode.innerHTML = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
+            html = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
         }
         // special handler for fields
         let type = gd.get_field_type_from_name(v_name);
@@ -1578,14 +1586,14 @@ class GitDown {
                 let i = item1.split('/');
                 item1 = i[i.length - 1];
             }
-            el.parentNode.innerHTML = gd.selector_html( v_name, item1, v_name, items );
+            html = gd.selector_html( v_name, item1, v_name, items );
         } else if ( type === 'collapsible' ) {
             let pos = 'start';
             if ( v_name.startsWith('end_') ) {
                 pos = 'end';
                 v_name = v_name.split('end_')[1];
             }
-            el.parentNode.innerHTML = gd.field_html( 'collapsible ' + pos, v_name);
+            html = gd.field_html( 'collapsible ' + pos, v_name);
         } else {
             let list = [];
             // special consideration for select fields which allow UL or values in quotes
@@ -1593,10 +1601,14 @@ class GitDown {
                 Object.keys(items).forEach( (val) => {
                     list.push(val);
                 });
-            } else list = value.split(',');
+            } else {
+                if ( value === null ) return;
+                list = value.split(',');
+            }
             if ( type === 'choice' ) type = 'choices';
-            el.parentNode.innerHTML = gd.field_html( type, v_name, list );
+            html = gd.field_html( type, v_name, list );
         }
+        el.parentNode.innerHTML = html;
     }
 
     get_field_type_from_name(name) {
@@ -2150,7 +2162,7 @@ class Settings {
     // return a setting's value by specified setting name
     get_value(name) {
         const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return key;
+        if ( key === undefined ) return false;
         return key.value;
     }
 
@@ -2174,10 +2186,12 @@ class Settings {
 
     // set a value by specified setting name
     set_value(name, value, type) {
-        if ( type === undefined ) type = 'init';
+        if ( type === undefined ) type = 'app';
         const key = this.settings.find(i => i.name === name);
         let suffix = '';
         if ( type.includes('var') ) suffix = this.get_suffix(value);
+        
+        // push new setting to array if it doesn't already exist
         if ( key === undefined ) {
             const setting = {
                 name: name,
@@ -2193,6 +2207,16 @@ class Settings {
         if ( type === 'cssvar' ) {
             key.default = value;
             key.value = value;
+            // for special cases where user adds var to content
+            // where var already exists as a cssvar, let that field
+            // reference the cssvar
+
+            // this lets users place fields for cssvars where they want
+
+            // how do we now remove the css field for this?
+            // by the time we're at theme_var_html, cssvars have been extracted
+            // so we can use the data from the cssvar
+            key.type = 'cssvar';
         }
         return key.value = value;
     }
@@ -2246,7 +2270,7 @@ class Settings {
                 name: key,
                 value: defaults[key],
                 default: defaults[key],
-                type: 'init',
+                type: 'core',
                 suffix: ''
             }
             result.push(setting);
