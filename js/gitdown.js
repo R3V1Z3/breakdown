@@ -1020,13 +1020,13 @@ class GitDown {
             return [ c ];
         }
         if ( suffix.toLowerCase() === 'em' ) {
-            const items = [parseInt(value), 10, 400, 1, suffix];
+            const items = [parseInt(value), 0, 400, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
         // PERCENTAGE-based values like fontsize
         if ( suffix === '%' ) {
-            const items = [parseInt(value), 100, 300, 1, suffix];
+            const items = [parseInt(value), 10, 300, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
@@ -1471,7 +1471,10 @@ class GitDown {
     }
 
     field_html( type, name, items ) {
-        var c = `<div class="field ${type} ${name}" data-name="${name}"`;
+        let hid = '';
+        // variables with hid- prefix will be hidden from view with .hid class
+        if ( name.includes('hid-') ) hid = 'hid';
+        let c = `<div class="field ${type} ${name} ${hid}" data-name="${name}"`;
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
@@ -2077,6 +2080,9 @@ class Settings {
         const value = String(setting.value);
         const default_value = String(setting.default);
         const suffix = setting.suffix;
+
+        // exclude names with hid- prefix
+        if ( name.includes('hid-') ) return false;
 
         // exclude any settings with _filename for now
         if ( name.includes('_filename') ) return false;

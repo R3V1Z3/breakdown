@@ -12,6 +12,7 @@
 :root {
   --bg: white;
   --fontsize: 120%;
+  --hid-padding: 0em;
 }
 
 body {
@@ -19,7 +20,7 @@ body {
 }
 
 html, body {
-  padding: 0;
+  padding: var(--hid-padding);
   margin: 0;
 }
 
@@ -141,6 +142,12 @@ kbd:hover {
 .panels-hidden .panel {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Special class fir hid- variables */
+
+.info .hid {
+  display: none;
 }
 
 /* Info panel */
