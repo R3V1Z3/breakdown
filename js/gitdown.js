@@ -953,6 +953,8 @@ class GitDown {
     render_theme_vars() {
         let html = '';
         let theme_vars = document.querySelector(`${gd.eid} .info .theme-vars`);
+        // begin by clearing html content
+        theme_vars.innerHTML = html;
         // first ensure theme var section exists and that there's at least one css_var
         const css_vars = gd.settings.get_settings('cssvar');
         if ( theme_vars !== null && css_vars.length !== {} ) {
