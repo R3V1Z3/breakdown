@@ -1570,9 +1570,9 @@ class GitDown {
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
         // special handler for gist and theme selectors
         if ( v_name === 'gist' ) {
-            html = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
+            el.parentNode.innerHTML = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
         } else if ( v_name === 'css' ) {
-            html = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
+            el.parentNode.innerHTML = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
         }
         // special handler for fields
         let type = gd.get_field_type_from_name(v_name);
