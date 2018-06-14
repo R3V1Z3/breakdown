@@ -2192,13 +2192,17 @@ class Settings {
 
     // set a value by specified setting name
     set_value(name, value, type) {
-        if ( type === undefined ) type = 'app';
+        if ( type === undefined ) type = 'var';
         const key = this.settings.find(i => i.name === name);
-        let suffix = '';
-        if ( type.includes('var') ) {
-            suffix = this.get_suffix(value);
+        // if setting is a cssvar, update the default value
+        if ( type === 'cssvar' ) {
+            key.default = value;
+            // for special cases where user adds var to content
+            key.type = 'cssvar';
         }
-        
+        // get suffix from default value
+        let suffix = '';
+        if ( type.includes('var') ) suffix = this.get_suffix(value);
         // push new setting to array if it doesn't already exist
         if ( key === undefined ) {
             const setting = {
@@ -2211,16 +2215,8 @@ class Settings {
             this.settings.push(setting);
             return;
         }
-        // if setting is a cssvar, update the default value
-        if ( type === 'cssvar' ) {
-            key.default = value;
-            // for special cases where user adds var to content
-            // where var already exists as a cssvar, let that field
-            // reference the cssvar
-
-            // this lets users place fields for cssvars where they want
-            key.type = 'cssvar';
-        }
+        // if key already exists, just update the value,
+        // no suffix or default change
         return key.value = value;
     }
 
