@@ -37,6 +37,7 @@ Example Gists <!-- {$gd_gist} -->
 - [R Spacial Analysis](https://gist.github.com/fc661f26ef51eae6377b)
 - [Markdown resources](https://gist.github.com/eba62d45c82d0767a5a0)
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
+- [Best Practices for Python](https://gist.github.com/7001839)
 
 <!-- {$gd_collapsible_appearance} -->
 
@@ -59,28 +60,6 @@ Themes <!-- {$gd_css} -->
 - [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
 
 <!-- {$gd_theme_variables} -->
-
-Font <!-- {$gd_select_font} -->
-- Default
-- *Fira Code iScript
-- Fira Code
-- Fira Mono
-- Roboto Mono
-- Inconsolata
-- IBM Plex Mono
-- Source Code Pro
-- VT323
-- PT Mono
-- Ubuntu Mono
-- Cousine
-- Nanum Gothic Coding
-- Space Mono
-- Anonymous Pro
-- Share Tech Mono
-- Oxygen Mono
-- Cutive Mono
-- Nova Mono
-- Overpass Mono
 
 <!-- {$gd_collapsible_end_appearance} -->
 

@@ -440,7 +440,7 @@ class GitDown {
             if ( el.classList.contains('slider') ) {
                 const slider = el.querySelector('input');
                 name = slider.getAttribute('name');
-                value = value = slider.value;
+                value = slider.value;
                 // get parameter value if user specified
                 const p = gd.update_parameter( name, slider.value );
                 if ( p !== '' ) {
@@ -1498,29 +1498,39 @@ class GitDown {
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
-            gd.settings.set_value( name, '' );
+            // PROBLEM: Should not be setting variable values in html function
+            //gd.settings.set_value( name, '' );
             for ( var i = 0; i < items.length; i++ ) {
                 var li = items[i].innerHTML;
                 if ( li === undefined ) li = items[i];
                 var s = '';
                 if ( li.charAt(0) === '*' ) {
                     li = li.substr(1);
-                     this.settings.set_value(name, li);
+                    // PROBLEM: Should not be setting variable values in html function
+                    //gd.settings.set_value(name, li);
                     s = 'selected';
                 }
                 c += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
             }
             c += '</select>';
         } else if ( type === 'slider' ) {
-            c += ` data-value="${items[0]}"`;
+            let val = items[0];
+            let suffix = '';
+            // extract number and suffix if val has non-numerics
+            if ( isNaN( Number(val) ) ) {
+                suffix = gd.settings.get_suffix(val);
+                val = Number( val.split(suffix)[0] );
+            }
+            c += ` data-value="${val}"`;
             if ( items.length > 4 ) {
-                c += ` data-suffix="${items[4]}" `;
+                c += ` data-suffix="${suffix}" `;
             }
             c += `>`;
             c += `<input name="${name}" type="range" `;
             // get slider attributes
-            c += ` value="${items[0]}"`;
-            gd.settings.set_value( name, items[0] );
+            c += ` value="${val}"`;
+            // PROBLEM: Should not be setting variable values in html function
+            //gd.settings.set_value( name, val );
             c += ` min="${items[1]}"`;
             c += ` max="${items[2]}"`;
             c += ` step="${items[3]}"`;
@@ -1537,7 +1547,8 @@ class GitDown {
                 var s = '';
                 if ( v.charAt(0) === '*' ) {
                     v = v.substr(1);
-                    gd.settings.set_value( name, v );
+                    // PROBLEM: Should not be setting variable values in html function
+                    //gd.settings.set_value( name, v );
                     s = 'selected';
                 }
                 c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
