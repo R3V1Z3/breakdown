@@ -995,7 +995,7 @@ class GitDown {
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
         let c = '';
-        const suffix = value.replace(/[0-9]/g, '');
+        const suffix = gd.settings.get_suffix(value);
 
         // COLOR fields
         // handle field as Select if its name contains keyword 'color'
@@ -1837,6 +1837,14 @@ class GitDown {
             gd.update_from_css_vars(name, suffix, true);
         });
 
+        // double click resets to default value
+        $( s + ' .field.slider input' ).on('dblclick', function(e) {
+            // get field details
+            const name = $(this).attr('name');
+            const default_value = gd.settings.get_default( name );
+            gd.update_field(this, default_value);
+        });
+
         // CHOICE FIELDS
         $( s + ' .field.choices .choice' ).unbind().click(function() {
             const name = $(this).parent().attr('data-name');
@@ -1871,12 +1879,12 @@ class GitDown {
         gd.settings.set_value( name, value );
         gd.set_param( name, value );
         // load user provided highlight style
-        if ( name === 'highlight' ) {
-            gd.render_highlight();
-        }
+        if ( name === 'highlight' ) gd.render_highlight();
         let suffix = field.getAttribute('data-suffix');
         if ( suffix === null ) suffix = '';
         gd.update_from_css_vars(name, suffix);
+        // update slider:after content
+        field.parentElement.setAttribute( 'data-value', value);
     }
 
     register_events() {
@@ -2108,7 +2116,8 @@ class Settings {
         
         // exclude setting if its value = default_value
         if ( value + suffix == default_value ) return false;
-        
+        if ( value === default_value ) return false;
+
         // exclude protected params
         let p = this.parameters_protected.split(',');
         if ( p.includes(name) ) return false;
@@ -2194,15 +2203,6 @@ class Settings {
     set_value(name, value, type) {
         if ( type === undefined ) type = 'var';
         const key = this.settings.find(i => i.name === name);
-        // if setting is a cssvar, update the default value
-        if ( type === 'cssvar' ) {
-            key.default = value;
-            // for special cases where user adds var to content
-            key.type = 'cssvar';
-        }
-        // get suffix from default value
-        let suffix = '';
-        if ( type.includes('var') ) suffix = this.get_suffix(value);
         // push new setting to array if it doesn't already exist
         if ( key === undefined ) {
             const setting = {
@@ -2210,13 +2210,18 @@ class Settings {
                 value: value,
                 default: value,
                 type: type,
-                suffix: suffix
+                suffix: this.get_suffix(value)
             }
             this.settings.push(setting);
             return;
         }
-        // if key already exists, just update the value,
-        // no suffix or default change
+        // if setting is a cssvar, update the default value
+        if ( type === 'cssvar' ) {
+            key.default = value;
+            // for special cases where user adds var to content
+            key.type = 'cssvar';
+        }
+        // otherwise if key already exists, just update the value
         return key.value = value;
     }
 
