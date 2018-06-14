@@ -69,4 +69,10 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_contents} -->
 
+<!-- {$gd_collapsible_ads} -->
+
+<!-- {$gd_adsense="ca-pub-8824145169772526,5201814894"} -->
+
+<!-- {$gd_collapsible_end_ads} -->
+
 <!-- {$gd_hide} -->

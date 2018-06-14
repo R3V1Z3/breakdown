@@ -1590,7 +1590,34 @@ class GitDown {
         const name = el.getAttribute('name');
         let v_name = name.split('gd_')[1];
         const value = el.getAttribute('data-value');
+
+        // special handler for adsense
+        if ( v_name === 'adsense' ) {
+            // add page script to head
+            let script = document.createElement('script');
+            script.src = '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>';
+            script.type = 'text/javascript';
+            script.async = true;
+            document.getElementsByTagName('head')[0].appendChild(script);
+            const values = value.split(',');
+            // return if user didn't provide slot id
+            let adsense_id = values[0];
+            adsense_id = gd.settings.set_value('adsense', adsense_id);
+            const slot_id = values[1];
+            let content = `
+                <ins class="adsbygoogle" style="display:block"
+                data-ad-client="${adsense_id}"
+                data-ad-slot="${slot_id}"
+                data-ad-format="auto"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            `;
+            el.parentNode.innerHTML = content;
+            return;
+        }
+
+        // write default html from variable_defaults() to parent node
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
+        
         // special handler for gist and theme selectors
         if ( v_name === 'gist' ) {
             el.parentNode.innerHTML = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
@@ -1602,7 +1629,7 @@ class GitDown {
         if ( type === '' ) return;
 
         v_name = v_name.split( type + '_' )[1];
-
+        
         if ( type === 'selector' ) {
             let item1 = Object.values(items)[0];
             if ( item1.includes('/') ) {
@@ -1646,6 +1673,7 @@ class GitDown {
     }
 
     variable_defaults() {
+        // these defaults will not reflect changes made after this function is called
         return {
             'gd_info': gd.settings.get_value('title'),
             'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.get_value('title')}">?</a>`,
@@ -2130,13 +2158,19 @@ class Settings {
         if ( value === default_value ) return false;
 
         // exclude protected params
-        let p = this.parameters_protected.split(',');
-        if ( p.includes(name) ) return false;
+        if ( this.is_not_allowed(p) ) return;
 
+        return true;
+    }
+
+    is_not_allowed(name) {
+       // exclude protected params
+       let p = this.parameters_protected.split(',');
+       if ( p.includes(name) ) return false;
         // exclude params
         p = this.get_value('parameters_disallowed').split(',');
         if ( p.includes(name) ) return false;
-
+        
         return true;
     }
 
@@ -2232,6 +2266,8 @@ class Settings {
             // for special cases where user adds var to content
             key.type = 'cssvar';
         }
+        // return value already stored in settings if param is disallowed or protected
+        if ( this.is_not_allowed(name) ) return key.value;
         // otherwise if key already exists, just update the value
         return key.value = value;
     }
@@ -2252,6 +2288,7 @@ class Settings {
             highlight: 'default',
             preprocess: false,
             nav: 'show',
+            adsense: 'ca-pub-8824145169772526',
 
             // set false to not render markdown
             markdownit: true,
@@ -2264,7 +2301,7 @@ class Settings {
             hide_css_details: false,
             hide_toc: false,
             disable_hide: false,
-            parameters_disallowed: 'initial,title,disable_hide,hide_any',
+            parameters_disallowed: 'initial,title,disable_hide,hide_any,adsense',
 
             // GitDown stores a bunch of examples by default
             // set these to false to not merge them into your app
