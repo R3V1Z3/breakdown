@@ -2158,7 +2158,7 @@ class Settings {
         if ( value === default_value ) return false;
 
         // exclude protected params
-        if ( this.is_not_allowed(p) ) return;
+        if ( this.is_not_allowed(name) ) return;
 
         return true;
     }
@@ -2166,12 +2166,12 @@ class Settings {
     is_not_allowed(name) {
        // exclude protected params
        let p = this.parameters_protected.split(',');
-       if ( p.includes(name) ) return false;
+       if ( p.includes(name) ) return true;
         // exclude params
         p = this.get_value('parameters_disallowed').split(',');
-        if ( p.includes(name) ) return false;
+        if ( p.includes(name) ) return true;
         
-        return true;
+        return false;
     }
 
     // returns a string of settings in url parameter format
