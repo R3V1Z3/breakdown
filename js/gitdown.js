@@ -1991,6 +1991,11 @@ class GitDown {
         });
 
         // Gist and CSS selectors
+        // PROBLEM: this is getting doubled in IF
+        // it's somehow loaded twice
+
+        // only happens after change to selector other than gist and css
+        console.log('About to add event for .info .selector-url');
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
             // first remove any open dialogs
             $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
@@ -2086,7 +2091,6 @@ class Status {
     }
 
     remove(flag) {
-        let f = this;
         flag.split(',').forEach((e) => {
             if ( e === 'changed' ) {
                 // iterate over this.flags and remove occurences of -changed
@@ -2106,13 +2110,15 @@ class Status {
     has(flag) {
         if ( flag === 'changed' ) {
             // return true if any flags have text '-changed'
-            this.flags.forEach((e) => {
-                if ( e.indexOf('-changed') !== -1 ) return true;
+            const f = this.flags.find(function(e) {
+                return e.includes('-changed');
             });
+            if (!f) return false;
+            return true;
         // iterate over user provided flag and return true if they're all in status.flags
         } else {
             let result = false;
-            flag.split(',').forEach((e) => {
+            flag.split(',').forEach(e => {
                 let i = this.flags.indexOf(e);
                 if ( i !== -1 ) {
                     result = true;
