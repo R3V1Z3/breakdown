@@ -1594,22 +1594,22 @@ class GitDown {
         // special handler for adsense
         if ( v_name === 'adsense' ) {
             // add page script to head
-            let script = document.createElement('script');
-            script.src = '<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>';
-            script.type = 'text/javascript';
-            script.async = true;
-            document.getElementsByTagName('head')[0].appendChild(script);
             const values = value.split(',');
             // return if user didn't provide slot id
             let adsense_id = values[0];
             adsense_id = gd.settings.set_value('adsense', adsense_id);
             const slot_id = values[1];
             let content = `
-                <ins class="adsbygoogle" style="display:block"
-                data-ad-client="${adsense_id}"
-                data-ad-slot="${slot_id}"
-                data-ad-format="auto"></ins>
-                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- gitdown -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="${adsense_id}"
+                    data-ad-slot="${slot_id}"
+                    data-ad-format="auto"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
             `;
             el.parentNode.innerHTML = content;
             return;
@@ -1990,12 +1990,7 @@ class GitDown {
             }
         });
 
-        // Gist and CSS selectors
-        // PROBLEM: this is getting doubled in IF
-        // it's somehow loaded twice
-
         // only happens after change to selector other than gist and css
-        console.log('About to add event for .info .selector-url');
         $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
             // first remove any open dialogs
             $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
