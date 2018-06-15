@@ -2037,6 +2037,10 @@ class GitDown {
                 // F2 key to dock/undock
                 const wrapper = document.querySelector(gd.eid);
                 wrapper.classList.toggle('panels-docked');
+            } else if ( e.which === 115) {
+                // F4
+                // basic for now, we'll just expose the first available dialog
+                $( `${gd.eid} .info .dialog` ).addClass('visible');
             }
         };
 
