@@ -459,19 +459,6 @@ class GitDown {
                     gd.update_field(select, p);
                 }
                 gd.settings.set_value( name, select.value, 'var' );
-            } else if ( el.classList.contains('choices') ) {
-                name = el.getAttribute('data-name');
-                value = el.querySelector('a.selected').getAttribute('data-value');
-                const p = gd.update_parameter( name, value );
-                if ( p != '' ) {
-                    const c = el.querySelector(`a[data-value="${p}"]`);
-                    if ( c !== null ) {
-                        // remove previously selected class
-                        el.querySelector('a.selected').classList.remove('selected');
-                        c.classList.add('selected');
-                    }
-                }
-                gd.settings.set_value( name, value, 'var' );
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
                 const fname = gd.settings.get_value( type + '_filename' );
@@ -1539,20 +1526,6 @@ class GitDown {
                 c += ` data-suffix="${items[4]}" `;
             }
             c += '>';
-        } else if ( type === 'choices' ) {
-            c += `>`;
-            gd.settings.set_value( name, '' );
-            for ( var i = 0; i < items.length; i++ ) {
-                var v = items[i];
-                var s = '';
-                if ( v.charAt(0) === '*' ) {
-                    v = v.substr(1);
-                    // PROBLEM: Should not be setting variable values in html function
-                    //gd.settings.set_value( name, v );
-                    s = 'selected';
-                }
-                c += `<a class="choice ${s}" data-value="${v}">${v}</a> `;
-            }
         }
         c += '</div>';
         return c;
@@ -1655,7 +1628,6 @@ class GitDown {
                 if ( value === null ) return;
                 list = value.split(',');
             }
-            if ( type === 'choice' ) type = 'choices';
             html = gd.field_html( type, v_name, list );
         }
         el.parentNode.innerHTML = html;
@@ -1664,7 +1636,7 @@ class GitDown {
     get_field_type_from_name(name) {
         const type = name.split('_');
         if ( type.length > 1 ) {
-            const types = ['slider', 'choice', 'select', 'collapsible', 'selector'];
+            const types = ['slider', 'select', 'collapsible', 'selector'];
             if ( types.indexOf(type[0]) !== -1 ) {
                 return type[0];
             }
@@ -1882,16 +1854,6 @@ class GitDown {
             const name = $(this).attr('name');
             const default_value = gd.settings.get_default( name );
             gd.update_field(this, default_value);
-        });
-
-        // CHOICE FIELDS
-        $( s + ' .field.choices .choice' ).unbind().click(function() {
-            const name = $(this).parent().attr('data-name');
-            $(this).parent().find('.selected').removeClass('selected');
-            const value = $(this).attr('data-value');
-            $(this).addClass('selected');
-            gd.settings.set_value( name, value );
-            gd.set_param( name, value );
         });
 
         // SELECT FIELDS
