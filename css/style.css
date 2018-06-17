@@ -12,6 +12,11 @@
 :root {
   --bg: white;
   --fontsize: 120%;
+  --font: "Cousine", monospace;
+}
+
+#custom .section .content * {
+  font-family: var(--font);
 }
 
 body {

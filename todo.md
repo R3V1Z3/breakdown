@@ -6,10 +6,6 @@ In-progress
     - create madly.html in sub-project folders to reflect gitdown-madly repo
 
 TODO
-- with variables now in default theme, find a way to disable variables in default theme that user selected theme doesn't use (search user provided theme for occurrences of variable?)
-- only change url parameters if fields have been changed by user (don't change url parameters at load time unless defaults have been changed).
-- for list fields, add theme variable as first item in list
-
 - ensure theme changes don't break layout in EntwinED and Emphases.
 - in sectionize() add logic to keep track of heading type (h1, h2, h3) then add padding to toc representing level in hierarchy
 - add function to handle dependencies internally so user doesn't need to add `<script>` and `<style>` references on their own.

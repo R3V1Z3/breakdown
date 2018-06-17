@@ -987,32 +987,65 @@ class GitDown {
         // COLOR fields
         // handle field as Select if its name contains keyword 'color'
         // or if its value is in list of color names
-        if ( v.indexOf('color') !== -1 || gd.color_names(true).includes(value) ) {
+        if ( v.includes('color') || gd.color_names(true).includes(value) ) {
             let items = gd.color_names();
+            items.unshift('initial', 'inherit', 'unset', 'currentColor');
+            // add default value to array
             const upper = value.charAt(0).toUpperCase() + value.substr(1);
             items.unshift(upper);
             // ensure asterisk is added to default item
-            items.forEach((val,i)=>{
-                if ( val.toLowerCase() === value.toLowerCase() ) {
-                    items[i] = '*' + items[i];
-                }
+            items.unshift("*" + value);
+            return gd.field_html( 'select', v, items);
+        }
+
+        if ( v.endsWith('-font') ) {
+            let items = [];
+            let categories = ['serif', 'sans-serif', 'monospace'];
+            let value_array = value.split(',');
+            if ( value_array.length < 3 ) {
+                value_array.shift();
+                categories = value_array;
+            }
+            const gfonts = gd.gfonts();
+            categories.forEach( c => {
+                const filtered = Object.keys(gfonts).filter(function( e ) {
+                    if ( gfonts[e].category === c.trim() ) return e;
+                });
+                items = items.concat(filtered);
             });
+            items.unshift('initial', 'inherit', 'unset');
+            // remove quotes and use content preceding any commas as value
+            let real_value = value.split(',')[0].replace( /['"]+/g, '');
+            real_value = real_value.charAt(0).toUpperCase() + real_value.substr(1);
+            items.unshift("*" + real_value);
+            return gd.field_html( 'select', v, items);
+        }
+
+        if ( v.includes('-blend') ) {
+            let items = [
+                'normal', 'multiply', 'screen', 'overlay',
+                'darken', 'lighten', 'color-dodge', 'color-burn',
+                'hard-light', 'soft-light', 'difference', 'exclusion',
+                'hue', 'saturation', 'color', 'luminosity',
+                'initial', 'inherit', 'unset'
+            ];
+            // add value
+            items.unshift("*" + value);
             c = gd.field_html( 'select', v, items);
-            return c;
         }
 
         // TRANSFORMS
-        if ( v.indexOf('translate') !== -1 ) {
+        if ( v.includes('translate') ) {
             const items = [parseInt(value), -2000, 2000, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
-        if ( v.indexOf('scale') !== -1 ) {
+        if ( v.includes('scale') ) {
             const items = [parseFloat(value), 0.15, 30, 0.1, ''];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
         }
-        if ( v.indexOf('perspective') !== -1 ) {
+        if ( v.includes('perspective') ) {
             const items = [parseFloat(value), 100, 2000, 1, suffix];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
@@ -1043,7 +1076,7 @@ class GitDown {
         }
 
         // BRIGHTNESS
-        if ( v.indexOf('brightness') !== -1 ) {
+        if ( v.include('brightness') ) {
             const items = [parseFloat(value), 1, 3, 0.05, ''];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
@@ -1056,11 +1089,6 @@ class GitDown {
             let items = [];
             if ( assignment.length < 2 ) {
                 name = assignment[0];
-                if ( name.indexOf('color') !== -1 || gd.color_names(true).includes(value) ) {
-                    items = gd.color_names();
-                    const upper = value.charAt(0).toUpperCase() + value.substr(1);
-                    items.unshift(upper);
-                }
             } else {
                 let v_items = assignment[1];
                 name = assignment[0];
@@ -1104,6 +1132,156 @@ class GitDown {
         return 'NULL |';
     }
 
+    // returns an object of Google font names to be used by select field
+    gfonts() {
+        var json = 
+        {
+            "ABeeZee": {
+                "category": "sans-serif",
+            },
+            "Abel": {
+                "category": "sans-serif",
+            },
+            "Varela Round": {
+                "category": "sans-serif",
+            },
+            "Viga": {
+                "category": "sans-serif",
+            },
+            "Roboto": {
+                "category": "sans-serif",
+            },
+            "Open Sans": {
+                "category": "sans-serif",
+            },
+            "Lato": {
+                "category": "sans-serif",
+            },
+            "Montserrat": {
+                "category": "sans-serif",
+            },
+            "PT Sans": {
+                "category": "serif",
+            },
+            "Noto Serif": {
+                "category": "serif",
+            },
+            "Adamina": {
+                "category": "serif",
+            },
+            "Slabo": {
+                "category": "serif",
+            },
+            "Merriweather": {
+                "category": "serif",
+            },
+            "Roboto Slab": {
+                "category": "serif",
+            },
+            "Playfair Display": {
+                "category": "serif",
+            },
+            "Lora": {
+                "category": "serif",
+            },
+            "Anonymous Pro": {
+                "category": "monospace",
+            },
+            "Cousine": {
+                "category": "monospace",
+            },
+            "Cutive Mono": {
+                "category": "monospace",
+            },
+            "Fira Mono": {
+                "category": "monospace",
+            },
+            "IBM Plex Mono": {
+                "category": "monospace",
+            },
+            "Inconsolata": {
+                "category": "monospace",
+            },
+            "Nanum Gothic Coding": {
+                "category": "monospace",
+            },
+            "Nova Mono": {
+                "category": "monospace",
+            },
+            "Overpass Mono": {
+                "category": "monospace",
+            },
+            "Oxygen Mono": {
+                "category": "monospace",
+            },
+            "PT Mono": {
+                "category": "monospace",
+            },
+            "Roboto Mono": {
+                "category": "monospace",
+            },
+            "Share Tech Mono": {
+                "category": "monospace",
+            },
+            "Source Code Pro": {
+                "category": "monospace",
+            },
+            "Space Mono": {
+                "category": "monospace",
+            },
+            "Ubuntu Mono": {
+                "category": "monospace",
+            },
+            "VT323": {
+                "category": "monospace",
+            },
+            "Lobster": {
+                "category": "display",
+            },
+            "Abril Fatface": {
+                "category": "display",
+            },
+            "Patua One": {
+                "category": "display",
+            },
+            "Comfortaa": {
+                "category": "display",
+            },
+            "Righteous": {
+                "category": "display",
+            },
+            "Concert One": {
+                "category": "display",
+            },
+            "Pacifico": {
+                "category": "handwriting",
+            },
+            "Indie Flower": {
+                "category": "handwriting",
+            },
+            "Shadows Into Light": {
+                "category": "handwriting",
+            },
+            "Dancing Script": {
+                "category": "handwriting",
+            },
+            "Gloria Hallelujah": {
+                "category": "handwriting",
+            },
+            "Amatic SC": {
+                "category": "handwriting",
+            },
+            "Permanent Marker": {
+                "category": "handwriting",
+            },
+            "Great Vibes": {
+                "category": "handwriting",
+            }
+        };
+        return json;
+    }
+
+    // returns an array of color names to be used in select fields
     color_names(lowercase) {
         let l = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
         if ( lowercase ) {
@@ -1868,6 +2046,37 @@ class GitDown {
         });
     }
 
+    // takes a font name including - chars and returns offical name from gfonts()
+    // returns false if name doesn't exist in gfonts()
+    get_official_font_name (font) {
+        const gfonts = gd.gfonts();
+        const found = Object.keys(gfonts).find( function(e) {
+            if ( e.toLowerCase() === font.toLowerCase().split('-').join(' ') ) {
+                return e;
+            }
+            return false;
+        });
+        if ( !found ) return false;
+        return found;
+    }
+
+    update_font(font) {
+        // first find font in gfonts list
+        const found = gd.get_official_font_name(font);
+        if ( !found ) return false;
+
+        // replace space chars with + as needed by API
+        let name = found.split(' ').join('+');
+
+        var link = document.createElement('link');
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('type', 'text/css');
+        link.setAttribute('href', `https://fonts.googleapis.com/css?family=${name}`);
+        document.head.appendChild(link);
+
+        return found;
+    }
+
     update_field(field, value) {
         let name = field.parentElement.getAttribute('data-name');
         // name =  gd.clean(name);
@@ -1881,6 +2090,9 @@ class GitDown {
         gd.set_param( name, value );
         // load user provided highlight style
         if ( name === 'highlight' ) gd.render_highlight();
+        if ( name.endsWith('-font') ) {
+            value = gd.update_font(value);
+        }
         let suffix = field.getAttribute('data-suffix');
         if ( suffix === null ) suffix = '';
         gd.update_from_css_vars(name, suffix);
