@@ -1076,7 +1076,7 @@ class GitDown {
         }
 
         // BRIGHTNESS
-        if ( v.include('brightness') ) {
+        if ( v.includes('brightness') ) {
             const items = [parseFloat(value), 1, 3, 0.05, ''];
             c = gd.field_html( 'slider', v, items);
             return [ c ];
