@@ -875,8 +875,30 @@ class GitDown {
             gd.update_from_params();
             // finally register events
             gd.register_events();
+            // we'll add adsense code since all content is finally loaded
+            gd.update_adsense();            
         }
         gd.execute_callback();
+    }
+
+    update_adsense() {
+        const adsense = document.querySelector(`${gd.eid} #gd-adsense`);
+        if ( adsense === null ) return;
+        let adsense_id = adsense.getAttribute('data-ad-client');
+        let slot_id = adsense.getAttribute('data-ad-slot');
+        let content = `
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- gitdown -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="${adsense_id}"
+                data-ad-slot="${slot_id}"
+                data-ad-format="auto"></ins>
+            <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        `;
+        adsense.innerHTML = content;
     }
 
     execute_callback() {
@@ -1745,6 +1767,9 @@ class GitDown {
         let v_name = name.split('gd_')[1];
         const value = el.getAttribute('data-value');
 
+        // for cases where variable type isn't provided,
+        // just create a span and add values as data-value
+
         // special handler for adsense
         if ( v_name === 'adsense' ) {
             // add page script to head
@@ -1753,18 +1778,10 @@ class GitDown {
             let adsense_id = values[0];
             adsense_id = gd.settings.set_value('adsense', adsense_id);
             const slot_id = values[1];
-            let content = `
-                <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                <!-- gitdown -->
-                <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="${adsense_id}"
-                    data-ad-slot="${slot_id}"
-                    data-ad-format="auto"></ins>
-                <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            `;
+            let content = `<span id="gd-adsense"
+                data-ad-client="${adsense_id}"
+                data-ad-slot="${slot_id}"
+                </span>`;
             el.parentNode.innerHTML = content;
             return;
         }
