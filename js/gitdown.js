@@ -1002,13 +1002,13 @@ class GitDown {
             let items = [];
             let categories = ['serif', 'sans-serif', 'monospace'];
             let value_array = value.split(',');
-            if ( value_array.length < 3 ) {
+            if ( value_array.length > 1 ) {
                 value_array.shift();
                 categories = value_array;
             }
             const gfonts = gd.gfonts();
             categories.forEach( c => {
-                const filtered = Object.keys(gfonts).filter(function( e ) {
+                const filtered = Object.keys(gfonts).filter(e => {
                     if ( gfonts[e].category === c.trim() ) return e;
                 });
                 items = items.concat(filtered);
@@ -1134,7 +1134,15 @@ class GitDown {
 
     // returns an object of Google font names to be used by select field
     gfonts() {
-        var json = 
+        const added = {
+            "Fira Code iScript": {
+                "category": "monospace",
+            },
+            "Fira Code": {
+                "category": "monospace",
+            }
+        };
+        const gfonts = 
         {
             "ABeeZee": {
                 "category": "sans-serif",
@@ -1278,7 +1286,8 @@ class GitDown {
                 "category": "handwriting",
             }
         };
-        return json;
+        const full = Object.assign(added, gfonts);
+        return full;
     }
 
     // returns an array of color names to be used in select fields
@@ -1663,16 +1672,12 @@ class GitDown {
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
-            // PROBLEM: Should not be setting variable values in html function
-            //gd.settings.set_value( name, '' );
             for ( var i = 0; i < items.length; i++ ) {
                 var li = items[i].innerHTML;
                 if ( li === undefined ) li = items[i];
                 var s = '';
                 if ( li.charAt(0) === '*' ) {
                     li = li.substr(1);
-                    // PROBLEM: Should not be setting variable values in html function
-                    //gd.settings.set_value(name, li);
                     s = 'selected';
                 }
                 c += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
@@ -1694,8 +1699,6 @@ class GitDown {
             c += `<input name="${name}" type="range" `;
             // get slider attributes
             c += ` value="${val}"`;
-            // PROBLEM: Should not be setting variable values in html function
-            //gd.settings.set_value( name, val );
             c += ` min="${items[1]}"`;
             c += ` max="${items[2]}"`;
             c += ` step="${items[3]}"`;
@@ -1962,12 +1965,17 @@ class GitDown {
         if ( name === undefined ) {
             css_vars = gd.settings.get('cssvar');
             css_vars.forEach(e=>{
-                doc.setProperty( `--${e.name}`, e.value + e.suffix );
+                let value = e.value;
+                // special consideration for font names
+                if ( e.name.endsWith('-font') ) value = gd.get_gfont_name(value);
+                doc.setProperty( `--${e.name}`, value + e.suffix );
                 history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );                
             });
         } else if ( name in css_vars ) {
             // update field with specified name if it exists in css_vars
-            const value = gd.update_parameter( name, css_vars[name] );
+            let value = gd.update_parameter( name, css_vars[name] );
+            // special consideration for font names
+            if ( name.endsWith('-font') ) value = gd.get_gfont_name(value);
             doc.setProperty( `--${name}`, value + suffix );
         }
     }
@@ -2048,7 +2056,7 @@ class GitDown {
 
     // takes a font name including - chars and returns offical name from gfonts()
     // returns false if name doesn't exist in gfonts()
-    get_official_font_name (font) {
+    get_gfont_name(font) {
         const gfonts = gd.gfonts();
         const found = Object.keys(gfonts).find( function(e) {
             if ( e.toLowerCase() === font.toLowerCase().split('-').join(' ') ) {
@@ -2060,18 +2068,26 @@ class GitDown {
         return found;
     }
 
-    update_font(font) {
+    update_gfont(font) {
         // first find font in gfonts list
-        const found = gd.get_official_font_name(font);
+        const found = gd.get_gfont_name(font);
         if ( !found ) return false;
 
         // replace space chars with + as needed by API
         let name = found.split(' ').join('+');
 
+        // first get any extant link with gd-gfont id
+        // get the href for that element
+        // return found if name already exists in href
+            // if ( href.includes(name) ) return found;
+        
+        // otherwise lets add name to existing fonts
+        let fonts = name;
         var link = document.createElement('link');
+        // link.setAttribute('id', 'gd-gfont');
         link.setAttribute('rel', 'stylesheet');
         link.setAttribute('type', 'text/css');
-        link.setAttribute('href', `https://fonts.googleapis.com/css?family=${name}`);
+        link.setAttribute('href', `https://fonts.googleapis.com/css?family=${fonts}`);
         document.head.appendChild(link);
 
         return found;
@@ -2090,12 +2106,14 @@ class GitDown {
         gd.set_param( name, value );
         // load user provided highlight style
         if ( name === 'highlight' ) gd.render_highlight();
-        if ( name.endsWith('-font') ) {
-            value = gd.update_font(value);
-        }
+        // handle suffix values
         let suffix = field.getAttribute('data-suffix');
         if ( suffix === null ) suffix = '';
         gd.update_from_css_vars(name, suffix);
+        // special consideration for font names
+        if ( name.endsWith('-font') ) {
+            value = gd.update_gfont(value);
+        }
         // update slider:after content
         field.parentElement.setAttribute( 'data-value', value);
     }
