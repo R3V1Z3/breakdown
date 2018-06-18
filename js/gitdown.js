@@ -998,7 +998,7 @@ class GitDown {
             return gd.field_html( 'select', v, items);
         }
 
-        if ( v.endsWith('-font') ) {
+        if ( v.endsWith('font') ) {
             let items = [];
             let categories = ['serif', 'sans-serif', 'monospace'];
             let value_array = value.split(',');
@@ -1967,7 +1967,7 @@ class GitDown {
             css_vars.forEach(e=>{
                 let value = e.value;
                 // special consideration for font names
-                if ( e.name.endsWith('-font') ) value = gd.get_gfont_name(value);
+                if ( e.name.endsWith('font') ) value = gd.get_gfont_name(value);
                 doc.setProperty( `--${e.name}`, value + e.suffix );
                 history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );                
             });
@@ -1975,7 +1975,7 @@ class GitDown {
             // update field with specified name if it exists in css_vars
             let value = gd.update_parameter( name, css_vars[name] );
             // special consideration for font names
-            if ( name.endsWith('-font') ) value = gd.get_gfont_name(value);
+            if ( name.endsWith('font') ) value = gd.get_gfont_name(value);
             doc.setProperty( `--${name}`, value + suffix );
         }
     }
@@ -2111,7 +2111,7 @@ class GitDown {
         if ( suffix === null ) suffix = '';
         gd.update_from_css_vars(name, suffix);
         // special consideration for font names
-        if ( name.endsWith('-font') ) {
+        if ( name.endsWith('font') ) {
             value = gd.update_gfont(value);
         }
         // update slider:after content
