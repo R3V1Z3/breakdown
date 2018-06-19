@@ -478,7 +478,9 @@ class GitDown {
 
             // set defaults if this is the first time function called for this field
             if ( name !== '' ) {
-                gd.settings.set_default( name, value );
+                // update only if this isn't a cssvar
+                const type = gd.settings.get_type(name);
+                if ( type !== 'cssvar' ) gd.settings.set_default( name, value );
             }
         });
     }
@@ -2458,6 +2460,11 @@ class Settings {
     get_suffix(s){
         if ( s.match(/^\d/) ) return s.replace(/[0-9]/g, '');
         return '';
+    }
+    
+    get_type(name) {
+        const key = this.settings.find(i => i.name === name);
+        return key.type;
     }
 
     // set a value by specified setting name
