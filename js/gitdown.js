@@ -419,6 +419,8 @@ class GitDown {
                             const key = r[1].trim();
                             const value = r[2].trim();
                             this.settings.set_value( key, value, 'cssvar' );
+                            // last stylesheet loaded should set the default value
+                            this.settings.set_default( key, value );
                         });
                     }
                 }
@@ -448,7 +450,7 @@ class GitDown {
                     slider.setAttribute( 'value', p );
                     slider.parentElement.setAttribute( 'data-value', p );
                 }
-                gd.settings.set_value( name, slider.value, 'var' );
+                gd.settings.set_value( name, slider.value );
                 gd.update_field(slider, p);
             } else if ( el.classList.contains('select') ) {
                 const select = el.querySelector('select');
@@ -458,7 +460,7 @@ class GitDown {
                 if ( p !== '' ) {
                     gd.update_field(select, p);
                 }
-                gd.settings.set_value( name, select.value, 'var' );
+                gd.settings.set_value( name, select.value );
             } else if ( el.classList.contains('selector') ) {
                 const type = gd.get_selector_class(el);
                 const fname = gd.settings.get_value( type + '_filename' );
@@ -468,7 +470,7 @@ class GitDown {
                     const a = el.querySelector('.selector-wrapper a.id');
                     value = a.getAttribute('data-id');
                     const p = gd.update_parameter( name, value );
-                    gd.settings.set_value( name, value, 'var' );
+                    gd.settings.set_value( name, value );
                 } else {
                     gd.update_selector_url( type, fname );
                 }
@@ -1670,7 +1672,6 @@ class GitDown {
         // first list item
         if ( n === 'gist' || n === 'css' ) {
             url = gd.gist_url( file, false );
-            //c += list_html( { 'Default': url }, true);
             c += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
             c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
         }
@@ -1846,7 +1847,8 @@ class GitDown {
         // these defaults will not reflect changes made after this function is called
         return {
             'gd_info': gd.settings.get_value('title'),
-            'gd_help_ribbon': `<a class="help-ribbon" href="//github.com${gd.path}#${gd.settings.get_value('title')}">?</a>`,
+            'gd_help_ribbon': `<a class="help-ribbon"
+                href="//github.com${gd.path}#${gd.settings.get_value('title')}">?</a>`,
             'gd_theme_variables': '<div class="theme-vars"></div>',
             'gd_toc': '<div class="toc"></div>',
             'gd_hide': '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>',
@@ -2474,12 +2476,8 @@ class Settings {
             this.settings.push(setting);
             return;
         }
-        // if setting is a cssvar, update the default value
-        if ( type === 'cssvar' ) {
-            key.default = value;
-            // for special cases where user adds var to content
-            key.type = 'cssvar';
-        }
+        // revert type when user provides gd-var with same name as a cssvar
+        if ( type === 'cssvar' ) key.type = 'cssvar';
         // return value already stored in settings if param is disallowed or protected
         if ( this.is_not_allowed(name) ) return key.value;
         // otherwise if key already exists, just update the value
