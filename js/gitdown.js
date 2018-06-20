@@ -940,14 +940,6 @@ class GitDown {
         // set current section and go there
         gd.go_to_section();
 
-        // collapse collapsible sections at start, prior to callback
-        if ( !gd.status.has('changed') ) {
-            let elements = gd.eid + ' .info .field.collapsible';
-            [].map.call(document.querySelectorAll(elements), (el) => {
-                el.classList.add('collapsed');
-            });
-        }
-
         // hide info/nav panel if cap setting true
         if ( gd.settings.get_value('nav') === 'hide' ) {
             $( gd.eid ).addClass('panels-hidden');
@@ -1696,10 +1688,13 @@ class GitDown {
     }
 
     field_html( type, name, items ) {
-        let hid = '';
+        let hid = '', collapsed = '';
         // variables with hid- prefix will be hidden from view with .hid class
         if ( name.includes('hid-') ) hid = 'hid';
-        let c = `<div class="field ${type} ${name} ${hid}" data-name="${name}"`;
+        if ( type === 'collapsible start') collapsed = 'collapsed';
+        let c = `<div class="field ${type}
+            ${name} ${hid} ${collapsed}"
+            data-name="${name}"`;
         if ( type === 'select') {
             c += `>`;
             c += `<select name="${name}">`;
