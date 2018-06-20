@@ -1060,6 +1060,12 @@ class GitDown {
             c = gd.field_html( 'select', v, items);
         }
 
+        if ( v.includes('blur') ) {
+            const items = [parseInt(value), 0, 20, 0.5, suffix];
+            c = gd.field_html( 'slider', v, items);
+            return [ c ];
+        }
+
         // TRANSFORMS
         if ( v.includes('translate') ) {
             const items = [parseInt(value), -2000, 2000, 1, suffix];
@@ -2059,8 +2065,8 @@ class GitDown {
         $( s + ' .field.slider input' ).on('dblclick', function(e) {
             // get field details
             const name = $(this).attr('name');
-            const default_value = gd.settings.get_default( name );
-            gd.update_field(this, default_value);
+            const default_value = gd.settings.get_default(name);
+            gd.update_field(this, parseFloat(default_value));
         });
 
         // SELECT FIELDS
@@ -2132,9 +2138,7 @@ class GitDown {
         if ( suffix === null ) suffix = '';
         gd.update_from_css_vars(name, suffix);
         // special consideration for font names
-        if ( name.endsWith('font') ) {
-            value = gd.update_gfont(value);
-        }
+        if ( name.endsWith('font') ) value = gd.update_gfont(value);
         // update slider:after content
         field.parentElement.setAttribute( 'data-value', value);
     }
