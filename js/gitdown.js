@@ -657,8 +657,9 @@ class GitDown {
             ext = '.css';
             // push named file for ids that exist in example_themes
             for ( const key in gd.example_themes ) {
-                if ( gd.example_themes[key] === id ) {
-                    let f = 'gitdown-' + gd.clean(key) + ext;
+                const example_id = gd.extract_id(gd.example_themes[key]);
+                if ( example_id.trim() === id.trim() ) {
+                    const f = 'gitdown-' + gd.clean(key) + ext;
                     urls.push( [type, id, file_path + f] );
                     urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + f] );
                 }
@@ -668,6 +669,25 @@ class GitDown {
         urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + id + ext] );
         urls.push( [type, id, `//api.github.com/gists/${id}`] );
         return urls;
+    }
+
+    // extracts a gist/snippet id from provided string
+    extract_id(str) {
+        // gist.github.com
+        if ( str.includes('gist.github.com') ) {
+            const s = str.split('/');
+            // return all content after last '/'
+            if ( s.length > 1 ) return s[s.length - 1];
+        }
+        // gist.githubusercontent.com - raw gist url
+        if ( str.includes('gist.githubusercontent.com') ) {
+            let raw = str.split('raw');
+            if ( raw.length < 2 ) return '';
+            const s = str.split('/');
+            // return all content after last '/'
+            if ( s.length > 1 ) return s[0];
+        }
+        return str;
     }
 
     // adjust response if content is pulled from GitHub Gist
@@ -772,6 +792,7 @@ class GitDown {
         let type = a[0], id = a[1], url = a[2];
         /* PROMISE CHAIN */
         gd.get(url).then( (response ) => {
+            console.log(`URL successfully loaded: ${url}`);
             gd.settings.set_value(type, id);
             gd.settings.set_value(type + '_filename', url);
             let data =  gd.gistify_response(type, url, response);
@@ -1283,6 +1304,9 @@ class GitDown {
                 "category": "display",
             },
             "Concert One": {
+                "category": "display",
+            },
+            "UnifrakturMaguntia": {
                 "category": "display",
             },
             "Pacifico": {
