@@ -92,6 +92,13 @@ class GitDown {
         return user_examples;
     }
 
+    // just a quick way to log a message to console
+    // also will help us search for logged messages
+    log(msg) {
+        const c = console;
+        c.log(msg);
+    }
+
     // returns default info panel content
     // for cases where no info panel content is provided
     default_info_content() {
@@ -100,6 +107,7 @@ class GitDown {
         info += '<!-- {$gd_help_ribbon} -->' + n;
         info += 'GIST <!-- {$gd_gist} -->' + n;
         info += 'CSS <!-- {$gd_css} -->' + n;
+        info += '<!-- {$gd_theme_variables} -->' + n;
         info += '## Table of Contents <!-- {$gd_toc} -->' + n;
         info += '<!-- {$gd_hide} -->' + n;
         return info;
@@ -306,27 +314,6 @@ class GitDown {
         }
     }
 
-    update_selector_url( type, fname ) {
-        
-        // update url field with filename
-        let url_field = document.querySelector( `${gd.eid} .info .${type}-url` );
-        if ( url_field !== null ) url_field.textContent = fname + ' ▾';
-
-        let id = gd.settings.get_value(type);
-        let filename = gd.settings.get_value( type + '_filename' );
-
-        let href = '';
-        if ( id === 'default' ) {
-            href = gd.gist_url( gd.settings.get_value('content'), false );
-        } else {
-            href = 'https://gist.github.com/' + id;
-        }
-
-        let src_string = `${gd.eid} .info .field.selector.${type} a.selector-source`;
-        let source = document.querySelector( src_string );
-        if ( source !== null ) source.setAttribute( 'href', href );
-    }
-
     // helper function to get current section
     get_current_section_id() {
         var current = document.querySelector( gd.eid_inner + ' .section.current' );
@@ -413,7 +400,6 @@ class GitDown {
                         const elements = document.querySelectorAll(selector);
                         // skip if there are no elements with selector
                         if ( elements.length < 1 ) continue;
-                        const input = regex.input;
                         regex.forEach((str) => {
                             const r = str.match(/\-\-(.*?):(.*?);/);
                             const key = r[1].trim();
@@ -461,26 +447,26 @@ class GitDown {
                     gd.update_field(select, p);
                 }
                 gd.settings.set_value( name, select.value );
-            } else if ( el.classList.contains('selector') ) {
-                const type = gd.get_selector_class(el);
-                const fname = gd.settings.get_value( type + '_filename' );
-                if ( fname === false ) {
-                    name = el.getAttribute('data-name');
-                    // get the first child as default value
-                    const a = el.querySelector('.selector-wrapper a.id');
-                    value = a.getAttribute('data-id');
-                    const p = gd.update_parameter( name, value );
-                    gd.settings.set_value( name, value );
-                } else {
-                    gd.update_selector_url( type, fname );
+            } else if ( el.classList.contains('datalist') ) {
+                const textinput = el.querySelector('input');
+                name = textinput.getAttribute('name');
+                value = textinput.value;
+                const p = gd.update_parameter( name, value );
+                if ( value !== p) {
+                    // update field value based on parameter
+                    textinput.value = p;
+                    value = p;
                 }
+                gd.settings.set_value( name, value );
             }
 
             // set defaults if this is the first time function called for this field
             if ( name !== '' ) {
                 // update only if this isn't a cssvar
                 const type = gd.settings.get_type(name);
-                if ( type !== 'cssvar' ) gd.settings.set_default( name, value );
+                if ( type !== 'cssvar' && type !== 'core' ) {
+                    gd.settings.set_default( name, value );
+                }
             }
         });
     }
@@ -730,6 +716,7 @@ class GitDown {
         }
     };
     
+    // load initial content which will be used to get most of the defaults
     load_initial(url) {
         this.get(url).then( (response) => {
             gd.render_content(response);
@@ -737,7 +724,7 @@ class GitDown {
             gd.loop();
         }, function (error) {
             if ( error.toString().indexOf('404') ) {
-                console.log(error);
+                gd.log(error);
             }
         });
     }
@@ -747,13 +734,13 @@ class GitDown {
         gist = gd.update_parameter('gist');
 
         let urls = [];
-        if ( css === 'default' ) {
+        if ( css.toLowerCase() === 'default' ) {
             gd.render_theme_css('');
         } else if ( !gd.status.has('css') ) {
             urls = gd.prepare_urls( css, 'css' );
         }
 
-        if ( gist === 'default' ) {
+        if ( gist.toLowerCase() === 'default' ) {
             // load initial content
             if ( !gd.status.has('content') && gd.status.has('callback') ) {
                 gd.status.remove('initial');
@@ -792,7 +779,7 @@ class GitDown {
         let type = a[0], id = a[1], url = a[2];
         /* PROMISE CHAIN */
         gd.get(url).then( (response ) => {
-            console.log(`URL successfully loaded: ${url}`);
+            gd.log(`URL successfully loaded: ${url}`);
             gd.settings.set_value(type, id);
             gd.settings.set_value(type + '_filename', url);
             let data =  gd.gistify_response(type, url, response);
@@ -811,7 +798,7 @@ class GitDown {
             }
             gd.get_files( urls );
         }).catch( function(error) {
-            console.log(error);
+            gd.log(error);
             gd.get_files( urls );
         })
     };
@@ -835,9 +822,8 @@ class GitDown {
         if ( extract[1] !== '' ) gd.info_content = extract[1];
 
         // if we're just getting info content from initial, return at this point
-        if ( !gd.status.has('initial') && gd.settings.get_value('gist') !== 'default' ) {
-            return;
-        }
+        const gist = gd.settings.get_value('gist').toLowerCase();
+        if ( !gd.status.has('initial') && gist !== 'default' ) return;
 
         // clear content from .info and .inner
         gd.clear_content();
@@ -880,8 +866,6 @@ class GitDown {
         gd.extract_css_vars();
 
         if ( gd.status.has('theme-changed') ) {
-            // update the input field for the theme selector
-            gd.update_selector_url( 'css', gd.settings.get_value('css_filename') );
             // update theme vars and render fields
             gd.update_wrapper_classes();
             // render cssvars with defaults from extract_css_vars
@@ -990,6 +974,7 @@ class GitDown {
     render_theme_vars() {
         let html = '';
         let theme_vars = document.querySelector(`${gd.eid} .info .theme-vars`);
+        if( theme_vars === null ) return;
         // begin by clearing html content
         theme_vars.innerHTML = html;
         // first ensure theme var section exists and that there's at least one css_var
@@ -1037,7 +1022,7 @@ class GitDown {
             return gd.field_html( 'select', v, items);
         }
 
-        if ( v.endsWith('font') ) {
+        else if ( v.endsWith('font') ) {
             let items = [];
             let categories = ['serif', 'sans-serif', 'monospace'];
             let value_array = value.split(',');
@@ -1060,7 +1045,7 @@ class GitDown {
             return gd.field_html( 'select', v, items);
         }
 
-        if ( v.includes('-blend') ) {
+        else if ( v.includes('-blend') ) {
             let items = [
                 'normal', 'multiply', 'screen', 'overlay',
                 'darken', 'lighten', 'color-dodge', 'color-burn',
@@ -1070,64 +1055,55 @@ class GitDown {
             ];
             // add value
             items.unshift("*" + value);
-            c = gd.field_html( 'select', v, items);
+            return gd.field_html( 'select', v, items);
         }
 
-        if ( v.includes('blur') ) {
+        else if ( v.includes('blur') ) {
             const items = [parseInt(value), 0, 20, 0.5, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
 
         // TRANSFORMS
-        if ( v.includes('translate') ) {
+        else if ( v.includes('translate') ) {
             const items = [parseInt(value), -2000, 2000, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
-        if ( v.includes('scale') ) {
+        else if ( v.includes('scale') ) {
             const items = [parseFloat(value), 0.15, 30, 0.1, ''];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
-        if ( v.includes('perspective') ) {
+        else if ( v.includes('perspective') ) {
             const items = [parseFloat(value), 100, 2000, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
 
         // PX and EM based values
-        if ( suffix.toLowerCase() === 'px' ) {
+        else if ( suffix.toLowerCase() === 'px' ) {
             const items = [parseInt(value), 100, 2000, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
-        if ( suffix.toLowerCase() === 'em' ) {
+        else if ( suffix.toLowerCase() === 'em' ) {
             const items = [parseInt(value), 0, 400, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
         // PERCENTAGE-based values like fontsize
-        if ( suffix === '%' ) {
+        else if ( suffix === '%' ) {
             const items = [parseInt(value), 10, 300, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
         // DEGREE-based values (rotation-based params like rotateX)
-        if ( suffix.toLowerCase() === 'deg' ) {
+        else if ( suffix.toLowerCase() === 'deg' ) {
             const items = [parseInt(value), 0, 360, 1, suffix];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
 
         // BRIGHTNESS
-        if ( v.includes('brightness') ) {
+        else if ( v.includes('brightness') ) {
             const items = [parseFloat(value), 1, 3, 0.05, ''];
-            c = gd.field_html( 'slider', v, items);
-            return [ c ];
+            return gd.field_html( 'slider', v, items);
         }
 
-        if ( gd.begins( v, 'select_' ) ) {
+        else if ( gd.begins( v, 'select_' ) ) {
             let name = v.split('select_');
             // get assignment after var name
             let assignment = name[1].split('=');
@@ -1149,10 +1125,9 @@ class GitDown {
                     items[i] = '*' + items[i];
                 }
             });
-            c = gd.field_html( 'select', name, items);
-            return c;
+            return gd.field_html( 'select', name, items);
         } else if( gd.begins( v, 'slider_' ) ) {
-            var name = v.split('slider_');
+            let name = v.split('slider_');
             let assignment = name[1].split('=');
             let items = [];
             if ( assignment.length < 2 ) {
@@ -1169,12 +1144,14 @@ class GitDown {
                 // split items
                 items = v_items.split(',');
             }
-            c = gd.field_html( 'slider', name, items);
-            return [ c ];
+            return gd.field_html( 'slider', name, items);
         } else {
-            //
+            //let name = v.split('textinput_')[1];
+            return gd.field_html( 'textinput', v, value);
         }
-        return 'NULL |';
+
+        // return an input field as default
+        return 'NULL';
     }
 
     // returns an object of Google font names to be used by select field
@@ -1414,7 +1391,6 @@ class GitDown {
                     // name is empty so assign it blank with suffix
                     name = gd.unique( 'blank', '#' );
                 }
-                // todo: write native/non-jquery function to handle wrapping content
                 $h2.addClass('handle-heading');
                 $h2.wrapInner('<a class="handle" name="' + name + '"/>');
                 // make first heading a header if header doesn't exist
@@ -1662,50 +1638,6 @@ class GitDown {
         }
     }
 
-    selector_html( n, txt, placeholder, items ) {
-
-        let file = '';
-        let is_gist = false;
-        if ( n === 'gist' ){
-            file = gd.settings.get_value('content');
-        } else if ( n === 'css' ) {
-            file = 'css/style.css';
-        }
-
-        let proper = gd.proper_filename(file);
-        placeholder = placeholder.replace( /\b\w/g, l => l.toUpperCase() );
-
-        let fname = txt;
-        let url = '';
-        // current item
-        if ( n === 'gist' || n === 'css' ) {
-            is_gist = true;
-            url = gd.gist_url( file, true );
-            fname = proper;
-        }
-        
-        var c = `<div class="field selector ${n}" data-name="${n}">`;
-        c += `<a class="selector-source" href="${url}" target="_blank">${gd.chr_link}</a>`;
-        c += `<a name="${txt}" class="${n}-url selector-url">${fname} ▾</a>`;
-
-        c += `<div class="${n}-selector dialog">`;
-        c += `<input class="${n}-input selector-input" type="text" placeholder="${placeholder}" />`;
-
-        c += '<div class="selector-wrapper">';
-
-        // first list item
-        if ( n === 'gist' || n === 'css' ) {
-            url = gd.gist_url( file, false );
-            c += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
-            c += `<a class="id" data-id="default">Default (${file})</a><br/>`;
-        }
-
-        // Example list
-        c += gd.list_html( items, is_gist );
-        c += '</div></div></div>';
-        return c;
-    }
-
     merge_arrays(a1, a2) {
         for ( const key in a2 ) { a1[key] = a2[key]; }
         return a1;
@@ -1733,6 +1665,30 @@ class GitDown {
                 c += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
             }
             c += '</select>';
+        } else if ( type === 'textinput' ) {
+            c += `>`;
+            c += `<input type="text" name="${name}"
+            value="${items}" placeholder="${items}" />`;
+        } else if ( type === 'datalist') {
+            c += `>`;
+            c += `<input type="text" name="${name}" list="${name}"`;
+            c += ` value="Default"`;
+            c += ` placeholder="${name.toUpperCase()}" />`;
+            c += `<datalist id="${name}">`;
+            for (let key in items) {
+                const href = items[key];
+                let value = gd.extract_id(items[key]);
+                let option_name = key;
+                // reverse value and key for default values
+                if ( key === 'Default' ) {
+                    value = key;
+                    option_name = items[key];
+                }
+                var d = ` data-href="${href}"`;
+                c += `<option value="${value}" ${d}>`;
+                c += `${option_name}</option>`;
+            }
+            c += '</datalist>';
         } else if ( type === 'slider' ) {
             let val = items[0];
             let suffix = '';
@@ -1817,25 +1773,28 @@ class GitDown {
         // write default html from variable_defaults() to parent node
         if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
         
-        // special handler for gist and theme selectors
-        if ( v_name === 'gist' ) {
-            el.parentNode.innerHTML = gd.selector_html( 'gist', 'Gist', 'Gist ID', gd.example_gists );
-        } else if ( v_name === 'css' ) {
-            el.parentNode.innerHTML = gd.selector_html( 'css', 'Theme', 'Gist ID for CSS theme', gd.example_themes );
-        }
         // special handler for fields
         let type = gd.get_field_type_from_name(v_name);
+        if ( v_name === 'gist' || v_name === 'css' ) type = 'datalist';
         if ( type === '' ) return;
 
-        v_name = v_name.split( type + '_' )[1];
+        const s = v_name.split( type + '_' );
+        if ( s.length > 1 ) v_name = s[1];
         
-        if ( type === 'selector' ) {
+        if ( type === 'datalist' ) {
             let item1 = Object.values(items)[0];
             if ( item1.includes('/') ) {
                 let i = item1.split('/');
                 item1 = i[i.length - 1];
             }
-            html = gd.selector_html( v_name, item1, v_name, items );
+            // configure default item
+            let val = '';
+            if ( v_name === 'gist' ) val = gd.settings.get_value('initial');
+            else if ( v_name === 'css' ) val = 'css/style.css';
+            else val = item1;
+            items = Object.assign({'Default': val}, items);
+
+            html = gd.field_html( type, v_name, items );
         } else if ( type === 'collapsible' ) {
             let pos = 'start';
             if ( v_name.startsWith('end_') ) {
@@ -1862,7 +1821,7 @@ class GitDown {
     get_field_type_from_name(name) {
         const type = name.split('_');
         if ( type.length > 1 ) {
-            const types = ['slider', 'select', 'collapsible', 'selector'];
+            const types = ['slider', 'select', 'collapsible', 'datalist'];
             if ( types.indexOf(type[0]) !== -1 ) {
                 return type[0];
             }
@@ -1947,9 +1906,9 @@ class GitDown {
         return v[0];
     };
 
-    // simple helper to reduce repitition for getting selector class
-    get_selector_class(c) {
-        return c.closest('.field.selector').getAttribute('data-name');
+    // simple helper to reduce repitition for getting datalist class
+    get_datalist_class(c) {
+        return c.closest('.field.datalist').getAttribute('data-name');
     }
 
     render_info(app_title) {
@@ -1982,9 +1941,8 @@ class GitDown {
         this.update_toc( this.get_sections() );
     };
 
-    selector_changed(type, id) {
-        // hide any visible selector field first
-        $( gd.eid + ' .field.selector .dialog.visible' ).removeClass('visible');
+    datalist_changed(type, id) {
+        // hide any visible datalist field first
         gd.settings.set_value(type, id);
         gd.status.add('var-updated');
         gd.set_param( type, id );
@@ -2088,6 +2046,11 @@ class GitDown {
             gd.update_field(this, parseFloat(default_value));
         });
 
+        $( s + ' .field.textinput input' ).unbind().on('input change', function(e) {
+            // get field details
+            gd.update_field(this);
+        });
+
         // SELECT FIELDS
         $( s + ' .field.select select' ).unbind().change(function() {
             gd.update_field(this);
@@ -2097,6 +2060,26 @@ class GitDown {
         $( s + ' .field.collapsible .header' ).unbind().click(function(e) {
             if (e.target !== this) return;
             this.parentNode.classList.toggle('collapsed');
+        });
+
+        // clear field when user clicks on datalist inputs
+        $( s + ' .field.datalist input' ).unbind().click(function(e) {
+            const v = this.value;
+            let url = '';
+            // open new tab based on selected item
+            if (e.ctrlKey) {
+                let o = `#${this.name} option[value="${v}"]`;
+                let option = document.querySelector(gd.eid + ' ' + o);
+                if ( option === null ) return;
+                url = option.getAttribute('data-href');
+                window.open( url, '_blank' ).focus();
+            } else this.setAttribute('value', '');
+        });
+
+        $( s + ' .field.datalist input' ).on('change', function(e) {
+            // get field details
+            let value = $(this).val();
+            gd.datalist_changed( e.target.name, value );
         });
     }
 
@@ -2185,7 +2168,7 @@ class GitDown {
                 } else {
                     // we've received content so render it
                     var data = JSON.parse(event.data);
-                    console.log('Received data from GitHub.');
+                    gd.log('Received data from GitHub.');
                     sections = [];
                     // clear content from .info and .inner
                     var e = document.querySelector( eid + ' .info' );
@@ -2216,41 +2199,6 @@ class GitDown {
             $( gd.eid ).removeClass('panels-hidden');
         });
 
-        // Selector keypresses (when a user enters a gist ID and presses ENTER)
-        $( gd.eid + ' .info .selector-input' ).unbind().keyup(function(e) {
-            if( e.which == 13 ) {
-                // get parent class
-                var c = gd.get_selector_class( this.parentElement );
-                var id = $(this).val();
-                gd.selector_changed(c, id);
-            }
-        });
-
-        // only happens after change to selector other than gist and css
-        $( gd.eid + ' .info .selector-url' ).unbind().click(function() {
-            // first remove any open dialogs
-            $(gd.eid + ' .info .field.selector .dialog.visible').removeClass('visible');
-            var c = gd.get_selector_class( this );
-            var prefix = '.' + c;
-            // show selector dialog
-            $( `${gd.eid} ${prefix}-selector` ).addClass('visible');
-            // move focus to text input
-            $( `${gd.eid} ${prefix}-input` ).focus().select();
-
-            // set position
-            var p = $(this).parent().position();
-            $( `${gd.eid} ${prefix}-selector` ).css({
-                top: p.top + $(this).height() - 17,
-                left: p.left
-            });
-
-            // create click events for links
-            $( `${gd.eid} ${prefix}-selector a.id` ).unbind().click(function(event) {
-                var id = $(this).attr('data-id');
-                gd.selector_changed(c, id);
-            });
-        });
-
         const body = document.querySelector('body');
         // check for focus and apply keystrokes to appropriate wrapper div
         // to allow for more than one .gd wrapper per page
@@ -2262,32 +2210,13 @@ class GitDown {
                 // F1 key to hide/unhide info panel
                 const wrapper = document.querySelector(gd.eid);
                 wrapper.classList.toggle('panels-hidden');
-                // gd.hide(gd.eid + ' .panel');
-                gd.hide(gd.eid + ' .selector .dialog', true);
             } else if( e.which === 113 ) {
                 // F2 key to dock/undock
                 const wrapper = document.querySelector(gd.eid);
                 wrapper.classList.toggle('panels-docked');
-            } else if ( e.which === 115) {
-                // F4
-                // basic for now, we'll just expose the first available dialog
-                $( `${gd.eid} .info .dialog` ).addClass('visible');
             }
         };
 
-        /* Document based events such as keypresses and general clicks */
-        const eid = document.querySelector(gd.eid);
-        eid.addEventListener('click', (e) => {
-            // return if no .selector .dialog is visible
-            let dialog = document.querySelector(gd.eid + ' .info .field.selector .dialog.visible');
-            if ( dialog === null ) return;
-            let closest = dialog.closest('.field.selector');
-            let target = e.target;
-            // hide dialog if click occurred outside of it
-            if ( !closest.contains(target) ) {
-                dialog.classList.remove('visible');
-            }
-        })
     };
 
 }
@@ -2314,7 +2243,7 @@ class Status {
     }
 
     log() {
-        console.log(this.flags);
+        gd.log(this.flags);
         return this;
     }
 
@@ -2396,7 +2325,7 @@ class Settings {
         
         // exclude setting if its value = default_value
         if ( value + suffix == default_value ) return false;
-        if ( value === default_value ) return false;
+        if ( value.toLowerCase() === default_value ) return false;
 
         // exclude protected params
         if ( this.is_not_allowed(name) ) return;

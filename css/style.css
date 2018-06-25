@@ -51,10 +51,6 @@ html, body {
   animation: none;
 }
 
-p {
-  margin: 0.5em 0;
-}
-
 /* Section */
 .section {
   margin: auto;
@@ -282,97 +278,8 @@ kbd:hover {
   margin-bottom: 0.5em;
 }
 
-.info a.selector-url {
-  width: 80%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.info .field.selector .dialog {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  z-index: 100;
-  height: auto;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 0 2px white;
-  padding: 10px;
-  cursor: pointer;
-  border: 2px solid black;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.info .field.selector .dialog.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.info .selector-url {
-  display: block;
-  cursor: pointer;
-  color: #999;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 6px;
-  border-radius: 3px;
-  margin: 4px;
-}
-
-.info .selector-url:hover {
-  color: #fff;
-  cursor: pointer;
-  background: rgba(255,255,255,0.15);
-}
-
-.info a.selector-url::after {
-  position: absolute;
-  color: rgba(255,255,255,0.25);
-  font-family: monospace;
-  padding: 2px;
-  right: 2em;
-}
-
-.info .selector-wrapper {
-  overflow-y: scroll;
-  max-height: 11em;
-}
-
-.info .selector a:hover {
+.info .datalist a:hover {
   filter: brightness(0.5);
-}
-
-.info a.selector-url::after {
-  content: attr(name);
-}
-
-.info a.selector-source {
-  float: left;
-  padding: 6px 10px;
-  margin-right: 6px;
-}
-
-.info .selector .dialog .id {
-  margin-left: 6px;
-}
-
-.info .selector .dialog input {
-  margin-bottom: 6px;
-  width: 97%;
-  border-radius: 5px;
-  color: #333;
-  background: rgba(0,0,0,0.3);
-  padding: 4px;
-  border: none;
-  outline: 1px solid rgba(0,0,0,0.2);
-  height: 1.5em;
-}
-
-.info .selector .dialog input::-webkit-input-placeholder,
-.info .selector .dialog input::-moz-placeholder {
-  color: rgba(0,0,0,0.15);
 }
 
 .info .choices {
@@ -396,7 +303,9 @@ kbd:hover {
   color: black;
 }
 
-.info .field.select select {
+.info .field.select select,
+.info .field.textinput input,
+.info .field.datalist input {
   width: 99%;
   background: #252525;
   color: #999;
@@ -407,11 +316,28 @@ kbd:hover {
   cursor: pointer;
 }
 
-.info .field.select select:hover {
-  background: #555;
+.info .field.textinput input,
+.info .field.datalist input {
+  width: 95%;
+  cursor: text;
 }
 
-.info .field.select::before {
+.info .field.datalist input {
+  width: 70%;
+  padding: 1em;
+  text-overflow: ellipsis;
+}
+
+.info .field.select select:hover,
+.info .field.textinput input:hover,
+.info .field.datalist input:hover {
+  color: #ccc;
+  background: #333;
+}
+
+.info .field.select::before,
+.info .field.textinput::before,
+.info .field.datalist::before {
   margin-right: 2em;
   margin-top: 4px;
   content: attr(data-name);
@@ -519,11 +445,6 @@ kbd:hover {
 ::-webkit-scrollbar {
     background: #333;
     border-radius: 3px;
-}
-
-.field.selector .dialog ::-webkit-scrollbar {
-  background: #eee;
-  border: 2px solid #ddd;
 }
 
 ::-webkit-scrollbar-thumb {
