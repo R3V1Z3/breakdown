@@ -95,8 +95,7 @@ class GitDown {
     // just a quick way to log a message to console
     // also will help us search for logged messages
     log(msg) {
-        const c = console;
-        c.log(msg);
+        console.log(msg);
     }
 
     // returns default info panel content
