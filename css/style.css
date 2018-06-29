@@ -145,6 +145,9 @@ kbd:hover {
 .panel {
   opacity: 1;
   pointer-events: auto;
+  overflow-x: hidden;
+  overflow-y: overlay;
+  max-height: 100%;
 }
 
 .panels-hidden .panel {
@@ -245,14 +248,6 @@ kbd:hover {
   border-radius: 0;
 }
 
-.element-count code {
-  background: rgba(255,255,255,0.25);
-  padding: 2px 4px;
-  border-radius: 3px;
-  cursor: pointer;
-  color: white;
-}
-
 /* Table of Contents */
 .info .toc {
   max-height: 150px;
@@ -280,27 +275,6 @@ kbd:hover {
 
 .info .datalist a:hover {
   filter: brightness(0.5);
-}
-
-.info .choices {
-  margin: 1em 0;
-}
-
-.info .choices::after {
-  content: attr(data-name);
-}
-
-.info .choices .choice {
-  padding: 5px;
-  color: black;
-  background: white;
-  border-radius: 3px;
-}
-
-.info .choices .choice.selected,
-.info .choices .choice:hover {
-  background: white;
-  color: black;
 }
 
 .info .field.select select,
@@ -453,8 +427,13 @@ kbd:hover {
     border: 2px solid rgba(0,0,0,0.15);
 }
 
-.info ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.05);
+.panel::-webkit-scrollbar-thumb {
+    background-color: rgba(54, 126, 189, 0.25);
+    border: 4px solid black;
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(54, 126, 189, 1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
