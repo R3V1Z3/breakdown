@@ -1957,11 +1957,11 @@ class GitDown {
         const doc = document.documentElement.style;
         // if no name is passed in, update all cssvars
         if ( name === undefined ) {
-            // we'll want to use default values when theme is changed
-            // PROBLEM: how?
             css_vars = gd.settings.get('cssvar');
             css_vars.forEach( e => {
                 let value = e.value;
+                // when loading a new user provided theme, we'll want to set value as default
+                if ( e.type === 'cssvar-user' ) value = e.default;
                 // special consideration for font names
                 if ( e.name.endsWith('font') ) value = gd.get_gfont_name(value);
                 doc.setProperty( `--${e.name}`, value + e.suffix );
@@ -2343,7 +2343,7 @@ class Settings {
     }
 
     // returns a string of settings in url parameter format
-    to_string(type) {
+    to_string() {
         let count = 0;
         let result = '';
         for ( const i in this.settings ) {
@@ -2362,7 +2362,7 @@ class Settings {
         let result = [];
         for ( const i in this.settings ) {
             const s = this.settings[i];
-            if ( type !== undefined && type !== s.type ) {
+            if ( type !== undefined && s.type.startsWith(type) ) {
                 result.push(s);
             }
         }
@@ -2376,7 +2376,7 @@ class Settings {
             const s = this.settings[i];
             if ( type === undefined ) {
                 result[s.name] = s.value;
-            } else if ( type === s.type ) {
+            } else if ( s.type.startsWith(type) ) {
                 result[s.name] = s.value;
             }
         }
@@ -2384,7 +2384,7 @@ class Settings {
     }
     
     get(type) {
-        return this.settings.filter(i => i.type === type);
+        return this.settings.filter(i => i.type.startsWith(type) );
     }
 
     // return a setting's value by specified setting name
