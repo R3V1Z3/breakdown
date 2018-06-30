@@ -232,16 +232,6 @@ class GitDown {
         return str;
     };
 
-    /**
-     * Helper to determine if string begins with another string
-     * @param {string} t string to test
-     * @param {string} str string to find in t
-     * @returns {bool} whether t begins with str
-     */
-    begins( t, str ) {
-        return ( t.indexOf(str) === 0 );
-    };
-
     // find first character in str that is not char and return its location
     find_first_char_not(char, str) {
         for (var i = 0; i < str.length; i++){
@@ -382,13 +372,13 @@ class GitDown {
         for (var i = 0; i < styleSheetsLength; i++) {
             // get cssRules from internal stylesheets only
             try {
-                let defaultsh = false;
-                // use default to determine whether this stylesheet is the default one (style.css)
-                if ( styleSheets[i].href !== null &&
-                    styleSheets[i].href.includes('style.css') )
-                    defaultsh = true;
+                // setup extension variable to add to 'cssvar' type
+                let ext = '';
+                // get owner node id, which will be 'gd-theme-css' for user provided css
+                if ( styleSheets[i].ownerNode.id === 'gd-theme-css' ) ext = '-user';
                 const classes = styleSheets[i].rules || styleSheets[i].cssRules;
                 const classesLength = classes.length;
+                // iterate over class rules
                 for (var c = 0; c < classesLength; c++) {
                     const cssClass = classes[c];
                     const selector = cssClass.selectorText;
@@ -397,13 +387,13 @@ class GitDown {
                     const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
                     if ( regex !== null ) {
                         const elements = document.querySelectorAll(selector);
-                        // skip if there are no elements with selector
+                        // skip if no elements with this selector exist in rendered document
                         if ( elements.length < 1 ) continue;
                         regex.forEach((str) => {
                             const r = str.match(/\-\-(.*?):(.*?);/);
                             const key = r[1].trim();
                             const value = r[2].trim();
-                            this.settings.set_value( key, value, 'cssvar' );
+                            this.settings.set_value( key, value, 'cssvar' + ext );
                             // last stylesheet loaded should set the default value
                             this.settings.set_default( key, value );
                         });
@@ -463,7 +453,7 @@ class GitDown {
             if ( name !== '' ) {
                 // update only if this isn't a cssvar
                 const type = gd.settings.get_type(name);
-                if ( type !== 'cssvar' && type !== 'core' ) {
+                if ( !type.startsWith('cssvar') && type !== 'core' ) {
                     gd.settings.set_default( name, value );
                 }
             }
@@ -1102,7 +1092,7 @@ class GitDown {
             return gd.field_html( 'slider', v, items);
         }
 
-        else if ( gd.begins( v, 'select_' ) ) {
+        else if ( v.startsWith('select_') ) {
             let name = v.split('select_');
             // get assignment after var name
             let assignment = name[1].split('=');
@@ -1125,7 +1115,7 @@ class GitDown {
                 }
             });
             return gd.field_html( 'select', name, items);
-        } else if( gd.begins( v, 'slider_' ) ) {
+        } else if( v.startsWith('slider_') ) {
             let name = v.split('slider_');
             let assignment = name[1].split('=');
             let items = [];
@@ -1866,7 +1856,7 @@ class GitDown {
     };
 
     get_variable_name(v) {
-        if ( !gd.begins( v, 'gd_' ) ) return '';
+        if ( !v.startsWith('gd_') ) return '';
         const start = 0;
         const index = v.substring(start).search(/[^A-Za-z_-]/);
         if ( index < 0 ) return v;
@@ -1965,9 +1955,12 @@ class GitDown {
     update_from_css_vars(name, suffix) {
         let css_vars = gd.settings.get_settings('cssvar');
         const doc = document.documentElement.style;
+        // if no name is passed in, update all cssvars
         if ( name === undefined ) {
+            // we'll want to use default values when theme is changed
+            // PROBLEM: how?
             css_vars = gd.settings.get('cssvar');
-            css_vars.forEach(e=>{
+            css_vars.forEach( e => {
                 let value = e.value;
                 // special consideration for font names
                 if ( e.name.endsWith('font') ) value = gd.get_gfont_name(value);
@@ -2078,6 +2071,7 @@ class GitDown {
         $( s + ' .field.datalist input' ).on('change', function(e) {
             // get field details
             let value = $(this).val();
+            if ( value === '' ) value = 'Default';
             gd.datalist_changed( e.target.name, value );
         });
     }
@@ -2145,6 +2139,9 @@ class GitDown {
     }
 
     register_events() {
+
+        if ( gd.status.has('events-registered') ) return;
+        else gd.status.add('events-registered');
 
         gd.register_field_events(gd.eid + ' .info');
 
@@ -2316,6 +2313,8 @@ class Settings {
         const default_value = String(setting.default);
         const suffix = setting.suffix;
 
+        if ( value === '' ) return;
+
         // exclude names with hid- prefix
         if ( name.includes('hid-') ) return false;
 
@@ -2435,7 +2434,7 @@ class Settings {
             return;
         }
         // revert type when user provides gd-var with same name as a cssvar
-        if ( type === 'cssvar' ) key.type = 'cssvar';
+        if ( type.startsWith('cssvar') ) key.type = type;
         // return value already stored in settings if param is disallowed or protected
         if ( this.is_not_allowed(name) ) return key.value;
         // otherwise if key already exists, just update the value
