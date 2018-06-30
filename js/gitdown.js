@@ -375,7 +375,9 @@ class GitDown {
                 // setup extension variable to add to 'cssvar' type
                 let ext = '';
                 // get owner node id, which will be 'gd-theme-css' for user provided css
-                if ( styleSheets[i].ownerNode.id === 'gd-theme-css' ) ext = '-user';
+                if ( styleSheets[i].ownerNode.id === 'gd-theme-css' ) {
+                    ext = '-user';
+                }
                 const classes = styleSheets[i].rules || styleSheets[i].cssRules;
                 const classesLength = classes.length;
                 // iterate over class rules
@@ -2362,7 +2364,7 @@ class Settings {
         let result = [];
         for ( const i in this.settings ) {
             const s = this.settings[i];
-            if ( type !== undefined && s.type.startsWith(type) ) {
+            if ( type !== undefined && !s.type.startsWith(type) ) {
                 result.push(s);
             }
         }
