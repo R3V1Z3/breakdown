@@ -115,24 +115,37 @@ class GitDown {
     // PUBLIC METHODS ------------------------------------------------------
 
     // detect specified url parameter, clean and add it to settings
-    update_parameter( key, default_value ) {
-        let val = default_value;
+    update_parameter( key, val ) {
         if ( val === undefined ) val = this.settings.get_value(key);
         if ( val === undefined ) return '';
-        // check if specified key exists as url param
-        if ( this.params.has(key) ) {
-            // ensure the parameter is allowed
-            if ( this.is_param_allowed(key) ) {
-                val = this.params.get(key);
-                // sanitize strings
-                if ( typeof val === 'string' ) {
-                    const parser = new HtmlWhitelistedSanitizer(true);
-                    val = parser.sanitizeString(val);
-                }
-                this.settings.set_value(key, val);
-            }
-        }
         return val;
+    };
+
+    // iterate over settings and update them with user provided url param values
+    get_url_parameters() {
+        // foreach over all params
+        let params = (new URL(location)).searchParams;
+        for( var pair of params.entries() ) {
+            let key = pair[0];
+            let value = pair[1];
+            if ( this.settings.is_not_allowed(key) ) continue;
+            if ( typeof value === 'string' ) {
+                const parser = new HtmlWhitelistedSanitizer(true);
+                value = parser.sanitizeString(value);
+            }
+            this.settings.set_value(key, value);
+            this.settings.set_param_value(key, value);
+        }
+    }
+
+    get_valid_url_param( key, val ) {
+        // check if settings includes this key in url query string
+        if ( this.settings.is_not_allowed(key) ) return false;
+        // return val if it's not a string
+        if ( typeof val !== 'string' ) return val;
+        // otherwise clean and return val
+        const parser = new HtmlWhitelistedSanitizer(true);
+        return parser.sanitizeString(val);
     };
 
     is_param_allowed(p) {
@@ -156,7 +169,7 @@ class GitDown {
      */
     uri() {
         //let q = this.params.toString();
-        let q = this.settings.to_string('all');
+        let q = this.settings.to_string();
         if ( q.length > 0 ) q = '?' + q;
         let base = window.location.href.split('?')[0];
         base = base.split('#')[0];
@@ -394,10 +407,14 @@ class GitDown {
                         regex.forEach((str) => {
                             const r = str.match(/\-\-(.*?):(.*?);/);
                             const key = r[1].trim();
-                            const value = r[2].trim();
-                            this.settings.set_value( key, value, 'cssvar' + ext );
+                            let value = r[2].trim();
+                            // revert to default value if key is of type 'cssvar-user'
+                            let s = gd.settings.get_type(key);
+                            if ( s === 'cssvar-user' ) value = gd.settings.get_default(key);
+                            gd.settings.set_value( key, value, 'cssvar' + ext );
                             // last stylesheet loaded should set the default value
-                            this.settings.set_default( key, value );
+                            // this will also set the suffix if it hasn't already been set
+                            gd.settings.set_default( key, value );
                         });
                     }
                 }
@@ -407,67 +424,45 @@ class GitDown {
         }
     }
 
-    // iterates over all fields of specific type and updates their values based on url params
+    // iterates over all fields of specific type and updates their values, accounting for url params
     update_from_params(type) {
         // get field set
-        if ( type === '' || type === undefined ) type = '';
-        const s = `${gd.eid} .info .field${type}`;
-        const fields = document.querySelectorAll(s);
+        if ( type === undefined ) type = '';
+        const f = `${gd.eid} .info .field${type}`;
+        const fields = document.querySelectorAll(f);
         // iterate over fields
         fields.forEach(el => {
-            let name = '', value = '';
-            if ( el.classList.contains('slider') ) {
-                const slider = el.querySelector('input');
-                name = slider.getAttribute('name');
-                value = slider.value;
-                // get parameter value if user specified
-                const p = gd.update_parameter( name, slider.value );
-                if ( p !== '' ) {
-                    slider.value = p;
-                    slider.setAttribute( 'value', p );
-                    slider.parentElement.setAttribute( 'data-value', p );
-                }
-                gd.settings.set_value( name, slider.value );
-                gd.update_field(slider, p);
-            } else if ( el.classList.contains('select') ) {
-                const select = el.querySelector('select');
-                name = select.getAttribute('name');
-                value = select.value;
-                const p = gd.update_parameter( name, select.value );
-                if ( p !== '' ) {
-                    gd.update_field(select, p);
-                }
-                gd.settings.set_value( name, select.value );
-            } else if ( el.classList.contains('datalist') ) {
-                const textinput = el.querySelector('input');
-                name = textinput.getAttribute('name');
-                value = textinput.value;
-                const p = gd.update_parameter( name, value );
-                if ( value !== p) {
-                    // update field value based on parameter
-                    textinput.value = p;
-                    value = p;
-                }
-                gd.settings.set_value( name, value );
+            const field = el.firstChild;
+            // skip collapsible and similar fields
+            if ( field.tagName === 'DIV' ) return;
+            let name = field.getAttribute('name');
+            let value = field.value;
+            // use setting value for datalist
+            if ( el.classList.contains('datalist') ) value = gd.settings.get_value(name);
+            // set defaults based on field values, if they're not already set
+            gd.settings.set_value( name, value);
+            // always set default for select fields based on initial value
+            if ( el.classList.contains('select') ) gd.settings.set_default(name, value);
+            // otherwise set default to field value if default is undefined
+            if ( gd.settings.get_default(name) === undefined ) {
+                gd.settings.set_default(name, value);
             }
-
-            // set defaults if this is the first time function called for this field
-            if ( name !== '' ) {
-                // update only if this isn't a cssvar
-                const type = gd.settings.get_type(name);
-                if ( !type.startsWith('cssvar') && type !== 'core' ) {
-                    gd.settings.set_default( name, value );
-                }
+            
+            // update values based on any user provided params
+            // do this only if callback hasn't yet been made
+            let v = gd.settings.get_param_value(name);
+            if ( v !== undefined && !gd.status.has('callback') ) {
+                value = v;
+                field.setAttribute('value', value);
             }
+            gd.update_field(field, value);
         });
     }
 
     // update parameter values in storage and url
-    set_param( key, value ) {
-        gd.params.set( key, value );
-        if ( gd.status.has('var-updated') ) {
-            history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );
-        }
+    update_query_string() {
+        // we should not bother with url params since gd.settings stores params
+        history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );
     };
 
     remove_class_by_prefix( e, prefix ) {
@@ -692,9 +687,7 @@ class GitDown {
     // 4. load_done() - update ui elements and call any user provided callback
     main() {
         // update settings with URL parameters
-        for (var key in this.settings.get_settings()) {
-             this.update_parameter(key);
-        }
+        this.get_url_parameters();
 
         let initial =  this.settings.get_value('initial');
         if ( initial.toLowerCase === 'html' ) {
@@ -732,7 +725,7 @@ class GitDown {
         }
 
         if ( gist.toLowerCase() === 'default' ) {
-            // load initial content
+            // revert to initial content
             if ( !gd.status.has('content') && gd.status.has('callback') ) {
                 gd.status.remove('initial');
                 gd.load_initial( gd.settings.get_value('initial') );
@@ -859,10 +852,11 @@ class GitDown {
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
             gd.update_wrapper_classes();
-            // render cssvars with defaults from extract_css_vars
+            // render cssvars with extracted defaults
             gd.render_theme_vars();
             // update fields from newly rendered theme vars
             gd.update_from_css_vars();
+            gd.update_from_params();
             // register events for any newly created theme variable fields
             gd.register_field_events( gd.eid + ' .info .theme-vars' );
         } else {
@@ -981,7 +975,6 @@ class GitDown {
                 const selector = '';
                 if ( selector === '' ) {
                     html += gd.theme_var_html( key, value );
-                    html +'1';
                 } else {
                     // add field only if selector exists
                     let s = document.querySelector(selector);
@@ -996,8 +989,7 @@ class GitDown {
     // for example, if a theme variable involves color selection
     // this returns html for a list box with color values like "red" and "blue"
     theme_var_html(v, value) {
-        let c = '';
-        const suffix = gd.settings.get_suffix(value);
+        let suffix = gd.settings.get_suffix(v);
 
         // COLOR fields
         // handle field as Select if its name contains keyword 'color'
@@ -1070,7 +1062,7 @@ class GitDown {
 
         // PX and EM based values
         else if ( suffix.toLowerCase() === 'px' ) {
-            const items = [parseInt(value), 100, 2000, 1, suffix];
+            const items = [parseInt(value), 0, 2000, 1, suffix];
             return gd.field_html( 'slider', v, items);
         }
         else if ( suffix.toLowerCase() === 'em' ) {
@@ -1079,7 +1071,7 @@ class GitDown {
         }
         // PERCENTAGE-based values like fontsize
         else if ( suffix === '%' ) {
-            const items = [parseInt(value), 10, 300, 1, suffix];
+            const items = [parseInt(value), 0, 300, 1, suffix];
             return gd.field_html( 'slider', v, items);
         }
         // DEGREE-based values (rotation-based params like rotateX)
@@ -1642,9 +1634,11 @@ class GitDown {
         let c = `<div class="field ${type}
             ${name} ${hid} ${collapsed}"
             data-name="${name}"`;
+        // ------------------------------------- SELECT FIELDS
         if ( type === 'select') {
-            c += `>`;
-            c += `<select name="${name}">`;
+            // get options in order to get initial selected value
+            let options = '';
+            let data_value = '';
             for ( var i = 0; i < items.length; i++ ) {
                 var li = items[i].innerHTML;
                 if ( li === undefined ) li = items[i];
@@ -1652,14 +1646,21 @@ class GitDown {
                 if ( li.charAt(0) === '*' ) {
                     li = li.substr(1);
                     s = 'selected';
+                    data_value = li;
                 }
-                c += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
+                options += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
             }
+            c += ` data-value="${data_value}"`;
+            c += `>`;
+            c += `<select name="${name}">`;
+            c += options;
             c += '</select>';
+        // ------------------------------------- TEXTINPUT FIELDS
         } else if ( type === 'textinput' ) {
             c += `>`;
             c += `<input type="text" name="${name}"
             value="${items}" placeholder="${items}" />`;
+        // ------------------------------------- DATALIST FIELDS
         } else if ( type === 'datalist') {
             c += `>`;
             c += `<input type="text" name="${name}" list="${name}"`;
@@ -1680,12 +1681,13 @@ class GitDown {
                 c += `${option_name}</option>`;
             }
             c += '</datalist>';
+        // ------------------------------------- SLIDER FIELDS
         } else if ( type === 'slider' ) {
             let val = items[0];
             let suffix = '';
-            // extract number and suffix if val has non-numerics
-            if ( isNaN( Number(val) ) ) {
-                suffix = gd.settings.get_suffix(val);
+            if ( items.length > 4 ) suffix = items[4];
+            // extract number and suffix
+            if ( suffix !== '' && typeof val === 'string' ) {
                 val = Number( val.split(suffix)[0] );
             }
             c += ` data-value="${val}"`;
@@ -1713,7 +1715,6 @@ class GitDown {
         const v = document.querySelectorAll(container + ' .gd-var');
         v.forEach( (el) => {
             const name = el.getAttribute('name');
-            const value = el.getAttribute('data-value');
             const next = el.parentNode.nextElementSibling;
             let list = gd.extract_list_items( next, false );
             list = gd.merge_examples( name, list );
@@ -1933,18 +1934,16 @@ class GitDown {
     };
 
     datalist_changed(type, id) {
-        // hide any visible datalist field first
         gd.settings.set_value(type, id);
+        gd.update_query_string();
         gd.status.add('var-updated');
-        gd.set_param( type, id );
-        gd.update_parameter(type, id);
         if ( type === 'css' ) {
             gd.status.remove('css,done,changed');
             gd.status.add('theme-changed');
             gd.settings.delete('cssvar');
             gd.loop();
         } else if ( type === 'gist' ) {
-            gd.status.remove('content,done,changed');
+            gd.status.remove('content,events-registered,done,changed');
             gd.status.add('content-changed');
             gd.loop();
         } else {
@@ -1954,24 +1953,27 @@ class GitDown {
         }
     }
 
-    update_from_css_vars(name, suffix) {
+    update_from_css_vars() {
+        let css_vars = gd.settings.get('cssvar');
+        const doc = document.documentElement.style;
+        css_vars.forEach( e => {
+            let value = e.value;
+            // when loading a new user provided theme, we'll want to set value as default
+            if ( e.type === 'cssvar-user' ) value = e.default;
+            // special consideration for font names
+            if ( e.name.endsWith('font') ) {
+                value = gd.get_gfont_name(value);
+            }
+            doc.setProperty( `--${e.name}`, value + e.suffix );
+        });
+    }
+
+    update_css_var(name, suffix) {
         let css_vars = gd.settings.get_settings('cssvar');
         const doc = document.documentElement.style;
-        // if no name is passed in, update all cssvars
-        if ( name === undefined ) {
-            css_vars = gd.settings.get('cssvar');
-            css_vars.forEach( e => {
-                let value = e.value;
-                // when loading a new user provided theme, we'll want to set value as default
-                if ( e.type === 'cssvar-user' ) value = e.default;
-                // special consideration for font names
-                if ( e.name.endsWith('font') ) value = gd.get_gfont_name(value);
-                doc.setProperty( `--${e.name}`, value + e.suffix );
-                history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );                
-            });
-        } else if ( name in css_vars ) {
+        if ( name in css_vars ) {
             // update field with specified name if it exists in css_vars
-            let value = gd.update_parameter( name, css_vars[name] );
+            let value = gd.settings.get_value( name, css_vars[name] );
             // special consideration for font names
             if ( name.endsWith('font') ) value = gd.get_gfont_name(value);
             doc.setProperty( `--${name}`, value + suffix );
@@ -2027,9 +2029,9 @@ class GitDown {
             $(this).attr( 'value', value );
             $(this).parent().attr( 'data-value', value );
             gd.settings.set_value( name, value );
-            gd.set_param( name, value );
+            gd.update_query_string();
             gd.status.add('var-updated');
-            gd.update_from_css_vars(name, suffix, true);
+            gd.update_css_var(name, suffix);
         });
 
         // double click resets to default value
@@ -2058,7 +2060,7 @@ class GitDown {
 
         // clear field when user clicks on datalist inputs
         $( s + ' .field.datalist input' ).unbind().click(function(e) {
-            const v = this.value;
+            const v = e.target.getAttribute('data-value');
             let url = '';
             // open new tab based on selected item
             if (e.ctrlKey) {
@@ -2067,12 +2069,25 @@ class GitDown {
                 if ( option === null ) return;
                 url = option.getAttribute('data-href');
                 window.open( url, '_blank' ).focus();
-            } else this.setAttribute('value', '');
+            }
+        });
+
+        $( s + ' .field.datalist input' ).on('mouseenter', function(e) {
+            // get selected option
+            const name = e.target.getAttribute('name');
+            const value = gd.settings.get_value(name);
+            e.target.setAttribute( 'data-value', value );
+            e.target.value = '';
+        });
+
+        $( s + ' .field.datalist input' ).on('mouseleave', function(e) {
+            e.target.value = e.target.getAttribute( 'data-value' );
         });
 
         $( s + ' .field.datalist input' ).on('change', function(e) {
+            // no change is even occurring because it's stuck as default value
             // get field details
-            let value = $(this).val();
+            let value = e.target.value;
             if ( value === '' ) value = 'Default';
             gd.datalist_changed( e.target.name, value );
         });
@@ -2096,16 +2111,8 @@ class GitDown {
         // first find font in gfonts list
         const found = gd.get_gfont_name(font);
         if ( !found ) return false;
-
         // replace space chars with + as needed by API
         let name = found.split(' ').join('+');
-
-        // first get any extant link with gd-gfont id
-        // get the href for that element
-        // return found if name already exists in href
-            // if ( href.includes(name) ) return found;
-        
-        // otherwise lets add name to existing fonts
         let fonts = name;
         var link = document.createElement('link');
         // link.setAttribute('id', 'gd-gfont');
@@ -2119,7 +2126,6 @@ class GitDown {
 
     update_field(field, value) {
         let name = field.parentElement.getAttribute('data-name');
-        // name =  gd.clean(name);
         if ( value === undefined ) {
             // this indicates user initiated action so we'll update status
             gd.status.add('var-updated');
@@ -2127,23 +2133,24 @@ class GitDown {
         }
         field.value = value;
         gd.settings.set_value( name, value );
-        gd.set_param( name, value );
         // load user provided highlight style
         if ( name === 'highlight' ) gd.render_highlight();
         // handle suffix values
         let suffix = field.getAttribute('data-suffix');
         if ( suffix === null ) suffix = '';
-        gd.update_from_css_vars(name, suffix);
+        gd.update_css_var(name, suffix);
         // special consideration for font names
         if ( name.endsWith('font') ) value = gd.update_gfont(value);
         // update slider:after content
         field.parentElement.setAttribute( 'data-value', value);
+        // update query string when changes are made after app is loaded
+        if ( gd.status.has('callback') ) gd.update_query_string();
     }
 
     register_events() {
 
-        if ( gd.status.has('events-registered') ) return;
-        else gd.status.add('events-registered');
+        // if ( gd.status.has('events-registered') ) return;
+        // else gd.status.add('events-registered');
 
         gd.register_field_events(gd.eid + ' .info');
 
@@ -2308,6 +2315,33 @@ class Settings {
         this.settings = this.initial_settings();
     }
 
+    get_param_value(name) {
+        const setting = this.settings.find(i => i.name === name);
+        if ( setting === undefined ) return undefined;
+        // maybe first check url param to see if it's different from stored value
+        // then update the stored value
+        return setting.param_value;
+    }
+
+    set_param_value(name, value) {
+        const setting = this.settings.find(i => i.name === name);
+        // if setting doesn't exist, we'll want to add it along with param_value
+        if ( setting === undefined ) return false;
+        let suffix = this.extract_suffix(value);
+        if ( suffix !== '' && typeof value === 'string' ) {
+            value = Number(value.split(suffix)[0]);
+        }
+        setting.suffix = suffix;
+        return setting.param_value = value;
+    }
+
+    // returns true when a setting should be included in newly constructed url query params
+    is_in_querystring(name) {
+        const setting = this.settings.find(i => i.name === name);
+        if ( setting === undefined ) return false;
+        return this.should_include(setting);
+    }
+
     // helper function to determine if a setting should be included in query string
     should_include(setting) {
         const name = setting.name;
@@ -2325,12 +2359,24 @@ class Settings {
         
         // exclude setting if its value = default_value
         if ( value + suffix == default_value ) return false;
-        if ( value.toLowerCase() === default_value ) return false;
+        if ( this.equals(value, default_value) ) return false;
 
         // exclude protected params
         if ( this.is_not_allowed(name) ) return;
 
         return true;
+    }
+
+    equals(v1, v2) {
+        if ( v1 === v2 ) return true;
+        if ( typeof v1 === 'string' ) {
+            if ( typeof v2 === 'string' ) {
+                if ( v1.toLowerCase() === v2.toLowerCase() ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     is_not_allowed(name) {
@@ -2371,7 +2417,7 @@ class Settings {
         this.settings = result;
     }
 
-    // return a key/value array of settings without defaults
+    // return a key/value array of settings of specified type without defaults
     get_settings(type) {
         let result = [];
         for ( const i in this.settings ) {
@@ -2392,13 +2438,14 @@ class Settings {
     // return a setting's value by specified setting name
     get_value(name) {
         const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return false;
+        if ( key === undefined ) return undefined;
         return key.value;
     }
 
     // returns the default value for a specific setting by name
     get_default(name) {
         const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return undefined;
         return key.default;
     }
 
@@ -2406,41 +2453,71 @@ class Settings {
     set_default(name, value) {
         const key = this.settings.find(i => i.name === name);
         if ( key === undefined ) return false;
+        let suffix = this.extract_suffix(value);
+        if ( suffix !== '' && typeof value === 'string' ) {
+            value = Number( value.split(suffix)[0] );
+        }
+        key.suffix = suffix;
         return key.default = value;
     }
 
-    get_suffix(s){
-        if ( s.match(/^\d/) ) return s.replace(/[0-9]/g, '');
+    extract_suffix(s){
+        if ( s === null ) return '';
+        // if it's not a string, it has no suffix so just return
+        if ( typeof s !== 'string' ) return '';
+        // we'll set a feasible limit here,
+        // numbers larger than 8 digits should be very rare
+        if ( s.length > 8 ) return '';
+        if ( s.match(/[+-]?\d+(?:\.\d+)?/) ) {
+            return s.replace(/[+-]?\d+(?:\.\d+)?/g, '');
+        }
         return '';
+    }
+
+    get_suffix(name) {
+        const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return undefined;
+        return key.suffix;
     }
     
     get_type(name) {
         const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return false;
         return key.type;
+    }
+
+    add_setting(name, value, type) {
+        let suffix = this.extract_suffix(value);
+        if ( suffix !== '' && typeof value === 'string' )
+            value = Number( value.split(suffix)[0] );
+        const setting = {
+            name: name,
+            value: value,
+            default: undefined,
+            param_value: undefined,
+            type: type,
+            suffix: suffix
+        }
+        this.settings.push(setting);
+        return setting;
     }
 
     // set a value by specified setting name
     set_value(name, value, type) {
         if ( type === undefined ) type = 'var';
+        // find setting
         const key = this.settings.find(i => i.name === name);
         // push new setting to array if it doesn't already exist
-        if ( key === undefined ) {
-            const setting = {
-                name: name,
-                value: value,
-                default: value,
-                type: type,
-                suffix: this.get_suffix(value)
-            }
-            this.settings.push(setting);
-            return;
-        }
+        if ( key === undefined ) return this.add_setting(name, value, type);
         // revert type when user provides gd-var with same name as a cssvar
         if ( type.startsWith('cssvar') ) key.type = type;
         // return value already stored in settings if param is disallowed or protected
         if ( this.is_not_allowed(name) ) return key.value;
+        // set suffix and value, then return the entire setting as key
+        // key.suffix = suffix;
+        key.value = value;
         // otherwise if key already exists, just update the value
-        return key.value = value;
+        return key;
     }
 
     initial_settings() {
@@ -2490,11 +2567,12 @@ class Settings {
         // now we'll create an object, assign defaults and return it
         for ( const key in defaults ) {
             const setting = {
-                name: key,
-                value: defaults[key],
-                default: defaults[key],
-                type: 'core',
-                suffix: ''
+                name: key,                  // variable name
+                value: defaults[key],       // current value
+                default: defaults[key],     // default value provided by cssvars
+                type: 'core',               // type = ['core', 'var', cssvar', 'cssvar-user']
+                suffix: '',                 // for numeric vars: px, em, &
+                param_value: undefined      // has a value only if user provides it through url query param
             }
             result.push(setting);
         }
