@@ -866,7 +866,8 @@ class GitDown {
             gd.update_wrapper_classes();
             // update theme vars and render fields
             gd.render_theme_vars();
-            //gd.update_from_params();
+            // update parameters only if content hasn't changed
+            if ( !gd.status.has('gist-changed') ) gd.update_from_params();
             // finally register events
             gd.register_events();
             // we'll add adsense code since all content is finally loaded
