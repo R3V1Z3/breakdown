@@ -2133,12 +2133,17 @@ class GitDown {
             value = field.value;
         }
         field.value = value;
+        // handle suffix values
+        let suffix = gd.settings.get_suffix(name);
+        if ( suffix === undefined || suffix === '' ) {
+            suffix = field.getAttribute('data-suffix');
+        }
+        if ( suffix === null ) suffix = '';
+        // update value and suffix
         gd.settings.set_value( name, value );
+        gd.settings.set_suffix( name, suffix );
         // load user provided highlight style
         if ( name === 'highlight' ) gd.render_highlight();
-        // handle suffix values
-        let suffix = field.getAttribute('data-suffix');
-        if ( suffix === null ) suffix = '';
         gd.update_css_var(name, suffix);
         // special consideration for font names
         if ( name.endsWith('font') ) value = gd.update_gfont(value);
@@ -2462,6 +2467,7 @@ class Settings {
         return key.default = value;
     }
 
+    // attempts to extract a suffix from provided string s
     extract_suffix(s){
         if ( s === null ) return '';
         // if it's not a string, it has no suffix so just return
@@ -2479,6 +2485,12 @@ class Settings {
         const key = this.settings.find(i => i.name === name);
         if ( key === undefined ) return undefined;
         return key.suffix;
+    }
+
+    set_suffix(name, suffix) {
+        const key = this.settings.find(i => i.name === name);
+        if ( key === undefined ) return undefined;
+        return key.suffix = suffix;
     }
     
     get_type(name) {
