@@ -347,17 +347,6 @@ class GitDown {
         return '';
     };
 
-    // returns value of css_var at key k
-    get_css_var(k) {
-        const css_vars = gd.settings.get_settings('cssvar');
-        for ( const key in css_vars ) {
-            if ( key === k ) {
-                return css_vars[k];
-            }
-        }
-        return '';
-    }
-
     // tries to find a unique name for an element by adding
     // -number at the end and checking for any element with that name
     //
@@ -441,7 +430,8 @@ class GitDown {
             if ( el.classList.contains('datalist') ) value = gd.settings.get_value(name);
             // set defaults based on field values, if they're not already set
             gd.settings.set_value( name, value);
-            // always set default for select fields based on initial value
+            // select field defaults are set when html is written
+            // so we'll set default to initial values
             if ( el.classList.contains('select') ) gd.settings.set_default(name, value);
             // otherwise set default to field value if default is undefined
             if ( gd.settings.get_default(name) === undefined ) {
@@ -1944,7 +1934,7 @@ class GitDown {
             gd.settings.delete('cssvar');
             gd.loop();
         } else if ( type === 'gist' ) {
-            gd.status.remove('content,events-registered,done,changed');
+            gd.status.remove('content,done,changed');
             gd.status.add('content-changed');
             gd.loop();
         } else {
@@ -2155,9 +2145,6 @@ class GitDown {
 
     register_events() {
 
-        // if ( gd.status.has('events-registered') ) return;
-        // else gd.status.add('events-registered');
-
         gd.register_field_events(gd.eid + ' .info');
 
         // handle history
@@ -2340,15 +2327,6 @@ class Settings {
             this.settings.push(setting);
             return setting;
         }
-        // we shouldn't be extracting suffix from a parameter value
-        // but this was implemented for a reason
-        // we'll try without it
-
-        // let suffix = this.extract_suffix(value);
-        // if ( suffix !== '' && typeof value === 'string' ) {
-        //     value = Number(value.split(suffix)[0]);
-        // }
-        // setting.suffix = suffix;
         return setting.param_value = value;
     }
 
@@ -2415,7 +2393,14 @@ class Settings {
             if ( this.should_include( this.settings[i] ) ) {
                 const s = this.settings[i];
                 if ( count > 0 ) result += '&';
-                result += `${s.name}=${s.value}`;
+                let value = s.value;
+                // ensure suffixes are not included in query string values
+                if ( s.suffix !== undefined && s.suffix !== '' ) {
+                    if ( val.includes(s.suffix) ) {
+                        value = value.split(s.suffix)[0];
+                    }
+                }
+                result += `${s.name}=${value}`;
                 count += 1;
             }
         }
