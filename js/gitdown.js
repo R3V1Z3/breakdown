@@ -2393,14 +2393,14 @@ class Settings {
             if ( this.should_include( this.settings[i] ) ) {
                 const s = this.settings[i];
                 if ( count > 0 ) result += '&';
-                let value = s.value;
+                let v = s.value;
                 // ensure suffixes are not included in query string values
                 if ( s.suffix !== undefined && s.suffix !== '' ) {
-                    if ( val.includes(s.suffix) ) {
-                        value = value.split(s.suffix)[0];
+                    if ( v.includes(s.suffix) ) {
+                        v = v.split(s.suffix)[0];
                     }
                 }
-                result += `${s.name}=${value}`;
+                result += `${s.name}=${v}`;
                 count += 1;
             }
         }
