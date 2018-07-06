@@ -2332,12 +2332,23 @@ class Settings {
     set_param_value(name, value) {
         const setting = this.settings.find(i => i.name === name);
         // if setting doesn't exist, we'll want to add it along with param_value
-        if ( setting === undefined ) return false;
-        let suffix = this.extract_suffix(value);
-        if ( suffix !== '' && typeof value === 'string' ) {
-            value = Number(value.split(suffix)[0]);
+        if ( setting === undefined ) {
+            const setting = {
+                name: name,
+                param_value: value
+            }
+            this.settings.push(setting);
+            return setting;
         }
-        setting.suffix = suffix;
+        // we shouldn't be extracting suffix from a parameter value
+        // but this was implemented for a reason
+        // we'll try without it
+
+        // let suffix = this.extract_suffix(value);
+        // if ( suffix !== '' && typeof value === 'string' ) {
+        //     value = Number(value.split(suffix)[0]);
+        // }
+        // setting.suffix = suffix;
         return setting.param_value = value;
     }
 

@@ -63,30 +63,6 @@ Themes <!-- {$gd_css} -->
 
 <!-- {$gd_collapsible_end_appearance} -->
 
-
-<!-- {$gd_collapsible_fx} -->
-
-<!-- {$gd_slider_vignette="0.5,0,1,0.025"} -->
-
-<!-- {$gd_slider_brightness="1,0,3,0.05"} -->
-
-<!-- {$gd_slider_contrast="100%,0,300,1,%"} -->
-
-<!-- {$gd_slider_grayscale="0%,0,100,1,%"} -->
-
-<!-- {$gd_slider_hue-rotate="0deg,0,360,1,deg"} -->
-
-<!-- {$gd_slider_invert="0%,0,100,1,%"} -->
-
-<!-- {$gd_slider_saturate="100%,0,300,1,%"} -->
-
-<!-- {$gd_slider_sepia="0%,0,100,1,%"} -->
-
-<!-- {$gd_slider_blur="0px,0,20,1,px"} -->
-
-<!-- {$gd_collapsible_end_fx} -->
-
-
 <!-- {$gd_collapsible_contents} -->
 
 <!-- {$gd_toc} -->
