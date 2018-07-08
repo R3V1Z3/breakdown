@@ -2393,11 +2393,13 @@ class Settings {
             if ( this.should_include( this.settings[i] ) ) {
                 const s = this.settings[i];
                 if ( count > 0 ) result += '&';
-                let v = s.value;
-                // ensure suffixes are not included in query string values
+                // get value while ensuring suffix is stripped
+                let v = this.strip_suffix(s);
                 if ( s.suffix !== undefined && s.suffix !== '' ) {
-                    if ( v.includes(s.suffix) ) {
-                        v = v.split(s.suffix)[0];
+                    if ( typeof v === 'string' ) {
+                        if ( v.includes(s.suffix) ) {
+                            v = v.split(s.suffix)[0];
+                        }
                     }
                 }
                 result += `${s.name}=${v}`;
@@ -2405,6 +2407,16 @@ class Settings {
             }
         }
         return result;
+    }
+
+    // helper function to remove value with any extant suffix removed
+    strip_suffix(s) {
+        let v = s.value;
+        if ( typeof v !== 'string' ) return v;
+        if ( s.suffix === undefined ) return v;
+        if ( s.suffix === '' ) return v;
+        if ( v.includes(s.suffix) ) v = v.split(s.suffix)[0];
+        return v;
     }
 
     // delete settings of specified type

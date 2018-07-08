@@ -30,7 +30,6 @@ Experimental web app framework
 <!-- {$gd_help_ribbon} -->
 
 Example Gists <!-- {$gd_gist} -->
-- [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 - [Screen Cheatsheet](https://gist.github.com/af918e1618682638aa82)
 - [Regular Expression Cheatsheet](https://gist.github.com/3893f6ac9447f7ee27fe)
@@ -38,6 +37,7 @@ Example Gists <!-- {$gd_gist} -->
 - [Markdown resources](https://gist.github.com/eba62d45c82d0767a5a0)
 - [An exhibit of Markdown](https://gist.github.com/deb74713e6aff8fdfce2)
 - [Best Practices for Python](https://gist.github.com/7001839)
+- [README.md Template](https://gist.github.com/109311bb0361f32d87a2)
 
 <!-- {$gd_collapsible_appearance} -->
 

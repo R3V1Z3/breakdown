@@ -1,9 +1,24 @@
 # Project Tasks
 
 In-progress
-- as top priority, must implement testing methods.
-    - create new repo "GitDown Madly"
-    - create madly.html in sub-project folders to reflect gitdown-madly repo
+when changing gists/content, the app reloads variables through
+extract_css_vars which resets values to css var values
+
+gist files can contain new nav panel contents.
+lets flag when they do
+
+#include
+
+links to any exising file in /templates/ folder will be included in a div
+with any class/id added through html comment <!-- .footer -->
+also add a unique id
+
+- iterate over all links
+- check path, return if not to /templates/ folder
+- create urls array to send to gd.get_files()
+- on success, get markdown contents and render to unique id
+
+[I'm a relative reference to a repository file](../blob/master/LICENSE)
 
 TODO
 - ensure theme changes don't break layout in EntwinED and Emphases.
