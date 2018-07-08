@@ -399,8 +399,8 @@ class GitDown {
                             let value = r[2].trim();
                             // revert to default value if key is of type 'cssvar-user'
                             let s = gd.settings.get_type(key);
-                            if ( s === 'cssvar-user' ) value = gd.settings.get_default(key);
                             gd.settings.set_value( key, value, 'cssvar' + ext );
+                            if ( s === 'cssvar-user' ) value = gd.settings.get_default(key);
                             // last stylesheet loaded should set the default value
                             // this will also set the suffix if it hasn't already been set
                             gd.settings.set_default( key, value );
@@ -445,6 +445,23 @@ class GitDown {
                 value = v;
                 field.setAttribute('value', value);
             }
+            gd.update_field(field, value);
+        });
+    }
+
+    update_from_settings(){
+        console.log('=======================================');
+        // get field set
+        const f = `${gd.eid} .info .field`;
+        const fields = document.querySelectorAll(f);
+        // iterate over fields
+        fields.forEach(el => {
+            const field = el.firstChild;
+            // skip collapsible and similar fields
+            if ( field.tagName === 'DIV' ) return;
+            let name = field.getAttribute('name');
+            // let value = field.value;
+            let value = gd.settings.get_value(name);
             gd.update_field(field, value);
         });
     }
@@ -837,7 +854,7 @@ class GitDown {
 
     load_done() {
         // get variables from css
-        gd.extract_css_vars();
+        if ( !gd.status.has('content-changed') ) gd.extract_css_vars();
 
         if ( gd.status.has('theme-changed') ) {
             // update theme vars and render fields
@@ -858,6 +875,7 @@ class GitDown {
             gd.render_theme_vars();
             // update parameters only if content hasn't changed
             if ( !gd.status.has('content-changed') ) gd.update_from_params();
+            else gd.update_from_settings();
             // finally register events
             gd.register_events();
             // we'll add adsense code since all content is finally loaded
@@ -2394,29 +2412,12 @@ class Settings {
                 const s = this.settings[i];
                 if ( count > 0 ) result += '&';
                 // get value while ensuring suffix is stripped
-                let v = this.strip_suffix(s);
-                if ( s.suffix !== undefined && s.suffix !== '' ) {
-                    if ( typeof v === 'string' ) {
-                        if ( v.includes(s.suffix) ) {
-                            v = v.split(s.suffix)[0];
-                        }
-                    }
-                }
+                let v = this.get_value(s.name);
                 result += `${s.name}=${v}`;
                 count += 1;
             }
         }
         return result;
-    }
-
-    // helper function to remove value with any extant suffix removed
-    strip_suffix(s) {
-        let v = s.value;
-        if ( typeof v !== 'string' ) return v;
-        if ( s.suffix === undefined ) return v;
-        if ( s.suffix === '' ) return v;
-        if ( v.includes(s.suffix) ) v = v.split(s.suffix)[0];
-        return v;
     }
 
     // delete settings of specified type
@@ -2453,7 +2454,13 @@ class Settings {
     get_value(name) {
         const key = this.settings.find(i => i.name === name);
         if ( key === undefined ) return undefined;
-        return key.value;
+        let v = key.value;
+        // ensure returned values are always stripped of any suffix
+        if ( typeof v !== 'string' ) return v;
+        if ( key.suffix === undefined ) return v;
+        if ( key.suffix === '' ) return v;
+        if ( v.includes(key.suffix) ) v = v.split(key.suffix)[0];
+        return v;
     }
 
     // returns the default value for a specific setting by name
