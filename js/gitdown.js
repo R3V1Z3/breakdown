@@ -1,9 +1,3 @@
-// currently, when themes use same names as default themes like --bg
-// the non-default theme's default values aren't updated in fields
-
-// gitdown-saint-billy theme uses --bg with tan default color
-// that color is not updated in the field when 
-
 /**
  * GitDown core
  * @param {string} el HTML element
@@ -450,7 +444,6 @@ class GitDown {
     }
 
     update_from_settings(){
-        console.log('=======================================');
         // get field set
         const f = `${gd.eid} .info .field`;
         const fields = document.querySelectorAll(f);
@@ -2365,6 +2358,7 @@ class Settings {
         if ( value === '' ) return;
 
         // exclude names with hid- prefix
+        // this allows app devs access to settings that are hidden from user
         if ( name.includes('hid-') ) return false;
 
         // exclude any settings with _filename for now
