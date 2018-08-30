@@ -13,7 +13,7 @@
 @import url('//cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css');
 
 @media print {
-  .info {
+  .nav {
     display: none;
   }
   #wrapper {
@@ -26,39 +26,59 @@
 :root {
   --bg: white;
   --fontsize: 120%;
+  --highlight: Default;
+  --heading-font: 'Fira Code iScript', monospace, display, serif, sans-serif, handwriting;
+  --font: 'Fira Code iScript', monospace, display, serif, sans-serif, handwriting;
+}
+
+blockquote {
+  padding: 0 1em;
+  margin-left: 0;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
 }
 
 body {
   background-color: var(--bg);
+  font-family: var(--font);
 }
 
 html, body {
   margin: 0;
 }
 
-#wrapper, .inner {
+#wrapper {
+  position: absolute;
   width: 100%;
   height: 100%;
   margin: auto;
   float: left;
 }
 
-#wrapper { position: absolute;}
-
 .inner {
+  width: 100%;
+  height: 100%;
+  margin: auto;
+  float: left;
   font-size: var(--fontsize);
   transition: none;
   animation: none;
 }
 
 /* Section */
+
 .section {
   margin: auto;
   page-break-inside: avoid;
   touch-action: none;
 }
 
+.section .handle-heading {
+  font-family: var(--heading-font);
+}
+
 .section .content {
+  font-family: var(--font);
   position: relative;
 }
 
@@ -69,14 +89,14 @@ html, body {
 }
 
 /* General styles */
-ul {
+/* ul {
   padding-left: 0;
   list-style: none;
-}
+} */
 
-li:before {
+/* li:before {
   content: "\25cf  ";
-}
+} */
 
 code {
   background: rgba(0,0,0,0.05);
@@ -90,6 +110,8 @@ pre code {
 }
 
 pre {
+  font-family: var(--code-font);
+  background: rgba(0,0,0,0.05);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -115,11 +137,13 @@ kbd:hover {
   margin: 0;
 }
 
-#gd-gitdown #custom .section {
-  width: 60%;
+#gd-gitdown .section {
+  width: 60% !important;
+  position: static !important;
+  top: unset !important;
+  left: unset !important;
   margin: auto;
   margin-top: 50px;
-  position: relative;
 }
 
 .gd-markdown {
@@ -130,15 +154,15 @@ kbd:hover {
 
 /* Panels */
 
-#wrapper.panels-docked {
+.panels-docked {
   width: calc(100% - 300px);
 }
 
-#wrapper.panels-docked.panels-hidden {
+.panels-docked.panels-hidden {
   width: 100%;
 }
 
-#wrapper.panels-docked .info {
+.panels-docked .nav {
   height: 100%;
 }
 
@@ -155,20 +179,23 @@ kbd:hover {
   pointer-events: none;
 }
 
-/* Special class fir hid- variables */
-
-.info .hid {
+/* hide cssvar fields with names that begin with 'hid-' */
+.nav .field div[class^="hid-"],
+.nav .field div[class*=" hid-"] {
   display: none;
 }
 
 /* Info panel */
 
-.info * {
+.nav * {
   color: white;
 }
 
-.info {
+.nav {
+  font-family: 'Fira Code iScript', monospace;
+  font-size: 120%;
   background: rgba(0,0,0,0.9);
+  color: #ccc;
   position: fixed;
   top: 0px;
   right: 0px;
@@ -179,42 +206,44 @@ kbd:hover {
   z-index: 100;
 }
 
-.info .app-title {
-  margin: 0;
-  font-size: 2.3em;
+#gd-gitdown .nav h1 {
+  letter-spacing: -0.25em;
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
 }
 
-.info h1, .info h3 {
+.nav h1, .nav h3 {
+  text-shadow: 0 2px 0px black, 0 3px 0 white;
   text-transform: none;
   margin: 0;
 }
 
-.info p {
+.nav p {
   margin: 0;
 }
 
-.info .element-count {
+.nav .element-count {
     margin-bottom: 1em;
 }
 
-.info a {
+.nav a {
   color: #999;
   text-decoration: none;
 }
 
-.info a:hover,
-.info .toc a:hover {
+.nav a:hover,
+.nav .toc a:hover {
   color: #fff;
   cursor: pointer;
   background: rgba(255,255,255,0.15);
 }
 
-.info .hide {
+.nav .hide {
   float: right;
   cursor: pointer;
 }
 
-.info .hide:hover kbd {
+.nav .hide:hover kbd {
   color: white;
   filter: invert(90%);
 }
@@ -249,19 +278,29 @@ kbd:hover {
 }
 
 /* Table of Contents */
-.info .toc {
+.nav .toc {
   max-height: 150px;
   overflow-y: scroll;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 5px;
 }
 
-.info .toc a {
+.toc span.level {
+  font-family: monospace;
+  font-size: 0.75em;
+  margin: 1px;
+  padding: 2px 4px 0px 4px;
+  border-radius: 5px;
+  background: #555;
+  color: #ccc;
+}
+
+.nav .toc a {
   display: inline;
   cursor: pointer;
 }
 
-.info .toc a {
+.nav .toc a {
   display: block;
   padding: 6px;
   border-bottom: 1px solid black;
@@ -269,17 +308,17 @@ kbd:hover {
 
 /* Fields */
 
-.info .field {
+.nav .field {
   margin-bottom: 0.5em;
 }
 
-.info .datalist a:hover {
+.nav .datalist a:hover {
   filter: brightness(0.5);
 }
 
-.info .field.select select,
-.info .field.textinput input,
-.info .field.datalist input {
+.nav .field.select select,
+.nav .field.textinput input,
+.nav .field.datalist input {
   width: 99%;
   background: #252525;
   color: #999;
@@ -290,66 +329,68 @@ kbd:hover {
   cursor: pointer;
 }
 
-.info .field.textinput input,
-.info .field.datalist input {
+.nav .field.textinput input,
+.nav .field.datalist input {
   width: 95%;
   cursor: text;
 }
 
-.info .field.datalist input {
+.nav .field.datalist input {
   width: 70%;
   padding: 1em;
   text-overflow: ellipsis;
 }
 
-.info .field.select select:hover,
-.info .field.textinput input:hover,
-.info .field.datalist input:hover {
+.nav .field.select select:hover,
+.nav .field.textinput input:hover,
+.nav .field.datalist input:hover {
   color: #ccc;
   background: #333;
 }
 
-.info .field.select::before,
-.info .field.textinput::before,
-.info .field.datalist::before {
-  margin-right: 2em;
-  margin-top: 4px;
+.nav .field.select::before,
+.nav .field.textinput::before,
+.nav .field.datalist::before {
+  margin-right: 2.5em;
+  margin-top: 0.45em;
   content: attr(data-name);
   position: absolute;
   right: 0;
-  color: #999;
+  color: cornflowerblue;
+  font-family: monospace;
+  text-transform: capitalize;
   pointer-events: none;
 }
 
-#custom .info li:before {
+#custom .nav li:before {
   content: unset;
 }
 
-.info .field.collapsible {
+.nav .field.collapsible {
   margin: 5px 0;
   background: rgba(255, 255, 255, 0.15);
   padding: 0.5em 0.5em 1em 0.5em;
   border-radius: 3px;
 }
 
-.info .field.collapsible.collapsed {
+.nav .field.collapsible.collapsed {
   padding: 0.5em;
 }
 
-.info .field.collapsible .contents {
+.nav .field.collapsible .contents {
   margin-top: 0.5em;
 }
 
-.info .field.collapsible.collapsed .contents {
+.nav .field.collapsible.collapsed .contents {
   height: 0px;
   display: none;
 }
 
-.info .field.collapsible:hover {
+.nav .field.collapsible:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
-.info .field.collapsible .header {
+.nav .field.collapsible .header {
   width: 100%;
   height: 1.5em;
   display: inline-block;
@@ -358,7 +399,7 @@ kbd:hover {
   cursor: pointer;
 }
 
-.info hr {
+.nav hr {
   height: 6px;
   border: 0;
   box-shadow: inset 0 6px 6px -6px rgba(255, 255, 255, 0.5);
@@ -369,9 +410,14 @@ kbd:hover {
   display: none;
 }
 
+/* Hide heading for intro sections */
+a.handle.i-intro {
+  display: none;
+}
+
 /* Help Ribbon */
-.info a.help-ribbon,
-.info a.help-ribbon {
+.nav a.help-ribbon,
+.nav a.help-ribbon {
   position: absolute;
   transform: rotate(45deg);
   font-size: 2.75em;
@@ -391,8 +437,8 @@ kbd:hover {
   line-height: normal;
 }
 
-.info a.help-ribbon::before,
-.info a.help-ribbon::before {
+.nav a.help-ribbon::before,
+.nav a.help-ribbon::before {
   background: white;
   width: 200px;
   height: 30px;
@@ -406,8 +452,8 @@ kbd:hover {
   mix-blend-mode: soft-light;
 }
 
-.info a.help-ribbon:hover,
-.info a.help-ribbon:hover {
+.nav a.help-ribbon:hover,
+.nav a.help-ribbon:hover {
   background: burlywood;
   color: black;
 }
@@ -440,34 +486,36 @@ kbd:hover {
 }
 
 /* Sadly massive slider styling */
-.info .field.slider::after {
+.nav .field.slider::after {
   content: attr(data-name) ': ' attr(data-value) '' attr(data-suffix);
   color: white;
   text-shadow: 1px 1px 2px black;
   position: absolute;
-  right: 30px;
-  font-size: 1.2em;
+  right: 2.7em;
+  pointer-events: none;
+  margin: -1.25em;
+
   pointer-events: none;
 }
 
-.info input[type=range] {
+.nav input[type=range] {
   -webkit-appearance: none;
   width: 100%;
   margin: 7.3px 0;
 }
-.info input[type=range]:focus {
+.nav input[type=range]:focus {
   outline: none;
 }
-.info input[type=range]::-webkit-slider-runnable-track {
+.nav input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: rgba(48, 113, 169, 0.78);
+  background: cornflowerblue;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
-.info input[type=range]::-webkit-slider-thumb {
+.nav input[type=range]::-webkit-slider-thumb {
   box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
   border: 1.8px solid #00001e;
   height: 26px;
@@ -478,19 +526,19 @@ kbd:hover {
   -webkit-appearance: none;
   margin-top: -7.5px;
 }
-.info input[type=range]:focus::-webkit-slider-runnable-track {
+.nav input[type=range]:focus::-webkit-slider-runnable-track {
   background: rgba(54, 126, 189, 0.78);
 }
-.info input[type=range]::-moz-range-track {
+.nav input[type=range]::-moz-range-track {
   width: 100%;
   height: 11.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: rgba(48, 113, 169, 0.78);
+  background: cornflowerblue;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
-.info input[type=range]::-moz-range-thumb {
+.nav input[type=range]::-moz-range-thumb {
   box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
   border: 1.8px solid #00001e;
   height: 26px;
@@ -500,24 +548,24 @@ kbd:hover {
   cursor: pointer;
 }
 
-.info input[type=range] {
+.nav input[type=range] {
   -webkit-appearance: none;
   width: 100%;
   margin: 7.3px 0;
 }
-.info input[type=range]:focus {
+.nav input[type=range]:focus {
   outline: none;
 }
-.info input[type=range]::-webkit-slider-runnable-track {
+.nav input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: rgba(48, 113, 169, 0.78);
+  background: cornflowerblue;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
-.info input[type=range]::-webkit-slider-thumb {
+.nav input[type=range]::-webkit-slider-thumb {
   box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
   border: 1.8px solid #00001e;
   height: 26px;
@@ -528,19 +576,19 @@ kbd:hover {
   -webkit-appearance: none;
   margin-top: -7.5px;
 }
-.info input[type=range]:focus::-webkit-slider-runnable-track {
+.nav input[type=range]:focus::-webkit-slider-runnable-track {
   background: rgba(54, 126, 189, 0.78);
 }
-.info input[type=range]::-moz-range-track {
+.nav input[type=range]::-moz-range-track {
   width: 100%;
   height: 11.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: rgba(48, 113, 169, 0.78);
+  background: cornflowerblue;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
-.info input[type=range]::-moz-range-thumb {
+.nav input[type=range]::-moz-range-thumb {
   box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
   border: 1.8px solid #00001e;
   height: 26px;

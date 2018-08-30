@@ -15,19 +15,16 @@ Several projects now use the framework:
 - [EntwinED](https://ugotsta.github.io/entwined/) - modular text processor and editor for Entwine
 - [Emphases](https://ugotsta.github.io/emphases/) - annotation and highlighting app, mainly for Bible references
 
-## GitHub not needed
+## GitHub not required
 While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
 
-### Core dependencies
-- [Markdown-it](https://markdown-it.github.io/) - does all the heavy lifting of Markdown rendering
-- [Highlight.js](https://highlightjs.org/) - used by Markdown-it for code highlighting
+`ⓘ This code block will not be rendered in the app. The code below marks the start of the nav panel.`
 
-# Examples <!-- {$gd_info} -->
-Experimental web app framework
+# 🅖ⓘ🅣🅓🅞🅦🅝 `🅖-nav`
 
-<!-- {$gd_help_ribbon} -->
+`ⓘ The code below designates a list of content sources the user will be able to select from in the app.`
 
-Example Gists <!-- {$gd_gist} -->
+content `🅖-datalist`
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 - [Screen Cheatsheet](https://gist.github.com/af918e1618682638aa82)
 - [Regular Expression Cheatsheet](https://gist.github.com/3893f6ac9447f7ee27fe)
@@ -37,36 +34,67 @@ Example Gists <!-- {$gd_gist} -->
 - [Best Practices for Python](https://gist.github.com/7001839)
 - [README.md Template](https://gist.github.com/109311bb0361f32d87a2)
 
-<!-- {$gd_collapsible_appearance} -->
+## Appearance `🅖-collapsible` `🅢 {width: 240px;}`
+
+css `🅖-datalist`
+- [Dark Glow](https://gist.github.com/c6d0a4d16b627d72563b43b60a164c31)
+
+`🅖-theme-variables`
+
+## Effects `🅖-collapsible`
+
+vignette-blend `🅖-select`
+- multiply
+- add
+
+vignette `🅖-slider`
+
+tiltshift `🅖-select`
+- None
+- *Elegant
+- Extreme
+
+svg-filter `🅖-select`
+- *None
 
 -----
 
-Themes <!-- {$gd_css} -->
-- [Technology](https://gist.github.com/adc373c2d5a5d2b07821686e93a9630b)
-- [Console](https://gist.github.com/a634da7b7130fd40d682360154cc4e2e)
-- [Tech Archaic](https://gist.github.com/e27b284231488b349f35786f6340096a)
-- [Saint Billy](https://gist.github.com/76c39d26b1b44e07bd7a783311caded8)
-- [Ye Olde Tavern](https://gist.github.com/e9dc237da3d9bda63302fe4b659c20b5)
-- [Old Glory](https://gist.github.com/43bff1c9c6ae8a829f67bd707ee8f142)
-- [Woodwork](https://gist.github.com/ece15baa3b80cd95bc0b7a0a2b5a24bd)
-- [Corkboard](https://gist.github.com/ada930f9dae1d0a8d95f41cb7a56d658)
-- [Graph Paper](https://gist.github.com/77b1f66ad5093c2db29c666ad15f334d)
-- [Eerie](https://gist.github.com/7ac556b27c2cd34b00aa59e0d3621dea)
-- [Ghastly](https://gist.github.com/d1a6d5621b883bf6af886855d853d502)
-- [Writing on the Wall](https://gist.github.com/241b47680c730c7162cb5f82d6d788fa)
-- [Shapes](https://gist.github.com/dbb6369d5cef9801d11e0c342b47b2e0)
-- [Futurism](https://gist.github.com/Ugotsta/3aafb0a8fb340423127373daaacf12dd)
+brightness `🅖-slider="1,0,3,0.05"`
+contrast `🅖-slider="100%,0,300,1,%"`
+grayscale `🅖-slider="0%,0,100,1,%"`
+hue-rotate `🅖-slider="0deg,0,360,1,deg"`
+invert `🅖-slider="0%,0,100,1,%"`
+saturate `🅖-slider="100%,0,300,1,%"`
+sepia `🅖-slider="0%,0,100,1,%"`
+blur `🅖-slider="0px,0,20,1,px"`
 
-<!-- {$gd_theme_variables} -->
+## Perspective `🅖-collapsible`
 
-<!-- {$gd_collapsible_end_appearance} -->
+scale `🅖-slider="0,1,5,0.1"`
+perspective `🅖-slider="1500px,0,2000,1,px"`
+originX `🅖-slider="50%,0,100,1,%"`
+originY `🅖-slider="50%,0,100,1,%"`
+rotateX `🅖-slider="0deg,0,360,1,deg"`
+rotateY `🅖-slider="0deg,0,360,1,deg"`
+scaleZ `🅖-slider="0,1,5,0.1"`
+rotateZ `🅖-slider="0deg,0,360,1,deg"`
+translateZ `🅖-slider="0px,-500,500,1,px"`
 
-<!-- {$gd_collapsible_contents} -->
+## Dimensions `🅖-collapsible`
 
-<!-- {$gd_toc} -->
+width `🅖-slider="960px,4,4000,1,px"`
+height `🅖-slider="400px,4,2000,1,px"`
+padding `🅖-slider="10px,0,500,1,px"`
+onner-space `🅖-slider="100px,0,300,1,px"`
+outer-space `🅖-slider="0px,0,300,1,px"`
+offsetX `🅖-slider="0px,-4000,4000,1,px"`
+offsetY `🅖-slider="0px,-4000,4000,1,px"`
 
-<!-- {$gd_collapsible_end_contents} -->
+## Contents `🅖-collapsible`
 
-<!-- {$gd_adsense="ca-pub-8824145169772526,5201814894"} -->
+`🅖-toc`
 
-<!-- {$gd_hide} -->
+## Help `🅖-group`
+
+`🅖-help="https://github.com/ugotsta/gitdown-madly/#gitdown-madly"`
+`🅖-hide`

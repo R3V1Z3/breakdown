@@ -5,24 +5,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <!-- Polyfill for archaic browsers -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/url-search-params/0.10.0/url-search-params.js"></script>
-
-    <script src="//code.jquery.com/jquery-latest.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/markdown-it/8.4.0/markdown-it.min.js"></script>
-
-    <script src="js/sanitizer.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    
     <script src="js/gitdown.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
-
-    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({
-              google_ad_client: "ca-pub-8824145169772526",
-              enable_page_level_ads: true
-         });
-    </script>
 
     <title>GitDown</title>
 </head>
@@ -36,13 +23,14 @@
     <script>
 
         const gd = new GitDown('#wrapper', {
-            title: 'GitDown',
+            title: 'GitDown Madly',
             content: 'README.md',
-            callback: done
+            raw: false,
+            callback: ready
         });
 
-        function done() {
-            //gd.status.log();
+        function ready() {
+            // gd.status.log();
             console.log('Callback executed.');
         }
 

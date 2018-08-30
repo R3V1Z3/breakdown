@@ -1,9 +1,5 @@
 # Project Tasks
 
-In-progress
-when changing gists/content, the app reloads variables through
-extract_css_vars which resets values to css var values
-
 gist files can contain new nav panel contents.
 lets flag when they do
 

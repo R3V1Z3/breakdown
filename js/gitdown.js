@@ -5,156 +5,102 @@
  * @returns {object} a new GitDown object
  */
 class GitDown {
-    
-    constructor( el, options ) {
-        const gd = this;
-        gd.init( el, options );
-        gd.main();
+
+    constructor(el, options) {
+        this.init(el, options);
+        this.entry();
     }
 
-    init( el, options ) {
+    init(el, options) {
         this.status = new Status();
-        this.parameters_protected = 'markdownit,callback,merge_themes,merge_gists,origin,parameters_disallowed';
-        this.settings = new Settings(options, this.parameters_protected);
-        // this.sectionz = new Sectionz();
-        // this.parameterz = new Parameterz();
-        // this.fieldz = new Fieldz();
+        this.parametersProtected = 'raw,callback,mergeThemes,origin,parameters_disallowed';
+        this.settings = new Settings(options, this.parametersProtected);
 
-        this.initial_content = '';
-        this.info_content = this.default_info_content();
-        this.sections = [];
-        this.chr_link = '⮎';
-        this.css_vars = {};
-        this.params = (new URL(location)).searchParams;
-        this.path = '/' + window.location.hostname.split('.')[0] + window.location.pathname;
-        this.example_gists = this.examples('gist');
-        this.example_themes = this.examples('css');
-        if ( typeof el === 'string' ) el = document.querySelector(el);
-        // ensure element has an id, then store it in eid
-        this.eid = '#' + el.getAttribute('id');
-        if ( this.eid === '#' ) {
-            let new_id = document.querySelector('#wrapper');
-            // ensure another id doesn't already exist in page
-            if( new_id === null ) {
-                this.eid = new_id;
-                el.setAttribute( 'id', eid.substr(1) );
-            }
-        }
-        // add container div and inner content
-        let content = '<div class="' + this.settings.get_value('inner') + '">';
-        content += '</div>';
-        content += '<div class="info panel visible"></div>';
-        el.innerHTML += content;
+        // Virtual classes to store contents and provide methods for accessing them
+        this.sections = new Sections();
+        this.panels = new Panels();
+        this.events = new Events();
+
+        // URL classes
+        this.params = Url.getSearchParams();
+        this.path = Url.getPath();
+
+        // configure examples
+        this.exampleThemes = this.examples();
+
+        this.initialContent = '';
+
+        // configure dom
+        const inner = this.settings.getValue('inner');
+        this.dom = new Dom();
+        this.eid = this.dom.configureWrapper(el, inner);
+
         // helper variables to simplify access to container elements
-        this.eid_inner = ' .' + this.settings.get_value('inner');
+        this.eidInner = ' .' + this.settings.getValue('inner');
+        this.wrapper = document.querySelector(this.eid);
+        this.inner = document.querySelector(this.eidInner);
     };
 
     // setup basic examples
     // returns defaults if merged is not provided
     // otherwise returns examples with merged added
-    examples( type, user_examples ) {
-        let ex = {};
-        if ( type === 'gist' ) {
-            ex = {
-                "Alexa Cheats": "2a06603706fd7c2eb5c93f34ed316354",
-                "Vim Cheats": "c002acb756d5cf09b1ad98494a81baa3" };
-        } else if ( type === 'css' ) {
-            ex = {
-                "Technology": "adc373c2d5a5d2b07821686e93a9630b",
-                "Console": "a634da7b7130fd40d682360154cc4e2e",
-                "Tech Archaic": "e27b284231488b349f35786f6340096a",
-                "Saint Billy": "76c39d26b1b44e07bd7a783311caded8",
-                "Ye Olde Tavern": "e9dc237da3d9bda63302fe4b659c20b5",
-                "Old Glory": "43bff1c9c6ae8a829f67bd707ee8f142",
-                "Woodwork": "ece15baa3b80cd95bc0b7a0a2b5a24bd",
-                "Graph Paper": "77b1f66ad5093c2db29c666ad15f334d",
-                "Eerie": "7ac556b27c2cd34b00aa59e0d3621dea",
-                "Writing on the Wall": "241b47680c730c7162cb5f82d6d788fa",
-                "Ghastly": "d1a6d5621b883bf6af886855d853d502",
-                "Gradient Deep": "51aa23d96f9bd81fe55c47b2d51855a5",
-                "Shapes": "dbb6369d5cef9801d11e0c342b47b2e0"
-            };
-        }
+    examples(userExamples) {
+        let ex = [
+            "[Technology](adc373c2d5a5d2b07821686e93a9630b)",
+            "[Console](a634da7b7130fd40d682360154cc4e2e)",
+            "[Tech Archaic](e27b284231488b349f35786f6340096a)",
+            "[Saint Billy](76c39d26b1b44e07bd7a783311caded8)",
+            "[Ye Olde Tavern](e9dc237da3d9bda63302fe4b659c20b5)",
+            "[Old Glory](43bff1c9c6ae8a829f67bd707ee8f142)",
+            "[Woodwork](ece15baa3b80cd95bc0b7a0a2b5a24bd)",
+            "[Graph Paper](77b1f66ad5093c2db29c666ad15f334d)",
+            "[Writing on the Wall](241b47680c730c7162cb5f82d6d788fa)",
+            "[Ghastly](d1a6d5621b883bf6af886855d853d502)",
+            "[Gradient Deep](51aa23d96f9bd81fe55c47b2d51855a5)",
+            "[Shapes](dbb6369d5cef9801d11e0c342b47b2e0)"
+        ];
 
-        if ( user_examples === null ) return ex;
+        if (userExamples === undefined) return ex;
 
-        let do_merge = false;
-        if ( type === 'gist' ) do_merge = this.settings.get_value('merge_gists');
-        if ( type === 'css' ) do_merge = this.settings.get_value('merge_themes');
+        let doMerge = false;
+        if (type === 'css') doMerge = this.settings.getValue('mergeThemes');
 
-        if ( do_merge ) return this.merge_arrays( ex, user_examples );
-        return user_examples;
+        if (doMerge) return Helpers.mergeExamples(ex, userExamples);
+        return userExamples;
     }
 
     // just a quick way to log a message to console
     // also will help us search for logged messages
     log(msg) {
-        console.log(msg);
+        const c = console;
+        c.log(msg);
     }
 
-    // returns default info panel content
-    // for cases where no info panel content is provided
-    default_info_content() {
-        var n = '\n\n';
-        var info = '# Info <!-- {$gd_info} -->' + n;
-        info += '<!-- {$gd_help_ribbon} -->' + n;
-        info += 'GIST <!-- {$gd_gist} -->' + n;
-        info += 'CSS <!-- {$gd_css} -->' + n;
-        info += '<!-- {$gd_theme_variables} -->' + n;
-        info += '## Table of Contents <!-- {$gd_toc} -->' + n;
-        info += '<!-- {$gd_hide} -->' + n;
-        return info;
-    };
-
-    // PUBLIC METHODS ------------------------------------------------------
-
-    // detect specified url parameter, clean and add it to settings
-    update_parameter( key, val ) {
-        if ( val === undefined ) val = this.settings.get_value(key);
-        if ( val === undefined ) return '';
-        return val;
-    };
-
+    // has-dom
     // iterate over settings and update them with user provided url param values
-    get_url_parameters() {
+    getUrlParameters() {
         // foreach over all params
         let params = (new URL(location)).searchParams;
-        for( var pair of params.entries() ) {
+        for (var pair of params.entries()) {
             let key = pair[0];
             let value = pair[1];
-            if ( this.settings.is_not_allowed(key) ) continue;
-            if ( typeof value === 'string' ) {
-                const parser = new HtmlWhitelistedSanitizer(true);
-                value = parser.sanitizeString(value);
+            if (this.settings.isNotAllowed(key)) continue;
+            if (typeof value === 'string') {
+                value = Helpers.clean(value);
             }
-            this.settings.set_value(key, value);
-            this.settings.set_param_value(key, value);
+            this.settings.setValue(key, value);
+            this.settings.setParamValue(key, value);
         }
     }
 
-    get_valid_url_param( key, val ) {
-        // check if settings includes this key in url query string
-        if ( this.settings.is_not_allowed(key) ) return false;
-        // return val if it's not a string
-        if ( typeof val !== 'string' ) return val;
-        // otherwise clean and return val
-        const parser = new HtmlWhitelistedSanitizer(true);
-        return parser.sanitizeString(val);
-    };
-
-    is_param_allowed(p) {
-        let allowed = this.settings.get_value('parameters_disallowed');
+    isParamAllowed(p) {
+        let allowed = this.settings.getValue('parameters_disallowed');
         allowed = allowed.split(',');
-        let prot = this.parameters_protected.split(',');
-        if ( prot.indexOf(p) === -1 && allowed.indexOf(p) === -1 ) {
+        let prot = this.parametersProtected.split(',');
+        if (prot.indexOf(p) === -1 && allowed.indexOf(p) === -1) {
             return true;
         }
         return false;
-    }
-
-    // return true to let user know everything is fully loaded
-    is_loaded() {
-        return status.has('done');
     }
 
     /**
@@ -163,16 +109,15 @@ class GitDown {
      */
     uri() {
         //let q = this.params.toString();
-        let q = this.settings.to_string();
-        if ( q.length > 0 ) q = '?' + q;
+        let q = this.settings.toString();
+        if (q.length > 0) q = '?' + q;
         let base = window.location.href.split('?')[0];
         base = base.split('#')[0];
-        return base + q + location.hash;
+        return base + q + Url.getHash();
     };
 
-    /**
-     * Ridiculously lengthy function for fullscreen switching
-     */
+    // has-dom
+    // Ridiculously lengthy function for fullscreen switching
     toggleFullscreen(e) {
         e = e || document.documentElement;
         if (!document.fullscreenElement && !document.mozFullScreenElement &&
@@ -184,7 +129,7 @@ class GitDown {
             } else if (e.mozRequestFullScreen) {
                 e.mozRequestFullScreen();
             } else if (e.webkitRequestFullscreen) {
-                e.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                e.webkitRequestFullscreen(Element.ALLOWKEYBOARDINPUT);
             }
         } else {
             if (document.exitFullscreen) {
@@ -199,50 +144,10 @@ class GitDown {
         }
     }
 
-    // helper function to ensure section ids are css compatible
-    clean( str, o ) {
-        if ( o === undefined ) o = 'css';
-        if ( o === 'css' ) {
-            str = str.toLowerCase();
-            // remove non-alphanumerics
-            str = str.replace(/[^#a-z0-9_\s-]/g, '-');
-            // clean up multiple dashes or whitespaces
-            str = str.replace(/[\s-]+/g, ' ');
-            // remove leading and trailing spaces
-            str = str.trim();
-            // convert whitespaces and underscore to dash
-            str = str.replace(/[\s_]/g, '-');
-        } else if ( o === 'var' ) {
-            // remove non-alphanumerics
-            str = str.replace(/[^a-z0-9_\s-]/g, '-');
-            // clean up multiple dashes or whitespaces
-            str = str.replace(/[\s-]+/g, ' ');
-            // remove leading and trailing spaces
-            str = str.trim();
-            // convert whitespaces and dashes to underscores
-            str = str.replace(/[\s-]/g, '_');
-        } else if ( o === 'value' ) {
-            // send through sanitizer
-            var parser = new HtmlWhitelistedSanitizer(true);
-            str = parser.sanitizeString(str);
-        } else if ( o === 'proper' ) {
-            // return proper name, used only after values previously cleaned
-            // replace dashes and underscores with space
-            f = f.replace(/-/g, ' ');
-            f = f.replace(/_/g, ' ');
-            // capitalize words
-            f = f.replace( /\b\w/g, l => l.toUpperCase() );
-        } else if ( o === 'proper_file' ) {
-            // capitalize words
-            f = f.replace( /\b\w/g, l => l.toUpperCase() );
-        }
-        return str;
-    };
-
     // find first character in str that is not char and return its location
-    find_first_char_not(char, str) {
-        for (var i = 0; i < str.length; i++){
-            if (str[i] != char){
+    findFirstCharNot(char, str) {
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] != char) {
                 return i;
             }
         }
@@ -253,26 +158,28 @@ class GitDown {
     /**
      * load user specified highlight style
      */
-    render_highlight() {
-        var h = this.settings.get_value('highlight');
+    renderHighlight() {
+        var h = this.settings.getValue('highlight');
         var hlight = document.querySelector('#gd-highlight');
-        if ( h === undefined || h === null ) h = 'default';
-        if ( h.toLowerCase() === 'none' ) {
-            if ( hlight !== null ) hlight.parentNode.removeChild(hlight);
+        if (h === undefined || h === null) h = 'default';
+        if (h.toLowerCase() === 'none') {
+            if (hlight !== null) hlight.parentNode.removeChild(hlight);
         } else {
             // setup link details
-            var href = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/';
-            href += h.replace(/[^a-zA-Z0-9-_]+/ig, '');
-            href += '.min.css';
+            var href = '//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/';
+            href += h + '.min.css';
             // check for existence of highlight link
-            if ( hlight === null ) {
+            if (hlight === null) {
                 // add style reference to head
-                this.append_style( 'link', 'gd-highlight', href );
+                this.appendStyle('link', 'gd-highlight', href);
             } else {
                 // modify existing href
-                hlight.setAttribute( 'href', href );
+                hlight.setAttribute('href', href);
             }
         }
+        // iterate over code blocks to highlight them
+        let code = document.querySelectorAll('pre code');
+        code.forEach(c => hljs.highlightBlock(c));
     }
 
     /**
@@ -281,65 +188,33 @@ class GitDown {
      * @param {string} id so we can alter href later
      * @param {string} content either href or actual style content
      */
-    append_style( type, id, content ){
-        if ( type === 'link' ){
-            let s  = document.createElement(type);
+    appendStyle(type, id, content) {
+        if (type === 'link') {
+            let s = document.createElement(type);
             s.type = 'text/css';
-            if ( id !== null ) s.id = id;
-            s.rel  = 'stylesheet';
+            if (id !== null) s.id = id;
+            s.rel = 'stylesheet';
             s.href = content;
             document.head.appendChild(s);
-        } else if ( type === 'style' ) {
+        } else if (type === 'style') {
             // attempt to sanitize content before adding
-            const parser = new HtmlWhitelistedSanitizer(true);
-            const css = parser.sanitizeString(content);
+            const css = Helpers.clean(content);
             const div = document.createElement("div");
             div.innerHTML = `<style id="${id}">${css}</style>`;
             document.head.appendChild(div);
         }
     }
 
-    get_setting(s) {
-        if ( s === 'theme' ) {
-            return window.localStorage.getItem('gd_theme');
-        } else if ( s === 'content' ) {
-            return window.localStorage.getItem('gd_content');
-        } else if ( s === 'settings' ) {
-            var s = window.localStorage.getItem('gd_settings');
+    getSetting(s) {
+        if (s === 'theme') {
+            return window.localStorage.getItem('gdTheme');
+        } else if (s === 'content') {
+            return window.localStorage.getItem('gdContent');
+        } else if (s === 'settings') {
+            var s = window.localStorage.getItem('gdSettings');
             return JSON.parse(s);
         }
     }
-
-    // helper function to get current section
-    get_current_section_id() {
-        var current = document.querySelector( gd.eid_inner + ' .section.current' );
-        if ( current !== null ) {
-            return current.getAttribute('id');
-        }
-        return '';
-    };
-
-    // let user easily get names of sections
-    get_sections() {
-        return gd.sections;
-    };
-
-    // let user override toc section list, for cases like Entwine
-    set_sections(s) {
-        gd.sections = s;
-    };
-
-    // shortcut to get url params
-    get_param(key) {
-        if ( gd.params.has(key) ) {
-            // return cleaned value
-            var value = gd.params.get(key);
-            var parser = new HtmlWhitelistedSanitizer(true);
-            return parser.sanitizeString(value);
-        }
-        // return empty string if key doesn't exist
-        return '';
-    };
 
     // tries to find a unique name for an element by adding
     // -number at the end and checking for any element with that name
@@ -349,248 +224,189 @@ class GitDown {
     // max: maximum number of times to try
     //
     // returns new element name with suffixed number
-    unique( prefix, selector = '#', max = 200 ) {
+
+    // has-dom
+    // adjust so user passes in array and function finds unique prefix based on items
+    unique(prefix, selector = '#', max = 200) {
         let x = 1;
         do {
-            const n = `${ this.clean(prefix)}-${x}`;
+            const n = `${Helpers.cssId(prefix)}-${x}`;
             // check if id already exists
-            const name = document.querySelector( selector + n );
-            if ( name === null ) return n;
+            const name = document.querySelector(selector + n);
+            if (name === null) return n;
             x++;
         }
         while (x < max);
     }
 
-    extract_css_vars() {
+    // has-dom
+    extractCssVars() {
         // start by clearing existing css vars
         const styleSheets = document.styleSheets;
         const styleSheetsLength = styleSheets.length;
         for (var i = 0; i < styleSheetsLength; i++) {
             // get cssRules from internal stylesheets only
             try {
-                // setup extension variable to add to 'cssvar' type
-                let ext = '';
-                // get owner node id, which will be 'gd-theme-css' for user provided css
-                if ( styleSheets[i].ownerNode.id === 'gd-theme-css' ) {
-                    ext = '-user';
-                }
-                const classes = styleSheets[i].rules || styleSheets[i].cssRules;
-                const classesLength = classes.length;
-                // iterate over class rules
-                for (var c = 0; c < classesLength; c++) {
-                    const cssClass = classes[c];
-                    const selector = cssClass.selectorText;
-                    // skip if there's no selector, denoting external stylesheet
-                    if (selector === undefined) continue;
-                    const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
-                    if ( regex !== null ) {
-                        const elements = document.querySelectorAll(selector);
-                        // skip if no elements with this selector exist in rendered document
-                        if ( elements.length < 1 ) continue;
-                        regex.forEach((str) => {
-                            const r = str.match(/\-\-(.*?):(.*?);/);
-                            const key = r[1].trim();
-                            let value = r[2].trim();
-                            // revert to default value if key is of type 'cssvar-user'
-                            let s = gd.settings.get_type(key);
-                            gd.settings.set_value( key, value, 'cssvar' + ext );
-                            if ( s === 'cssvar-user' ) value = gd.settings.get_default(key);
-                            // last stylesheet loaded should set the default value
-                            // this will also set the suffix if it hasn't already been set
-                            gd.settings.set_default( key, value );
-                        });
-                    }
-                }
+                this.getVarsFromSheet(styleSheets[i]);
             } catch (e) {
                 // leaving open for error message reporting
             }
         }
     }
 
-    // iterates over all fields of specific type and updates their values, accounting for url params
-    update_from_params(type) {
-        // get field set
-        if ( type === undefined ) type = '';
-        const f = `${gd.eid} .info .field${type}`;
-        const fields = document.querySelectorAll(f);
-        // iterate over fields
-        fields.forEach(el => {
-            const field = el.firstChild;
-            // skip collapsible and similar fields
-            if ( field.tagName === 'DIV' ) return;
-            let name = field.getAttribute('name');
-            let value = field.value;
-            // use setting value for datalist
-            if ( el.classList.contains('datalist') ) value = gd.settings.get_value(name);
-            // set defaults based on field values, if they're not already set
-            gd.settings.set_value( name, value);
-            // select field defaults are set when html is written
-            // so we'll set default to initial values
-            if ( el.classList.contains('select') ) gd.settings.set_default(name, value);
-            // otherwise set default to field value if default is undefined
-            if ( gd.settings.get_default(name) === undefined ) {
-                gd.settings.set_default(name, value);
+    // has-dom
+    getVarsFromSheet(sheet) {
+        // setup extension variable to add to 'cssvar' type
+        let ext = '';
+        // get owner node id, which will be 'gd-theme-css' for user provided css
+        if (sheet.ownerNode.id === 'gd-theme-css') ext = '-user';
+        const classes = sheet.rules || sheet.cssRules;
+        const classesLength = classes.length;
+        // iterate over class rules
+        for (var c = 0; c < classesLength; c++) {
+            const cssClass = classes[c];
+            const selector = cssClass.selectorText;
+            // skip if there's no selector, denoting external stylesheet
+            if (selector === undefined) continue;
+            // find all occurrences of variable definitions --var: value;
+            const regex = cssClass.cssText.match(/[^var(]\-\-(.*?)[:](.*?);/gi);
+            if (regex !== null) {
+                const elements = document.querySelectorAll(selector);
+                // skip if no elements with this selector exists in rendered document
+                if (elements.length < 1) continue;
+                regex.forEach(str => this.iterateVars(str, ext));
             }
-            
-            // update values based on any user provided params
-            // do this only if callback hasn't yet been made
-            let v = gd.settings.get_param_value(name);
-            if ( v !== undefined && !gd.status.has('callback') ) {
-                value = v;
-                field.setAttribute('value', value);
-            }
-            gd.update_field(field, value);
-        });
-    }
-
-    update_from_settings(){
-        // get field set
-        const f = `${gd.eid} .info .field`;
-        const fields = document.querySelectorAll(f);
-        // iterate over fields
-        fields.forEach(el => {
-            const field = el.firstChild;
-            // skip collapsible and similar fields
-            if ( field.tagName === 'DIV' ) return;
-            let name = field.getAttribute('name');
-            // let value = field.value;
-            let value = gd.settings.get_value(name);
-            gd.update_field(field, value);
-        });
-    }
-
-    // update parameter values in storage and url
-    update_query_string() {
-        // we should not bother with url params since gd.settings stores params
-        history.replaceState( {}, gd.settings.get_value('title'), gd.uri() );
-    };
-
-    remove_class_by_prefix( e, prefix ) {
-        var classes = e.classList;
-        for( var c of classes ) {
-            if ( c.startsWith(prefix) ) e.classList.remove(c);
         }
     }
 
-    scroll_to(el){
+    iterateVars(str, ext) {
+        const r = str.match(/\-\-(.*?):(.*?);/);
+        const key = r[1].trim();
+        let value = r[2].trim();
+        // revert to default value if key is of type 'cssvar-user'
+        let s = this.settings.getType(key);
+        if (s === 'cssvar-user') value = this.settings.getDefault(key);
+        // don't set value if user has entered a url parameter for setting, unless they've selected a different theme
+        // if ( !this.status.has('theme-changed') && this.settings.isInQuerystring(key) ) {
+        //     this.settings.setType(key, 'cssvar' + ext);
+        //     return;
+        // }
+        this.settings.setValue(key, value, 'cssvar' + ext);
+        // last stylesheet loaded should set the default value
+        // this will also set the suffix if it hasn't already been set
+        this.settings.setDefault(key, value);
+    }
+
+    // has-dom
+    // iterates over all fields of specific type and updates their values, accounting for url params
+    updateFromParams(type) {
+        // get field set
+        if (type === undefined) type = '';
+        const f = `${this.eid} .nav .field${type}`;
+        const fields = document.querySelectorAll(f);
+        // iterate over fields
+        fields.forEach(el => {
+            const field = el.firstElementChild;
+            // skip collapsible and similar fields\
+            if (field.tagName === 'DIV') return;
+            let name = field.getAttribute('name');
+            let value = field.value;
+            // use setting value for datalist
+            if (el.classList.contains('datalist')) value = this.settings.getValue(name);
+            // set defaults based on field values, if they're not already set
+            this.settings.setValue(name, value);
+            // always set default for select fields based on initial value
+            if (el.classList.contains('select')) this.settings.setDefault(name, value);
+            // otherwise set default to field value if default is undefined
+            if (this.settings.getDefault(name) === undefined) {
+                this.settings.setDefault(name, value);
+            }
+
+            // update values based on any user provided params
+            // do this only if callback hasn't yet been made
+            let v = this.settings.getParamValue(name);
+            if (v !== undefined && !this.status.has('callback')) {
+                value = v;
+                field.setAttribute('value', value);
+            }
+            this.updateField(field, value);
+        }, this);
+    }
+
+    // update parameter values in storage and url
+    updateQueryString() {
+        // we should not bother with url params since this.settings stores params
+        history.replaceState({}, this.settings.getValue('title'), this.uri());
+    };
+
+    removeClassByPrefix(e, prefix) {
+        var classes = e.classList;
+        for (var c of classes) {
+            if (c.startsWith(prefix)) e.classList.remove(c);
+        }
+    }
+
+    // has-dom
+    scrollTo(el) {
         let top = el.offsetTop;
         let container = el.parentElement;
-        container.scrollTop = top-container.offsetTop;
+        container.scrollTop = top - container.offsetTop;
     }
 
     // plain js implementation of jquery index()
-    find_index(node) {
+    findIndex(node) {
         var i = 1;
-        while ( node = node.previousSibling ) {
-            if ( node.nodeType === 1 ) { ++i }
+        while (node = node.previousSibling) {
+            if (node.nodeType === 1) { ++i }
         }
         return i;
     }
 
-    render( content, container, store_markdown ) {
-
-        // markdownit options
-        var md = window.markdownit({
-            html: false, // Enable HTML - Keep as false for security
-            xhtmlOut: true, // Use '/' to close single tags (<br />).
-            breaks: true, // Convert '\n' in paragraphs into <br>
-            langPrefix: 'language-', // CSS language prefix for fenced blocks.
-            linkify: true,
-            typographer: true,
-            quotes: '“”‘’',
-            highlight: function(str, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    try {
-                        return '<pre class="hljs"><code>' +
-                            hljs.highlight(lang, str, true).value +
-                            '</code></pre>';
-                    }
-                    catch (__) {}
-                }
-                return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-            }
-        });
-        
-        var c = document.querySelector(container);
-        if ( c !== null ) c.innerHTML = md.render(content);
-    };
-
-    // render raw content, no Markdown formatting
-    render_raw( content, c, markdownit ) {
-        if ( markdownit === 'false' ) {
-            $(c).children().remove();
-            // add section div
-            $(c).append('<div class="section header"></div>');
-            $(c + ' .section.header').append('<div class="content"><pre class="code"></pre></div>');
-
-            // syntax highlight code
-            var $pre = $(c + ' .section.header .content pre');
-            $pre.text( content );
-            $pre.each(function( i, block ) {
-                hljs.highlightBlock(block);
-            });
-
-            var $clone = $pre.clone();
-            $clone.removeClass('code').addClass('code-overlay');
-            $pre.parent().append($clone);
-            $clone.hide();
-        }
-    };
-
-    update_toc(s) {
-        var toc = document.querySelector( gd.eid + ' .info .toc' );
-        var html = '';
-        if (s.length > 1 ) {
-            // iterate section classes and get id name to compose TOC
-            for ( var i = 0; i < s.length; i++ ) {
-                var id = s[i];
-                html += '<a href="#' + id + '" ';
-
-                var classes = '';
-                // add '.current' class if this section is currently selected
-                if ( id === gd.get_current_section_id() ) {
-                    classes += "current";
-                }
-                // add '.hidden' class if parent section is hidden
-                var e = document.querySelector( gd.eid + ' #' + id );
-                if ( e !== null && e.offsetParent === null ) {
-                    classes += " hidden";
-                }
-                if ( classes != '' ) {
-                    html += 'class="' + classes + '"';
-                }
-                html += '>';
-                var handle = document.querySelector( `${gd.eid_inner} .section#${id} a.handle` );
-                if ( handle !== null ) html += handle.innerHTML;
-                html += '</a>';
-            }
-            if ( toc !== null ) toc.innerHTML = html;
-        } else {
+    renderToc() {
+        var toc = document.querySelector(this.eid + ' .nav .toc');
+        let sections = this.sections.sections;
+        if (sections.length < 1) {
             // remove the toc and heading if there are no sections
-            var toc_heading = document.querySelector( gd.eid + ' .info .toc-heading' );
-            if ( toc_heading !== null ) {
-                toc_heading.parentNode.removeChild(toc_heading);
+            var tocHeading = document.querySelector(this.eid + ' .nav .toc-heading');
+            if (tocHeading !== null) {
+                tocHeading.parentNode.removeChild(tocHeading);
             }
-            if ( toc !== null ) {
+            if (toc !== null) {
                 toc.parentNode.removeChild(toc);
             }
+            return;
         }
+
+        var html = '';
+        if (this.sections.isRaw()) return;
+        sections.forEach(s => {
+            let c = '';
+            let span = `<span class=level>#</span>`;
+            let level = span.repeat(Helpers.getHlevel(s));
+            let id = Helpers.cssId(s[0]);
+            let name = this.sections.getSectionName(id);
+            html += `<a href="#${id}" classes="${c}">`;
+            html += level;
+            html += name;
+            html += '</a>';
+        })
+        if (toc !== null) toc.innerHTML = html;
     };
 
     // promise based get
     get(url) {
-        return new Promise( function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             const http = new XMLHttpRequest();
             http.open('GET', url);
             http.onload = function () {
-                if ( http.status === 200 ) {
+                if (http.status === 200) {
                     resolve(http.response);
                 } else {
-                    reject( Error(http.status) );
+                    reject(Error(http.status));
                 }
             };
             http.onerror = function () {
-                reject( Error("Error with request.") );
+                reject(Error("Error with request."));
             };
             http.send();
         });
@@ -598,7 +414,7 @@ class GitDown {
 
     // helper function to parse gist response for specified file
     // @result = parsed JSON response
-    get_gist_filename( result, filename ) {
+    getGistFilename(result, filename) {
         var files = result.files;
         var f = '';
         if (filename === '') {
@@ -614,533 +430,2613 @@ class GitDown {
         return files[f];
     };
 
-    // directs the loading process, preparing a list of urls to be used in promise chain
-    prepare_urls( id, type ) {
+    // directs the loading process, preparing a list of urls for promise chain
+    prepareUrls(id, type) {
         var urls = [];
         // first set url to pull local file named with id
         // if that fails, we'll pull from original gist
-        var file_path = '';
+        var filePath = '';
         var ext = '';
         // add markdown extension if file has no extension
-        if ( id.indexOf('.') === -1 ) ext = '.md';
+        if (id.indexOf('.') === -1) ext = '.md';
         // add css extension and css/ file path if this is a css file
-        if ( type === 'css' ) {
-            file_path = 'css/';
+        if (type === 'css') {
+            filePath = 'css/';
             ext = '.css';
-            // push named file for ids that exist in example_themes
-            for ( const key in gd.example_themes ) {
-                const example_id = gd.extract_id(gd.example_themes[key]);
-                if ( example_id.trim() === id.trim() ) {
-                    const f = 'gitdown-' + gd.clean(key) + ext;
-                    urls.push( [type, id, file_path + f] );
-                    urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + f] );
+            // push named file for ids that exist in exampleThemes
+            for (const key in this.exampleThemes) {
+                const exampleId = this.extractId(this.exampleThemes[key]);
+                if (exampleId.trim() === id.trim()) {
+                    const f = 'gitdown-' + Helpers.cssId(key) + ext;
+                    urls.push([type, id, filePath + f]);
+                    urls.push([type, id, '//ugotsta.github.io/gitdown/' + filePath + f]);
                 }
             }
         }
-        urls.push( [type, id, file_path + id + ext] );
-        urls.push( [type, id, '//ugotsta.github.io/gitdown/' + file_path + id + ext] );
-        urls.push( [type, id, `//api.github.com/gists/${id}`] );
+        urls.push([type, id, filePath + id + ext]);
+        urls.push([type, id, '//ugotsta.github.io/gitdown/' + filePath + id + ext]);
+        urls.push([type, id, `//api.github.com/gists/${id}`]);
         return urls;
     }
 
     // extracts a gist/snippet id from provided string
-    extract_id(str) {
+    extractId(str) {
         // gist.github.com
-        if ( str.includes('gist.github.com') ) {
+        if (str.includes('gist.github.com')) {
             const s = str.split('/');
             // return all content after last '/'
-            if ( s.length > 1 ) return s[s.length - 1];
+            if (s.length > 1) return s[s.length - 1];
         }
         // gist.githubusercontent.com - raw gist url
-        if ( str.includes('gist.githubusercontent.com') ) {
+        if (str.includes('gist.githubusercontent.com')) {
             let raw = str.split('raw');
-            if ( raw.length < 2 ) return '';
+            if (raw.length < 2) return '';
             const s = str.split('/');
             // return all content after last '/'
-            if ( s.length > 1 ) return s[0];
+            if (s.length > 1) return s[0];
         }
         return str;
     }
 
     // adjust response if content is pulled from GitHub Gist
-    gistify_response( type, url, response ) {
-        const filename = this.settings.get_value(type + '_filename');
-        if ( url.indexOf('api.github.com') != -1 ) {
+    gistifyResponse(type, url, response) {
+        const filename = this.settings.getValue(type + 'Filename');
+        if (url.indexOf('api.github.com') != -1) {
             const parsed = JSON.parse(response);
-            const file = this.get_gist_filename( parsed, filename );
-            this.settings.set_value( type + '_filename', file.filename );
+            const file = this.getGistFilename(parsed, filename);
+            this.settings.setValue(type + 'Filename', file.filename);
             return file.content;
         }
         return response;
     }
 
     // PRIVATE METHODS -----------------------------------------------------
-    
+
     // CONTROL FLOW:
     //
-    // 1. main() - entry point
-    //   1b. render_content() - render initial content
-    // 2. load_initial() - get initial content
+    // 1. entry() - entry point
+    //   1b. renderContent() - render initial content
+    // 2. loadInitial() - get initial content
     // 3. loop - directs flow after initial load
-    //   3a. get_files() - promise chain where all loading occurs after initial load
-    //   3b. render_content() - content pulled from get_files() sent back to renderer
-    // 4. load_done() - update ui elements and call any user provided callback
-    main() {
+    //   3a. getFiles() - promise chain where all loading occurs after initial load
+    //   3b. renderContent() - content pulled from getFiles() sent back to renderer
+    // 4. loadDone() - update ui elements and call any user provided callback
+    entry() {
         // update settings with URL parameters
-        this.get_url_parameters();
+        this.getUrlParameters();
 
-        let initial =  this.settings.get_value('initial');
-        if ( initial.toLowerCase === 'html' ) {
-            let html = document.querySelector(gd.eid);
-            if ( html !== null ) this.initial_content = html.innerHTML;
-            this.render_content('html');
+        let initial = this.settings.getValue('initial');
+        if (initial.toLowerCase === 'html') {
+            let html = document.querySelector(this.eid);
+            if (html !== null) this.initialContent = html.innerHTML;
+            this.renderContent('html');
             this.status.add('initial');
         } else {
-            this.load_initial(initial);
+            this.loadInitial(initial);
         }
     };
-    
+
     // load initial content which will be used to get most of the defaults
-    load_initial(url) {
-        this.get(url).then( (response) => {
-            gd.render_content(response);
-            gd.status.add('initial');
-            gd.loop();
+    loadInitial(url) {
+        this.get(url).then(r => {
+            this.renderContent(r);
+            this.status.add('initial');
+            this.loop();
         }, function (error) {
-            if ( error.toString().indexOf('404') ) {
-                gd.log(error);
+            if (error.toString().indexOf('404')) {
+                this.log(error);
             }
         });
     }
 
     loop() {
-        const css = gd.update_parameter('css'),
-        gist = gd.update_parameter('gist');
+        const css = this.settings.getValue('css'),
+            content = this.settings.getValue('content');
 
         let urls = [];
-        if ( css.toLowerCase() === 'default' ) {
-            gd.render_theme_css('');
-        } else if ( !gd.status.has('css') ) {
-            urls = gd.prepare_urls( css, 'css' );
+        if (css.toLowerCase() === 'default') {
+            this.renderThemeCss('');
+        } else if (!this.status.has('css')) {
+            urls = this.prepareUrls(css, 'css');
         }
 
-        if ( gist.toLowerCase() === 'default' ) {
+        let c = content.toLowerCase();
+        let initial = this.settings.getValue('initial');
+
+        if (c === 'default' || content === initial) {
             // revert to initial content
-            if ( !gd.status.has('content') && gd.status.has('callback') ) {
-                gd.status.remove('initial');
-                gd.load_initial( gd.settings.get_value('initial') );
+            if (!this.status.has('content') && this.status.has('callback')) {
+                this.status.remove('initial');
+                this.loadInitial(this.settings.getValue('initial'));
             }
-            gd.status.add('content');
-            gd.settings.set_value( 'gist_filename', gd.settings.get_value('content') );
-        } else if ( !gd.status.has('content') ) {
+            this.status.add('content');
+            this.settings.setValue('content_filename', this.settings.getValue('content'));
+        } else if (!this.status.has('content')) {
             // add content urls to urls array
-            const content_urls = gd.prepare_urls( gist, 'gist' );
-            content_urls.forEach((e) => { urls.push(e); });
+            const contentUrls = this.prepareUrls(content, 'content');
+            contentUrls.forEach((e) => { urls.push(e); });
         }
-        
-        if ( urls.length < 1 ) {
-            gd.load_done();
+
+        if (urls.length < 1) {
+            this.loadDone();
         } else {
-            // get_files() is a recursive function that tries all urls in array
-            gd.get_files(urls);
+            // getFiles() is a recursive function that tries all urls in array
+            this.getFiles(urls);
         }
     }
 
     // used stricly to clear existing content when loading new content
-    clear_content() {
-        this.sections = [];
-        var e = document.querySelector( gd.eid + ' .info' );
-        if ( e !== null ) e.innerHTML = '';
-        e = document.querySelector( gd.eid_inner );
-        if ( e !== null ) e.innerHTML = '';
+    clearContent() {
+        var e = document.querySelector(this.eid + ' .nav');
+        if (e !== null) e.innerHTML = '';
+        e = document.querySelector(this.eidInner);
+        if (e !== null) e.innerHTML = '';
     }
 
     // takes a series of urls and tries them until one loads succesfully
-    get_files( urls ) {
-        if ( urls.length < 1 ) return;
-        if ( gd.status.has('done') ) return;
+    getFiles(urls) {
+        if (urls.length < 1) return;
+        if (this.status.has('done')) return;
+        const self = this;
         const a = urls.shift();
         let type = a[0], id = a[1], url = a[2];
         /* PROMISE CHAIN */
-        gd.get(url).then( (response ) => {
-            gd.log(`URL successfully loaded: ${url}`);
-            gd.settings.set_value(type, id);
-            gd.settings.set_value(type + '_filename', url);
-            let data =  gd.gistify_response(type, url, response);
-            if ( type === 'css' ) {
-                gd.render_theme_css(data);
-                if ( gd.status.has('content') ) gd.load_done();
+        this.get(url).then(r => {
+            this.log(`URL successfully loaded: ${url}`);
+            this.settings.setValue(type, id);
+            this.settings.setValue(type + 'Filename', url);
+            let data = this.gistifyResponse(type, url, r);
+            if (type === 'css') {
+                this.renderThemeCss(data);
+                if (this.status.has('content')) this.loadDone();
             } else {
-                gd.render_content(data);
-                gd.status.add('content');
-                // remove 'gist' content from urls since we have the content
-                urls = urls.filter(i => i[0] !== 'gist');
+                this.renderContent(data);
+                this.status.add('content');
+                // remove 'content' from urls since we have the content
+                urls = urls.filter(i => i[0] !== 'content');
                 // complete load process if both content and css loaded successfully
-                if ( gd.status.has('content,css') ) {
-                    gd.load_done();
+                if (this.status.has('content,css')) {
+                    this.loadDone();
                 }
             }
-            gd.get_files( urls );
-        }).catch( function(error) {
-            gd.log(error);
-            gd.get_files( urls );
+            this.getFiles(urls);
+        }).catch(function (error) {
+            self.log(error);
+            self.getFiles(urls);
         })
     };
 
-    render_content(data) {
-        if ( gd.settings.get_value('initial').toLowerCase === 'html' ){
+    // breaks provided content into sections and assigns to this.sections
+    // also checks for panels and returns that content
+    extractSections(raw) {
+        let content = Helpers.clean(raw);
+        const lines = content.split('\n');
+        // heading and content
+        let h = '', c = '';
+        let s = [];
+        let sectionsDone = false;
+        let panelFound = false;
+
+        // inBlock designates whether we're within a code or quote block
+        let inBlock = false;
+
+        lines.forEach((line, i) => {
+            if (line.startsWith('```')) inBlock = !inBlock;
+            let nextLine = '';
+            if (i < lines.length - 1) nextLine = lines[i + 1];
+            // check for heading rules (zero or more ##, max ######, trailing space)
+            if (Helpers.isHeading(line, nextLine, inBlock)) {
+                // handle cases where content exists prior to any headings as Intro
+                if (h === '' && c !== '') h = '🅸 Intro';
+                if (h.includes('`🅖-panel') || h.includes('`🅖-nav')) {
+                    panelFound = true;
+                    // push currently extracted content to sections
+                    // only if it has't been done yet
+                    // we'll then continue extraction of panel content
+                    if (!sectionsDone) {
+                        this.sections.setSections(s);
+                        s = [];
+                    }
+                    sectionsDone = true;
+                }
+                // push header/content to array if it's not empty
+                if (h !== '' && c !== '') s.push([h, c]);
+                // now add current line as header for next section
+                h = line;
+                // and reset content to begin extraction of this section's content
+                c = '';
+            } else {
+                c += line + '\n';
+                // add themes if mergeThemes set true
+                if (line.includes('css `🅖-datalist`')) {
+                    if (this.settings.getValue('mergeThemes') === false) return;
+                    this.exampleThemes.forEach(example => {
+                        c += '- ' + example + '\n';
+                    });
+                }
+            }
+            // end of content handler
+            if (i === lines.length - 1) s.push([h, c]);
+        }, this);
+        if (!panelFound) this.sections.setSections(s);
+        return s;
+    }
+
+    renderContent(data) {
+        if (this.settings.getValue('initial').toLowerCase === 'html') {
             //
-        } else {
-            // best practice, files should end with newline, we'll ensure it.
-            data += '\n';
         }
+        // best practice, files should end with newline, we'll ensure it.
+        else data += '\n';
 
         // preprocess data if user specified
-        if( gd.settings.get_value('preprocess') ) {
+        if (this.settings.getValue('preprocess')) {
             data = preprocess(data);
         }
 
-        // setup info panel default content
-        let extract = gd.extract_info_content(data);
-        data = extract[0];
-        if ( extract[1] !== '' ) gd.info_content = extract[1];
+        // clear content from .nav and .inner
+        this.sections.clear();
+        this.clearContent();
 
-        // if we're just getting info content from initial, return at this point
-        const gist = gd.settings.get_value('gist').toLowerCase();
-        if ( !gd.status.has('initial') && gist !== 'default' ) return;
+        // setup nav panel default content
+        let s = this.extractSections(data);
+        // content returned from above will be panel contents
+        let panels = this.panels.extract(s);
 
-        // clear content from .info and .inner
-        gd.clear_content();
+        // remove all panels
+        this.removePanels();
 
-        // render content and info panel
-        gd.render( data, gd.eid_inner, true );
-        gd.render( gd.info_content, gd.eid + ' .info', false );
+        // render nav panel
+        let c = document.querySelector(this.eid);
+        let html = this.panels.getPanelHtml('🅖-nav');
+        if (c !== null) c.innerHTML += html;
 
-        // arrange content in sections based on headings
-        gd.sectionize();
+        // render section content
+        c = document.querySelector(this.eidInner);
+        let raw = this.settings.getValue('raw');
+        raw = this.sections.setRaw(raw);
+        // set current section based on url hash (or based on raw value)
+        this.sections.setCurrent(Url.getHash());
+        html = this.sections.getSectionHtml(raw);
+        if (c !== null) c.innerHTML += html;
 
-        // handle special tags we want to allow
-        gd.tag_replace( 'kbd', gd.eid );
-        gd.tag_replace( 'i', gd.eid );
-        gd.tag_replace( '<!--', gd.eid );
-
-        gd.render_variables();
-
-        // render info panel and toc based on current section
-        gd.render_info( gd.settings.get_value('title') );
-
-        // render raw text if user specified
-        gd.render_raw( data, gd.eid_inner, gd.settings.get_value('markdownit') );
-        
-        gd.update_ui();
+        this.renderVariableSpans(`${this.eidInner} .section *`);
+        this.renderNav();
+        this.updateUi();
     }
 
-    // render app variables such as gd_toc
-    render_variables() {
-        // render app variable spans in nav panel
-        this.render_variable_spans( `${gd.eid} .info *` );
-        // update app variables with respective html contents
-        this.update_variables( `${gd.eid} .info *`, this.variable_defaults() );
-        // render app variable spans within sections/content
-        this.render_variable_spans( `${gd.eid_inner} .section *` );
-    }
-
-    load_done() {
-        // get variables from css
-        if ( !gd.status.has('content-changed') ) gd.extract_css_vars();
-
-        if ( gd.status.has('theme-changed') ) {
-            // update theme vars and render fields
-            gd.update_wrapper_classes();
-            // render cssvars with extracted defaults
-            gd.render_theme_vars();
-            // update fields from newly rendered theme vars
-            gd.update_from_css_vars();
-            gd.update_from_params();
-            // register events for any newly created theme variable fields
-            gd.register_field_events( gd.eid + ' .info .theme-vars' );
-        } else {
-            // complete initialization once everything is loaded
-            gd.status.add('done');
-            gd.update_ui();
-            gd.update_wrapper_classes();
-            // update theme vars and render fields
-            gd.render_theme_vars();
-            // update parameters only if content hasn't changed
-            if ( !gd.status.has('content-changed') ) gd.update_from_params();
-            else gd.update_from_settings();
-            // finally register events
-            gd.register_events();
-            // we'll add adsense code since all content is finally loaded
-            gd.update_adsense();            
+    removePanels() {
+        const panels = this.wrapper.querySelectorAll('.panel');
+        if (panels.length > 0) {
+            panels.forEach((p) => {
+                p.parentElement.removeChild(p);
+            });
         }
-        gd.execute_callback();
     }
 
-    update_adsense() {
-        const adsense = document.querySelector(`${gd.eid} #gd-adsense`);
-        if ( adsense === null ) return;
-        let adsense_id = adsense.getAttribute('data-ad-client');
-        let slot_id = adsense.getAttribute('data-ad-slot');
-        let content = `
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- gitdown -->
-            <ins class="adsbygoogle"
-                style="display:block"
-                data-ad-client="${adsense_id}"
-                data-ad-slot="${slot_id}"
-                data-ad-format="auto"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        `;
-        adsense.innerHTML = content;
+    loadDone() {
+        // ONLY RUN WHEN THEME CHANGES
+        if (this.status.has('theme-changed')) {
+            this.extractCssVars();
+            // update theme vars and render fields
+            this.updateWrapperClasses();
+            // render cssvars with extracted defaults
+            this.renderThemeVars();
+            // update fields from newly rendered theme vars
+            this.updateFromCssVars();
+            this.updateFromParams();
+        }
+        // ONLY RUN WHEN CONTENT CHANGES
+        else if (this.status.has('content-changed')) {
+            // complete initialization once everything is loaded
+            this.status.add('done');
+            // update theme vars and render fields
+            this.renderThemeVars();
+        }
+        // ONLY RUN AT STARTUP
+        else {
+            this.extractCssVars();
+            // complete initialization once everything is loaded
+            this.status.add('done');
+            this.updateUi();
+            this.updateWrapperClasses();
+            // update theme vars and render fields
+            this.renderThemeVars();
+            this.updateFromParams();
+            // finally register events
+
+        }
+        this.registerEvents();
+        this.executeCallback();
     }
 
-    execute_callback() {
+    executeCallback() {
         // pass control back to user provided callback if it exists
-        const callback = gd.settings.get_value('callback');
-        if ( typeof callback == 'function' ) {
+        const callback = this.settings.getValue('callback');
+        if (typeof callback == 'function') {
             callback.call();
-            gd.status.add('callback');
+            this.status.add('callback');
         }
     }
 
     // add or remove various section and mode related classes to wrapper
-    update_wrapper_classes() {
-        let wrapper = document.querySelector(gd.eid);
+    updateWrapperClasses() {
+        let wrapper = document.querySelector(this.eid);
         // add .gd-default class to wrapper if using default theme
-        if ( gd.settings.get_value('css') === 'default' ) {
+        if (this.settings.getValue('css') === 'default') {
             wrapper.classList.add('gd-default');
         } else wrapper.classList.remove('gd-default');
 
         // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
-        if ( gd.settings.get_value('heading') === 'lyrics' ) {
+        if (this.settings.getValue('heading') === 'lyrics') {
             wrapper.classList.add('gd-lyrics');
         }
     }
 
-    update_ui() {
+    updateUi() {
 
         /// clear any existing theme-var fields
-        let v = document.querySelector( gd.eid + ' .info .theme-vars' );
-        if ( v !== null ) v.innerHTML = '';
-        
-        gd.update_ui_from_settings();
-        gd.render_highlight();
+        let v = document.querySelector(this.eid + ' .nav .theme-vars');
+        if (v !== null) v.innerHTML = '';
+
+        this.updateUiFromSettings();
+        this.renderHighlight();
 
         // set current section and go there
-        gd.go_to_section();
+        this.goToSection();
 
-        // hide info/nav panel if cap setting true
-        if ( gd.settings.get_value('nav') === 'hide' ) {
-            $( gd.eid ).addClass('panels-hidden');
+        // hide nav/nav panel if cap setting true
+        if (this.settings.getValue('nav') === 'hide') {
+            this.wrapper.classList.add('panels-hidden');
         }
     }
 
-    update_ui_from_settings() {
-        const elements = ['info','help_ribbon','gist_details','css_details'];
-        elements.forEach(function(i){
-            if( gd.settings.get_value('hide_' + i) ) {
-                var e = document.querySelector( `${gd.eid} .${ gd.clean(i)}` );
-                if ( e !== null) e.parentNode.removeChild(e);
+    updateUiFromSettings() {
+        const elements = ['nav', 'help_ribbon'];
+        elements.forEach(function (i) {
+            if (this.settings.getValue('hide_' + i)) {
+                const name = Helpers.cssId(i);
+                const e = document.querySelector(`${this.eid} .${name}`);
+                if (e !== null) e.parentNode.removeChild(e);
             }
-        });
-        if( gd.settings.get_value('disable_hide') ) {
-            var e = document.querySelector( `${gd.eid} .hide` );
-            if ( e !== null) e.parentNode.removeChild(e);
+        }, this);
+        if (this.settings.getValue('disable_hide')) {
+            const e = document.querySelector(`${this.eid} .hide`);
+            if (e !== null) e.parentNode.removeChild(e);
         }
-        if( gd.settings.get_value('hide_toc') ) {
-            var e = document.querySelector( `${gd.eid} .info .toc` );
-            if ( e !== null) e.parentNode.removeChild(e);
+        if (this.settings.getValue('hideToc')) {
+            const e = document.querySelector(`${this.eid} .nav .toc`);
+            if (e !== null) e.parentNode.removeChild(e);
         }
     };
 
+    // has-dom
     // called at start and when theme changes
     // renders html representing theme variables
-    render_theme_vars() {
+    renderThemeVars() {
         let html = '';
-        let theme_vars = document.querySelector(`${gd.eid} .info .theme-vars`);
-        if( theme_vars === null ) return;
-        // begin by clearing html content
-        theme_vars.innerHTML = html;
-        // first ensure theme var section exists and that there's at least one css_var
-        const css_vars = gd.settings.get_settings('cssvar');
-        if ( theme_vars !== null && css_vars.length !== {} ) {
-            for ( const key in css_vars ) {
-                const value = css_vars[key];
-                // check for existence of field provided through gd_var in user provided content
-                let field = document.querySelector(`${gd.eid} .info .field.${key}`);
-                // continue to next theme_var if field exists
-                if ( field !== null ) continue;
-                // check if cssvar's selector and see if it's applicable to current app
+        let $vars = this.wrapper.querySelector(`.nav .theme-vars`);
+        if ($vars === null) return;
+        // first ensure theme var section exists and that there's at least one cssVar
+        const cssVars = this.settings.getSettings('cssvar');
+        if (Object.keys(cssVars).length > 0) {
+            for (const key in cssVars) {
+                const value = cssVars[key];
+                // check for existence of field provided through gdVar in user provided content
+                let field = document.querySelector(`${this.eid} .nav .field.${key}`);
+                // continue to next themeVar if field exists
+                if (field !== null) continue;
+                // check if cssvar's selector is applicable to current app
                 const selector = '';
-                if ( selector === '' ) {
-                    html += gd.theme_var_html( key, value );
+                if (selector === '') {
+                    html += this.cssVarMarkup(key, value);
                 } else {
                     // add field only if selector exists
                     let s = document.querySelector(selector);
-                    if ( s !== null ) html += gd.theme_var_html( key, value );
+                    if (s !== null) html += this.cssVarMarkup(key, value);
                 }
             }
-            theme_vars.innerHTML = html;
+            let markup = new Markup();
+            html = markup.getPanelContentMarkup(html);
+            $vars.innerHTML = html;
         }
     }
-    
-    // returns html used to represent theme variables in info panel
-    // for example, if a theme variable involves color selection
-    // this returns html for a list box with color values like "red" and "blue"
-    theme_var_html(v, value) {
-        let suffix = gd.settings.get_suffix(v);
+
+    cssVarMarkup(key, value) {
+        let markup = new Markup();
+        let suffix = this.settings.getSuffix(key);
 
         // COLOR fields
         // handle field as Select if its name contains keyword 'color'
         // or if its value is in list of color names
-        if ( v.includes('color') || gd.color_names(true).includes(value) ) {
-            let items = gd.color_names();
-            items.unshift('initial', 'inherit', 'unset', 'currentColor');
-            // add default value to array
-            const upper = value.charAt(0).toUpperCase() + value.substr(1);
-            items.unshift(upper);
-            // ensure asterisk is added to default item
-            items.unshift("*" + value);
-            return gd.field_html( 'select', v, items);
+        if (key.includes('color') || this.colorNames(true).includes(value)) {
+            let m = key + ' `🅖-select`\n';
+            m += '- initial\n';
+            m += '- inherit\n';
+            m += '- unset\n';
+            m += '- currentColor\n';
+            this.colorNames().forEach((item, i) => {
+                if (value.toLowerCase() === item.toLowerCase()) {
+                    m += `- *${item}\n`;
+                } else m += `- ${item}\n`;
+            });
+            return m + '\n';
         }
+        // HIGHLIGHT field
+        else if (key === 'highlight') {
+            let m = 'highlight `🅖-select`\n';
+            this.highlightStyles().forEach((item, i) => {
+                if (i === 0) m += `- *${item}\n`;
+                else m += `- ${item}\n`;
+            });
+            return m + '\n';
+        }
+        // FONT field
+        else if (key.endsWith('font')) {
+            let m = key + ' `🅖-select`\n';
+            let list = '- initial\n';
+            list += '- inherit\n';
+            list += '- unset\n';
 
-        else if ( v.endsWith('font') ) {
-            let items = [];
             let categories = ['serif', 'sans-serif', 'monospace'];
-            let value_array = value.split(',');
-            if ( value_array.length > 1 ) {
-                value_array.shift();
-                categories = value_array;
+            let valueArray = value.split(',');
+            if (valueArray.length > 1) {
+                valueArray.shift();
+                categories = valueArray;
             }
-            const gfonts = gd.gfonts();
-            categories.forEach( c => {
-                const filtered = Object.keys(gfonts).filter(e => {
-                    if ( gfonts[e].category === c.trim() ) return e;
+            let gfonts = new GFonts();
+            const gf = gfonts.getList();
+            let items = [];
+            categories.forEach(c => {
+                // filter fonts with category c
+                const filtered = Object.keys(gf).filter(f => {
+                    if (gf[f].category === c.trim()) return f;
                 });
                 items = items.concat(filtered);
             });
-            items.unshift('initial', 'inherit', 'unset');
+            items.forEach(i => {
+                list += `- ${i}\n`;
+            });
             // remove quotes and use content preceding any commas as value
-            let real_value = value.split(',')[0].replace( /['"]+/g, '');
-            real_value = real_value.charAt(0).toUpperCase() + real_value.substr(1);
-            items.unshift("*" + real_value);
-            return gd.field_html( 'select', v, items);
+            let realValue = value.split(',')[0].replace(/['"]+/g, '');
+            realValue = realValue.charAt(0).toUpperCase() + realValue.substr(1);
+            list += `- *${realValue}\n`;
+            m += list;
+            return m + '\n';
+        }
+        // BLEND mode
+        else if (key.includes('-blend')) {
+            let m = key + ' `🅖-select`\n';
+            m += '- normal\n';
+            m += '- multiply\n';
+            m += '- screen\n';
+            m += '- overlay\n';
+            m += '- darken\n';
+            m += '- lighten\n';
+            m += '- color-dodge\n';
+            m += '- color-burn\n';
+            m += '- hard-light\n';
+            m += '- soft-light\n';
+            m += '- difference\n';
+            m += '- exclusion\n';
+            m += '- hue\n';
+            m += '- saturation\n';
+            m += '- color\n';
+            m += '- luminosity\n';
+            m += '- initial\n';
+            m += '- inherit\n';
+            m += '- unset\n';
+            return m;
         }
 
-        else if ( v.includes('-blend') ) {
-            let items = [
-                'normal', 'multiply', 'screen', 'overlay',
-                'darken', 'lighten', 'color-dodge', 'color-burn',
-                'hard-light', 'soft-light', 'difference', 'exclusion',
-                'hue', 'saturation', 'color', 'luminosity',
-                'initial', 'inherit', 'unset'
-            ];
-            // add value
-            items.unshift("*" + value);
-            return gd.field_html( 'select', v, items);
+        // FILTER EFFECTS
+        else if (key.includes('blur')) {
+            let m = `${key} \`🅖-slider="${parseInt(value)},0,20,0.5,px"\`\n`;
+            return m + '\n';
         }
-
-        else if ( v.includes('blur') ) {
-            const items = [parseInt(value), 0, 20, 0.5, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (key.includes('brightness')) {
+            let m = `${key} \`🅖-slider="${parseInt(value)},1,3,0.05"\`\n`;
+            return m + '\n';
         }
 
         // TRANSFORMS
-        else if ( v.includes('translate') ) {
-            const items = [parseInt(value), -2000, 2000, 1, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (key.includes('translate')) {
+            let m = `${key} \`🅖-slider="${parseInt(value)},-2000,2000,1,px"\`\n`;
+            return m + '\n';
         }
-        else if ( v.includes('scale') ) {
-            const items = [parseFloat(value), 0.15, 30, 0.1, ''];
-            return gd.field_html( 'slider', v, items);
+        else if (key.includes('scale')) {
+            let m = `${key} \`🅖-slider="${parseFloat(value)},0.15,30,0.1"\`\n`;
+            return m + '\n';
         }
-        else if ( v.includes('perspective') ) {
-            const items = [parseFloat(value), 100, 2000, 1, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (key.includes('perspective')) {
+            let m = `${key} \`🅖-slider="${parseInt(value)},100,2000,1,px"\`\n`;
+            return m + '\n';
+        }
+        // PERCENTAGE-based values like fontsize
+        else if (suffix === '%') {
+            let m = `${key} \`🅖-slider="${parseInt(value)},0,300,1,%"\`\n`;
+            return m + '\n';
         }
 
         // PX and EM based values
-        else if ( suffix.toLowerCase() === 'px' ) {
-            const items = [parseInt(value), 0, 2000, 1, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (suffix.toLowerCase() === 'px') {
+            let m = `${key} \`🅖-slider="${parseInt(value)},0,2000,1,px"\`\n`;
+            return m + '\n';
         }
-        else if ( suffix.toLowerCase() === 'em' ) {
-            const items = [parseInt(value), 0, 400, 1, suffix];
-            return gd.field_html( 'slider', v, items);
-        }
-        // PERCENTAGE-based values like fontsize
-        else if ( suffix === '%' ) {
-            const items = [parseInt(value), 0, 300, 1, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (suffix.toLowerCase() === 'em') {
+            let m = `${key} \`🅖-slider="${parseInt(value)},0,400,1,em"\`\n`;
+            return m + '\n';
         }
         // DEGREE-based values (rotation-based params like rotateX)
-        else if ( suffix.toLowerCase() === 'deg' ) {
-            const items = [parseInt(value), 0, 360, 1, suffix];
-            return gd.field_html( 'slider', v, items);
+        else if (suffix.toLowerCase() === 'deg') {
+            let m = `${key} \`🅖-slider="${parseInt(value)},0,360,1,deg"\`\n`;
+            return m + '\n';
         }
 
-        // BRIGHTNESS
-        else if ( v.includes('brightness') ) {
-            const items = [parseFloat(value), 1, 3, 0.05, ''];
-            return gd.field_html( 'slider', v, items);
-        }
+    }
 
-        else if ( v.startsWith('select_') ) {
-            let name = v.split('select_');
-            // get assignment after var name
-            let assignment = name[1].split('=');
-            let items = [];
-            if ( assignment.length < 2 ) {
-                name = assignment[0];
-            } else {
-                let v_items = assignment[1];
-                name = assignment[0];
-                // remove parens
-                v_items = v_items.substring(1);
-                v_items = v_items.substring( 0, v_items.length - 1 );
-                // split items
-                items = v_items.split(',');
+    // returns an array of color names to be used in select fields
+    colorNames(lowercase) {
+        let l = ["AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral", "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan", "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki", "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed", "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray", "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue", "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen", "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey", "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory", "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon", "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray", "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen", "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue", "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon", "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple", "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise", "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin", "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed", "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed", "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple", "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown", "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue", "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal", "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke", "Yellow", "YellowGreen"];
+        if (lowercase) {
+            l = l.map(function (x) { return x.toLowerCase() });
+        }
+        return l;
+    }
+
+    // returns an array of color names to be used in select fields
+    highlightStyles() {
+        return ["none", "default", "agate", "androidstudio", "arduino-light", "arta", "ascetic", "atelier-cave-dark", "atelier-cave-light", "atelier-dune-dark", "atelier-dune-light", "atelier-estuary-dark", "atelier-estuary-light", "atelier-forest-dark", "atelier-forest-light", "atelier-heath-dark", "atelier-heath-light", "atelier-lakeside-dark", "atelier-lakeside-light", "atelier-plateau-dark", "atelier-plateau-light", "atelier-savanna-dark", "atelier-savanna-light", "atelier-seaside-dark", "atelier-seaside-light", "atelier-sulphurpool-dark", "atelier-sulphurpool-light", "atom-one-dark", "atom-one-light", "brown-paper", "codepen-embed", "color-brewer", "darcula", "dark", "darkula", "default", "docco", "dracula", "far", "foundation", "github-gist", "github", "googlecode", "grayscale", "gruvbox-dark", "gruvbox-light", "hopscotch", "hybrid", "idea", "ir-black", "kimbie.dark", "kimbie.light", "magula", "mono-blue", "monokai-sublime", "monokai", "obsidian", "ocean", "paraiso-dark", "paraiso-light", "pojoaque", "purebasic", "qtcreatorDark", "qtcreatorLight", "railscasts", "rainbow", "routeros", "school-book", "solarized-dark", "solarized-light", "sunburst", "tomorrow-night-blue", "tomorrow-night-bright", "tomorrow-night-eighties", "tomorrow-night", "tomorrow", "vs", "vs2015", "xcode", "xt256", "zenburn"];
+    }
+
+    // to help with incorrectly formatted Markdown (which is common)
+    preprocess(data) {
+        let processed = '';
+        const lines = data.split('\n');
+        lines.forEach((val) => {
+            // start by checking if # is the first character in the line
+            if (val.charAt(0) === '#') {
+                const x = Helpers.findFirstCharNot('#', val);
+                if (x > 0) {
+                    const c = val.charAt(x);
+                    // check if character is a space
+                    if (c != ' ') {
+                        val = [val.slice(0, x), ' ', val.slice(x)].join('');
+                    }
+                }
+            } else if (val.charAt(0) === '-') {
+                // add space after - where needed
+                if (val.charAt(1) != '-' && val.charAt(1) != ' ') {
+                    val = [val.slice(0, 1), ' ', val.slice(1)].join('');
+                }
             }
-            // ensure asterisk is added to default item
-            items.forEach((val,i)=>{
-                if ( val.toLowerCase() === value.toLowerCase() ) {
-                    items[i] = '*' + items[i];
+            processed += val + '\n';
+        });
+        return processed;
+    };
+
+    // has-dom
+    // dom function to update html classes whenever active section changes
+    goToSection() {
+
+        // update wrapper with current-section class
+        if (this.wrapper != null) {
+            this.removeClassByPrefix(this.wrapper, 'current-');
+            this.wrapper.classList.add('current-' + this.sections.getCurrent());
+        }
+
+        // remove all occurrences of current, past, hi and lo classes
+        this.wrapper.querySelectorAll('section').forEach(s => {
+            s.classList.remove('current', 'past', 'hi', 'lo');
+        });
+
+        // return if section is raw code (rather than markdown content)
+        if (this.sections.isRaw()) return;
+
+        // update past section classes
+        this.addSectionClasses(false);
+        // update current section classes
+        this.addSectionClasses(true);
+
+        // todo
+        // update toc
+
+    };
+
+    // has-dom
+    // returns classes for either .current section or .past section
+    // depending on @isCurrent boolean value
+    addSectionClasses(isCurrent) {
+        let id = '';
+        if (isCurrent) id = this.sections.getCurrent();
+        else id = this.sections.getPast();
+        if (id === undefined) return;
+        if (id === '🅖0') return;
+        const classes = this.sections.getClasses(id);
+        let $s = this.wrapper.querySelector('section#' + id);
+        if (classes.length > 0) $s.classList.add(...classes);
+    }
+
+    renderThemeCss(css) {
+        // first remove existing theme
+        let el = document.querySelector('#gd-theme-css');
+        if (el !== null) el.parentNode.removeChild(el);
+
+        if (css === '') {
+            this.settings.setValue('css_filename', 'style.css');
+            this.settings.setValue('css', 'default');
+        } else {
+            // when using a local css file, get the theme name
+            let id = this.settings.getValue('css');
+            for (const key in this.exampleThemes) {
+                if (this.exampleThemes[key] === id) {
+                    this.settings.setValue('css_filename', key);
+                }
+            }
+
+            // create style tag with css content
+            this.appendStyle('style', 'gd-theme-css', css);
+        }
+        // store cleaned css in browser
+        window.localStorage.setItem('gdTheme', css);
+        this.status.add('css');
+    };
+
+    // we can later use this function to allow use apart from GitHub
+    gistUrl(file, frontEnd) {
+        if (frontEnd) {
+            return `//github.com${this.path}master/${file}"`;
+        } else {
+            return `//github.com${this.path}blob/master/${file}`;
+        }
+    }
+
+    getFieldTypeFromName(name) {
+        const type = name.split('_');
+        if (type.length > 1) {
+            const types = ['slider', 'select', 'collapsible', 'datalist'];
+            if (types.indexOf(type[0]) !== -1) {
+                return type[0];
+            }
+        }
+        return '';
+    }
+
+    renderVariableSpans(container) {
+        const variables = this.getVariablesFromComments(container);
+        variables.forEach((v) => {
+            const variable = v[0], el = v[1];
+            const result = this.variableSpanHtml(variable, el);
+            if (result.length < 1) return;
+            el.innerHTML = result;
+        });
+    }
+
+    getVariablesFromComments(container) {
+        let result = [];
+        const c = document.querySelectorAll(container);
+        c.forEach((el) => {
+            el.childNodes.forEach((node) => {
+                if (node.nodeType === Node.COMMENTNODE) {
+                    let v = this.extractVariable(node.nodeValue);
+                    result.push([Helpers.clean(v), el]);
                 }
             });
-            return gd.field_html( 'select', name, items);
-        } else if( v.startsWith('slider_') ) {
-            let name = v.split('slider_');
-            let assignment = name[1].split('=');
-            let items = [];
-            if ( assignment.length < 2 ) {
-                // no assignment provided so check if there's a cssvar with this name
-                const n = gd.settings.get_value(name);
-                if ( n === false ) return '';
-                return gd.theme_var_html( name, n );
-            } else {
-                let v_items = assignment[1];
-                name = assignment[0];
-                // remove parens
-                v_items = v_items.substring(1);
-                v_items = v_items.substring( 0, v_items.length - 1 );
-                // split items
-                items = v_items.split(',');
-            }
-            return gd.field_html( 'slider', name, items);
-        } else {
-            //let name = v.split('textinput_')[1];
-            return gd.field_html( 'textinput', v, value);
+        });
+        return result;
+    };
+
+    getVariableName(v) {
+        if (!v.startsWith('gd_')) return '';
+        const start = 0;
+        const index = v.substring(start).search(/[^A-Za-z_-]/);
+        if (index < 0) return v;
+        return v.substring(0, index);
+    }
+
+    variableSpanHtml(v, t) {
+        const vName = this.getVariableName(v);
+        // ensure the variable isn't blank and that it is allowed
+        if (vName === '' || !this.isParamAllowed(vName)) return [];
+        const value = Helpers.getVariableAssignment(v);
+        let dataValue = '';
+        if (value !== '') dataValue = `data-value="${value}"`;
+        let html = `<span class="gd-var" name="${vName}" ${dataValue}></span>`;
+        return html;
+    };
+
+    // simple functin to get variable content between open and close symbols
+    //
+    // content: content to parse for variable
+    // open: characters preceding the variable
+    // close: characters closing the variable
+    extractVariable(content, open = '{$', close = '}') {
+        let v = content.split(open);
+        if (v.length < 2) return '';
+        v = v[1].split(close);
+        if (v.length < 2) return '';
+        return v[0];
+    };
+
+    // simple helper to reduce repitition for getting datalist class
+    getDatalistClass(c) {
+        return c.closest('.field.datalist').getAttribute('data-name');
+    }
+
+    renderNav() {
+
+        // first create .unhide div used to unhide the panel on mobile
+        var fullscreen = document.querySelector(this.eid + ' .fullscreen');
+        if (fullscreen === null) {
+            let divs = `<div class="unhide"></div><div class="fullscreen"></div>`;
+            document.querySelector(this.eid).innerHTML += divs;
         }
 
-        // return an input field as default
-        return 'NULL';
+        // update TOC
+        this.renderToc();
+    };
+
+    datalistChanged(type, id) {
+        this.settings.setValue(type, id);
+        this.updateQueryString();
+        this.status.add('var-updated');
+        if (type === 'css') {
+            this.status.remove('css,done,changed');
+            this.status.add('theme-changed');
+            this.settings.delete('cssvar');
+            this.loop();
+        } else if (type === 'content') {
+            this.status.remove('content,done,changed');
+            this.status.add('content-changed');
+            this.loop();
+        } else {
+            this.status.remove('changed');
+            this.status.add(type + '-changed');
+            this.executeCallback();
+        }
+    }
+
+    updateFromCssVars() {
+        let cssVars = this.settings.get('cssvar');
+        const doc = document.documentElement.style;
+        let gfonts = new GFonts();
+        cssVars.forEach(e => {
+            let value = e.value;
+            // when loading a new user provided theme, we'll want to set value as default
+            if (e.type === 'cssvar-user') value = e.default;
+            // special consideration for font names
+            if (e.name.endsWith('font')) {
+                value = gfonts.getName(value);
+            }
+            doc.setProperty(`--${e.name}`, value + e.suffix);
+        });
+    }
+
+    updateCssVar(name, suffix) {
+        let cssVars = this.settings.getSettings('cssvar');
+        const doc = document.documentElement.style;
+        if (name in cssVars) {
+            // update field with specified name if it exists in cssVars
+            let value = this.settings.getValue(name, cssVars[name]);
+            // special consideration for font names
+            let gfonts = new GFonts();
+            if (name.endsWith('font')) value = gfonts.getName(value);
+            doc.setProperty(`--${name}`, value + suffix);
+        }
+    }
+
+    // helper to remove or toggle visible class for specified elements
+    hide(elements, remove) {
+        if (remove === null) remove = false;
+        [].map.call(document.querySelectorAll(elements), (el) => {
+            if (remove) {
+                el.classList.remove('visible');
+            } else el.classList.toggle('visible');
+        });
+    }
+
+    // s: wrapper selector within which to register newly created fields
+    registerFieldEvents(s) {
+
+        // SLIDER FIELDS
+        this.events.add('.field.slider input', 'input', e => {
+            const name = e.target.getAttribute('name');
+            let suffix = e.target.getAttribute('data-suffix');
+            if (suffix === undefined) suffix = '';
+            const value = e.target.value;
+            e.target.setAttribute('value', value);
+            e.target.parentElement.setAttribute('data-value', value);
+            this.settings.setValue(name, value);
+            this.updateQueryString();
+            this.status.add('var-updated');
+            this.updateCssVar(name, suffix);
+        });
+
+        this.events.add('.field.slider input', 'mouseup', e => {
+            const name = e.target.getAttribute('name');
+            if (e.which == 2) {
+                // reset to default value on middle click
+                const defaultValue = this.settings.getDefault(name);
+                this.updateField(this, parseFloat(defaultValue));
+            }
+        });
+
+        // TEXTINPUT FIELDS
+        this.events.add('.field.textinput input', 'input', e => {
+            this.updateField(e.target);
+        });
+
+        // SELECT FIELDS
+        this.events.add('.field.select select', 'change', e => {
+            this.updateField(e.target);
+        });
+
+        // COLLAPSIBLE FIELDS
+        this.events.add('.field.collapsible .header', 'click', e => {
+            e.target.parentNode.classList.toggle('collapsed');
+        });
+
+        // DATALIST FIELDS
+        this.events.add('.field.datalist input', 'input', e => {
+            // get field details
+            let value = e.target.value;
+            if (value === '') value = 'Default';
+            this.datalistChanged(e.target.name, value);
+        });
+
+        this.events.add('.field.datalist input', 'mouseenter', e => {
+            // get selected option
+            const name = e.target.getAttribute('name');
+            const value = this.settings.getValue(name);
+            e.target.setAttribute('data-value', value);
+            e.target.value = '';
+        });
+
+        this.events.add('.field.datalist input', 'mouseleave', e => {
+            e.target.value = e.target.getAttribute('data-value');
+        });
+
+        this.events.add('.field.datalist input', 'mouseup', e => {
+            const v = e.target.getAttribute('data-value');
+            let url = '';
+            // open new tab based on selected item
+            if (e.ctrlKey) {
+                let o = `#${e.target.name} option[value="${v}"]`;
+                let option = this.wrapper.querySelector(' ' + o);
+                if (option === null) return;
+                url = option.getAttribute('data-href');
+                window.open(url, 'Blank').focus();
+            }
+        });
+
+    }
+
+    updateField(field, value) {
+        let name = field.parentElement.getAttribute('data-name');
+        if (value === undefined) {
+            // this indicates user initiated action so we'll update status
+            this.status.add('var-updated');
+            value = field.value;
+        }
+        field.value = value;
+        this.settings.setValue(name, value);
+        // load user provided highlight style
+        if (name === 'highlight') this.renderHighlight();
+        // handle suffix values
+        let suffix = field.getAttribute('data-suffix');
+        if (suffix === null) suffix = '';
+        this.updateCssVar(name, suffix);
+        // special consideration for font names
+        if (name.endsWith('font')) {
+            let gfonts = new GFonts();
+            value = gfonts.update(value);
+        }
+        // update slider:after content
+        field.parentElement.setAttribute('data-value', value);
+        // update query string when changes are made after app is loaded
+        if (this.status.has('callback')) this.updateQueryString();
+    }
+
+    registerEvents() {
+
+        // register field events
+        this.registerFieldEvents(this.eid + ' .nav');
+
+        // handle history
+        window.addEventListener('popstate', e => {
+            // update current section with browser hash
+            this.sections.setCurrent(Url.getHash());
+            this.goToSection();
+        });
+
+        // FULLSCREEN
+        this.events.add('.fullscreen', 'click', e => {
+            var fs = document.documentElement;
+            this.toggleFullscreen(fs);
+        });
+
+        // HIDE
+        this.events.add('.nav .hide', 'click', e => {
+            this.wrapper.classList.toggle('panels-hidden');
+        });
+
+        // UNHIDE
+        this.events.add('.unhide', 'click', e => {
+            this.wrapper.classList.remove('panels-hidden');
+        });
+
+        // check for focus and apply keystrokes to appropriate wrapper div
+        // to allow for more than one .gd wrapper per page
+        const body = document.querySelector('body');
+        body.onkeydown = e => {
+            if (!e.metaKey && e.which > 111 && e.which < 114) {
+                e.preventDefault();
+            }
+            if (e.which === 112) {
+                // F1 key to hide/unhide nav panel
+                this.wrapper.classList.toggle('panels-hidden');
+            } else if (e.which === 113) {
+                // F2 key to dock/undock
+                this.wrapper.classList.toggle('panels-docked');
+            }
+        };
+
+        /* Cross-window messaging */
+
+        // send Ready message to whatever window opened this app
+        if (!this.status.has('done') && window.opener != null) {
+            window.opener.postMessage('Ready.', this.settings.getValue('origin '));
+        }
+
+        // listen for return messages from parent window
+        window.addEventListener('message', function (event) {
+            var o = this.settings.getValue('origin');
+            if (o === '*' || event.origin === o) {
+                if (event.data === 'Ready.') {
+                    //
+                } else {
+                    // we've received content so render it
+                    var data = JSON.parse(event.data);
+                    this.log('Received data from GitHub.');
+                    sections = [];
+                    // clear content from .nav and .inner
+                    var e = document.querySelector(eid + ' .nav');
+                    if (e !== null) e.innerHTML = '';
+                    e = document.querySelector(eidInner);
+                    if (e !== null) e.innerHTML = '';
+                    var content = data.content + '\n';// + this.navContent;
+                    window.localStorage.setItem('gdContent', content);
+                    this.renderContent(content);
+                }
+            }
+        }, false);
+
+    };
+
+}
+
+/**
+ * Simple way to track loading process 
+ * @param {string} flags initial flags to set
+ * 
+ * this.flags = [
+ *   'initial',         initial readme content loaded
+ *   'css',             css loaded (either user-provided or base theme)
+ *   'content',         user-specified content loaded (applicable only if user provides url)
+ *   'done',            all content and css fully loaded
+ *   'callback'         call to user-provided callback made, added AFTER callback completed
+ *   'content-changed'  app loaded and user selected different content
+ *   'theme-changed'    app loaded and user selected different theme
+ *   'var-updated'      app loaded and user has made an update to a css variable field
+ * ];
+ */
+class Status {
+
+    constructor(f = []) {
+        this.flags = f;
+    }
+
+    log() {
+        this.log(this.flags);
+        return this;
+    }
+
+    add(flag) {
+        flag.split(',').forEach((e) => {
+            if (this.flags.indexOf(e) === -1) this.flags.push(e);
+        });
+        return this;
+    }
+
+    remove(flag) {
+        flag.split(',').forEach((e) => {
+            if (e === 'changed') {
+                // iterate over this.flags and remove occurences of -changed
+                this.flags.forEach((val, i) => {
+                    if (val.indexOf('-changed') !== -1) {
+                        this.flags.splice(i, 1);
+                    }
+                });
+            } else {
+                let i = this.flags.indexOf(e);
+                if (i !== -1) this.flags.splice(i, 1);
+            }
+        });
+        return this;
+    }
+
+    has(flag) {
+        if (flag === 'changed') {
+            // return true if any flags have text '-changed'
+            const f = this.flags.find(function (e) {
+                return e.includes('-changed');
+            });
+            if (!f) return false;
+            return true;
+            // iterate over user provided flag and return true if they're all in status.flags
+        } else {
+            let result = false;
+            flag.split(',').forEach(e => {
+                let i = this.flags.indexOf(e);
+                if (i !== -1) {
+                    result = true;
+                } else return result = false;
+            });
+            return result;
+        }
+    }
+
+}
+
+/**
+ * Centralized handler for app settings and default values
+ * @param {object} options user provided initial settings
+ */
+class Settings {
+
+    constructor(options = [], parametersProtected) {
+        this.initialOptions = options;
+        this.settings = this.initialSettings();
+        this.parametersProtected = parametersProtected;
+    }
+
+    reset() {
+        this.settings = this.initialSettings();
+    }
+
+    getParamValue(name) {
+        name = name.toLowerCase();
+        const setting = this.settings.find(i => i.name === name);
+        if (setting === undefined) return undefined;
+        // maybe first check url param to see if it's different from stored value
+        // then update the stored value
+        return setting.paramValue;
+    }
+
+    setParamValue(name, value) {
+        name = name.toLowerCase();
+        const setting = this.settings.find(i => i.name === name);
+        // if setting doesn't exist, we'll want to add it along with paramValue
+        if (setting === undefined) return false;
+        let suffix = Helpers.extractSuffix(value);
+        if (suffix !== '' && typeof value === 'string') {
+            value = Number(value.split(suffix)[0]);
+        }
+        setting.suffix = suffix;
+        return setting.paramValue = value;
+    }
+
+    // returns true when a setting should be included in newly constructed url query params
+    isInQuerystring(name) {
+        const setting = this.settings.find(i => i.name === name);
+        if (setting === undefined) return false;
+        return this.shouldInclude(setting);
+    }
+
+    // helper function to determine if a setting should be included in query string
+    shouldInclude(setting) {
+        const name = setting.name;
+        const value = String(setting.value);
+        const defaultValue = String(setting.default);
+        const suffix = setting.suffix;
+
+        if (value === '') return;
+
+        // exclude names with hid- prefix
+        if (name.includes('hid-')) return false;
+
+        // exclude any settings with Filename for now
+        if (name.includes('filename')) return false;
+
+        // exclude setting if its value = defaultValue
+        if (value + suffix == defaultValue) return false;
+        if (this.equals(value, defaultValue)) return false;
+
+        // exclude protected params
+        if (this.isNotAllowed(name)) return;
+
+        return true;
+    }
+
+    equals(v1, v2) {
+        if (v1 === v2) return true;
+        if (typeof v1 === 'string') {
+            if (typeof v2 === 'string') {
+                if (v1.toLowerCase() === v2.toLowerCase()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    isNotAllowed(name) {
+        // exclude protected params
+        let p = this.parametersProtected.split(',');
+        if (p.includes(name)) return true;
+        // exclude params
+        p = this.getValue('parameters_disallowed').split(',');
+        if (p.includes(name)) return true;
+
+        return false;
+    }
+
+    // returns a string of settings in url parameter format
+    toString() {
+        let count = 0;
+        let result = '';
+        for (const i in this.settings) {
+            if (this.shouldInclude(this.settings[i])) {
+                const s = this.settings[i];
+                if (count > 0) result += '&';
+                result += `${s.name}=${s.value}`;
+                count += 1;
+            }
+        }
+        return result;
+    }
+
+    // delete settings of specified type
+    delete(type) {
+        let result = [];
+        for (const i in this.settings) {
+            const s = this.settings[i];
+            if (type !== undefined && !s.type.startsWith(type)) {
+                result.push(s);
+            }
+        }
+        this.settings = result;
+    }
+
+    // return a key/value array of settings of specified type without defaults
+    getSettings(type) {
+        let result = [];
+        for (const i in this.settings) {
+            const s = this.settings[i];
+            if (type === undefined) {
+                result[s.name] = s.value;
+            } else if (s.type.startsWith(type)) {
+                result[s.name] = s.value;
+            }
+        }
+        return result;
+    }
+
+    get(type) {
+        return this.settings.filter(i => i.type.startsWith(type));
+    }
+
+    // return a setting's value by specified setting name
+    getValue(name) {
+        name = name.toLowerCase();
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return undefined;
+        return key.value;
+    }
+
+    // returns the default value for a specific setting by name
+    getDefault(name) {
+        name = name.toLowerCase();
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return undefined;
+        return key.default;
+    }
+
+    // set a value by specified setting name
+    setDefault(name, value) {
+        name = name.toLowerCase();
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return false;
+        let suffix = Helpers.extractSuffix(value);
+        if (suffix !== '' && typeof value === 'string') {
+            value = Number(value.split(suffix)[0]);
+        }
+        key.suffix = suffix;
+        return key.default = value;
+    }
+
+    getSuffix(name) {
+        name = name.toLowerCase();
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return undefined;
+        return key.suffix;
+    }
+
+    getType(name) {
+        name = name.toLowerCase();
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return false;
+        return key.type;
+    }
+
+    addSetting(name, value, type) {
+        name = name.toLowerCase();
+        let suffix = Helpers.extractSuffix(value);
+        if (suffix !== '' && typeof value === 'string')
+            value = Number(value.split(suffix)[0]);
+        const setting = {
+            name: name,
+            value: value,
+            default: undefined,
+            paramValue: undefined,
+            type: type,
+            suffix: suffix
+        }
+        this.settings.push(setting);
+        return setting;
+    }
+
+    setType(name, type) {
+        const key = this.settings.find(i => i.name === name);
+        if (key === undefined) return undefined;
+        return key.type = type;
+    }
+
+    // set a value by specified setting name
+    setValue(name, value, type) {
+        name = name.toLowerCase();
+        if (type === undefined) type = 'var';
+        // find setting
+        const key = this.settings.find(i => i.name === name);
+        // push new setting to array if it doesn't already exist
+        if (key === undefined) return this.addSetting(name, value, type);
+        // revert type when user provides gd-var with same name as a cssvar
+        if (type.startsWith('cssvar')) key.type = type;
+        // return value already stored in settings if param is disallowed or protected
+        if (this.isNotAllowed(name)) return key.value;
+        // set suffix and value, then return the entire setting as key
+        // key.suffix = suffix;
+        key.value = value;
+        // otherwise if key already exists, just update the value
+        return key;
+    }
+
+    initialSettings() {
+        let result = [];
+        const defaults = {
+            initial: 'README.md',    // initial content, either a local filename or 'HTML'
+            header: 'h1',            // element to use for header
+            heading: 'h2',           // element to use for sections
+            inner: 'inner',          // inner container for styling
+            content: 'default',
+            content_filename: '',
+            gist: 'default',
+            css: 'default',
+            css_filename: '',
+            highlight: 'default',
+            preprocess: false,
+            nav: 'show',
+
+            // set false to not render markdown
+            raw: false,
+
+            // defaults unavailable as url parameters
+            title: 'GitDown',
+            hide_nav: false,
+            hide_help: false,
+            hideToc: false,
+            disable_hide: false,
+            parameters_disallowed: 'initial,title,disable_hide,hide_any,adsense',
+
+            // GitDown stores a bunch of examples by default
+            // set these to false to not merge them into sub-app
+            mergeThemes: true,
+
+            origin: '//ugotsta.github.io',
+        };
+
+        // merge user pvovided options, these options will become new defaults
+        for (const key in this.initialOptions) {
+            defaults[key] = this.initialOptions[key];
+        }
+
+        // now we'll create an object, assign defaults and return it
+        for (const key in defaults) {
+            const setting = {
+                name: key,                  // variable name
+                value: defaults[key],       // current value
+                default: defaults[key],     // default value provided by cssvars
+                type: 'core',               // type = ['core', 'var', cssvar', 'cssvar-user']
+                suffix: '',                 // for numeric vars: px, em, &
+                paramValue: undefined      // has a value only if user provides it through url query param
+            }
+            result.push(setting);
+        }
+        return result;
+    }
+
+}
+
+/**
+ * Handler for nav panel contents
+ * @param {string} content content to break into nav sections
+ */
+
+// imports Markup
+// imports Helpers
+class Panels {
+
+    // this.panels is an array of section arrays
+    // [
+    //   [ [heading, content], [h, c], [h, c] ],
+    //   [ [h, c] ],
+    //   [ [h, c], [h, c] ]
+    // ]
+    constructor() {
+        this.panels = [];
+    }
+
+    /**
+     * Accepts array of [heading,content] and breaks it into panel sections
+     * @param {string} content content to break into panels
+     */
+    extract(content) {
+        let count = 0;
+        let p = [];
+        content.forEach(s => {
+            let h = s[0];
+            let c = s[1];
+            if (h.includes('`🅖-panel') || h.includes('`🅖-nav')) {
+                // push stored panel content to this.panels if it's not empty
+                if (p.length > 0) this.panels.push(p);
+                // reset panel array
+                p = [];
+            }
+            p.push([h, c]);
+        });
+        if (p.length > 0) this.panels.push(p);
+        return this.panels;
+    }
+
+    getRaw(panel) {
+        let result = '';
+        if (panel === undefined) {
+            // iterate over panels
+            this.panels.forEach(p => {
+                // iterate over panel sections
+                p.forEach(s => {
+                    result += s[0] + '\n';
+                    result += s[1] + '\n';
+                });
+            });
+        } else {
+            let p = this.panels.find(p => {
+                let first = p[0];
+                let h = first[0];
+                return h.includes('`' + panel);
+            });
+            p.forEach(s => {
+                result += s[0] + '\n';
+                result += s[1] + '\n';
+            });
+        }
+        return result;
+    }
+
+    // returns html for entire panel
+    getPanelHtml(panel) {
+        let markup = new Markup();
+        let result = '<div class="nav panel visible">';
+        let p = this.panels.find(p => {
+            let first = p[0];
+            let h = first[0];
+            return h.includes('`' + panel);
+        });
+        p.forEach(s => {
+            result += markup.getPanelMarkup(s);
+        });
+        result += '</div>';
+        return result;
+    }
+
+    navDefault() {
+        let nav = [];
+        let c = '';
+        h += '# ' + this.settings.setting['title'] + ' `🅖-nav`';
+        c += 'Experimental web app framework\n\n';
+        c += 'Content `🅖-content`\n';
+        c += '- [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)\n';
+        c += '- [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)\n';
+        nav.push(h, c);
+
+        h += '## Theme `🅖-collapsible-group`';
+        c += 'Themes `🅖-css`\n';
+        c += '- [Dark Glow](https://gist.github.com/c6d0a4d16b627d72563b43b60a164c31)\n\n';
+        c += '`🅖-theme-variables`\n';
+        nav.push(h, c);
+
+        h += '## Contents `🅖-collapsible-group`';
+        c += 'TOC `🅖-toc`\n';
+        nav.push(h, c);
+
+        h += '## Help `🅖-group`';
+        c += '`🅖-help`';
+        c += '`🅖-hide`';
+        nav.push(h, c);
+
+        return nav;
+    }
+
+}
+
+/**
+ * Utility class for static helper functions used across other classes
+ */
+class Helpers {
+
+    constructor() {
+    }
+
+    // simple function to get variable assignment values (ie. x="hello")
+    static getVariableAssignment(v) {
+        let result = '';
+        const assignment = v.split('=');
+        if (assignment.length > 1) result = assignment[1].substring(1);
+        return result.substring(0, result.length - 1);
+    }
+
+    // helper function to determine if a line is a heading
+    static isHeading(line, nextLine, inBlock) {
+        const x = Helpers.findFirstCharNot('#', line);
+        if (inBlock) return false;
+        if (nextLine.startsWith('---')) {
+            if (!line.startsWith('```') && line.length > 1) {
+                return true;
+            }
+        }
+        if (nextLine.startsWith('===')) {
+            if (!line.startsWith('```') && line.length > 1) {
+                return true;
+            }
+        }
+        if (x < 1) return false;
+        if (x > 7) return false;
+        if (line.charAt(x) !== ' ') return false;
+        return true;
+    }
+
+    // returns version of l only with contents between open and close strings
+    static between(open, l, close) {
+        return l.substring(l.indexOf(open) + 1, l.indexOf(close));
+    }
+
+    // used to merge example arrays or arrays of markdown links based on link titles
+    static mergeExamples(a1, a2) {
+        let result = a2;
+        a1.forEach(a1i => {
+            let found = a2.find(a2i => {
+                let name1 = Helpers.between('[', a1i, ']');
+                let name2 = Helpers.between('[', a2i, ']');
+                return name1.toLowerCase() === name2.toLowerCase();
+            });
+            if (found) return;
+            result.push(a1i);
+        });
+        return result;
+    }
+
+    // sanitize provided @str
+    // this function will be the sole way to clean content throughout core
+    // so by using a single method, we'll be able to change the means of sanitizing later
+    static clean(str) {
+        const parser = new HtmlWhitelistedSanitizer(true);
+        return parser.sanitizeString(str);
+    }
+
+    // generates CSS id from string, for use with heading
+    static cssId(str) {
+        str = Helpers.replaceCodes(str);
+        // remove non-alphanumerics
+        str = str.replace(/[^a-zA-Z0-9_\s-]/g, '-');
+        // clean up multiple dashes or spaces
+        str = str.replace(/[\s-]+/g, ' ');
+        // remove leading and trailing spaces
+        str = str.trim();
+        // convert spaces and underscores to dash
+        str = str.replace(/[\s_]/g, '-');
+        return str.toLowerCase();
+    }
+
+    // strip a string of code blocks like `🅸-Intro`
+    static replaceCodes(str) {
+        str = str.replace('🅸', 'i-');
+        // replace enclosed code blocks `code`
+        return str.replace(/`(.*?)`/g, '');
+    }
+
+    static extractSuffix(s) {
+        if (s === null) return '';
+        // if it's not a string, it has no suffix so just return
+        if (typeof s !== 'string') return '';
+        // we'll set a feasible limit here,
+        // numbers larger than 8 digits should be very rare
+        if (s.length > 8) return '';
+        if (s.match(/[+-]?\d+(?:\.\d+)?/)) {
+            return s.replace(/[+-]?\d+(?:\.\d+)?/g, '');
+        }
+        return '';
+    }
+
+    // returns real name of string, assuming it's a section heading
+    static realName(str) {
+        // remove leading and trailing spaces
+        str = str.trim();
+        let i = Helpers.findFirstCharNot('#', str);
+        str = Helpers.replaceCodes(str);
+        str = str.substr(i).trim();
+        return str;
+    }
+
+    // find first character in str that is not char and return its location
+    static findFirstCharNot(char, str) {
+        for (var i = 0; i < str.length; i++) {
+            if (str[i] != char) return i;
+        }
+        return -1;
+    };
+
+    // accepts section array @s which includes heading and content [h,c]
+    // returns heading level (h1, h2, h3) based on leading HR or ### counter
+    static getHlevel(s) {
+        let c = s[1];
+        if (c === undefined) return 0;
+        if (c.startsWith('---')) return 2;
+        else if (c.startsWith('===')) return 1;
+        else return Helpers.findFirstCharNot('#', s[0]);
+    }
+
+}
+
+/**
+ * Utility class used throughout app to get markup content.
+ * The class provides an easy path to utilizing other libraries,
+ * such as React or Vue, as well as regular HTML.
+ */
+class Markup {
+
+    constructor() {
+    }
+
+    // returns full line in c that includes tag
+    extractLine(c, tag) {
+        let lines = c.split('\n');
+        return lines.find(l => {
+            return l.includes(tag);
+        });
+    }
+
+    // extract slider values from content `🅖-slider="100%,0,300,1,%"`
+    extractSlider(c) {
+        let i = c.match(/".*?"/);
+        if (i === null) return null;
+        // remove first and last chars
+        i = i[0].substr(1);
+        i = i.substr(0, i.length - 1);
+        i = i.split(',');
+        let suffix = Helpers.extractSuffix(i[0]);
+        if (i.length < 5) i.push(suffix);
+        return i;
+    }
+
+    // takes an array of list items as strings and returns <option> list
+    listMarkup(list, type) {
+        let items = '';
+        list.forEach(l => {
+            if (type === '`🅖-datalist') {
+                let n = Helpers.between('[', l, ']');
+                let id = Helpers.cssId(n);
+                let href = Helpers.between('(', l, ')');
+                if (href.includes('gist.github.com/')) {
+                    id = href.split('gist.github.com/')[1];
+                }
+                // if href is a bare gist id, adjust id
+                if (!href.includes('.com')) {
+                    id = href;
+                }
+                items += `<option value="${id}" data-href="${href}">${n}</option>\n`;
+            } else if (type === '`🅖-select') {
+                let selected = '';
+                if (l.startsWith('*')) {
+                    selected = ' selected';
+                    l = l.substr(1);
+                }
+                items += `<option value="${l}" ${selected}>${l}</option>\n`;
+            }
+        });
+        return items;
+    }
+
+    // right now we're converting results into <options> list
+    // we should just return an array and act on that array through a optionize method
+    extractList(c, type) {
+        const lines = c.split('\n');
+        let typeFound = false;
+        let itemsFound = false;
+        let itemsDone = false;
+        let name = '';
+        let before = '';
+        let items = [];
+        let after = '';
+        // iterate over lines to get cBefore and cAfter
+        lines.forEach(l => {
+            if (l.includes(type)) {
+                typeFound = true;
+                // set line as cName if cName hasn't yet been found
+                if (!itemsDone) name = l;
+            }
+            if (!typeFound) before += l + '\n';
+            else if (l.trim().startsWith('- ') && !itemsDone) {
+                itemsFound = true;
+                items.push(l.trim().split('- ')[1]);
+            }
+            else if (itemsDone) {
+                after += l + '\n';
+            }
+            if (itemsFound && !l.trim().startsWith('- ')) {
+                itemsDone = true;
+            }
+        });
+        let id = Helpers.cssId(name);
+        return [name, before, items, after];
+    }
+
+    // strip section contents of special codes like `ⓘ information`
+    removeCodes(s, code) {
+        let regex = new RegExp('`' + code + ' (.*?)`', 'gi');
+        let h = s[0].replace(regex, '');
+        let c = s[1].replace(regex, '');
+        return [h, c];
+    }
+
+    // returns regex match array of code tags like `🅢 .wide {width: 240px;}`
+    matchCodes(s, code) {
+        var regex = new RegExp('`' + code + ' (.*?)`', 'gi');
+        let matches = s[0].match(regex);
+        if (matches !== null) {
+            matches = matches.concat(s[1].match(regex));
+        }
+        else {
+            matches = s[1].match(regex);
+        }
+        return matches;
+    }
+
+    // returns array of css classes
+    // parse codes such as `🅢 #id .class-1 .class-3`
+    getSectionClasses(s) {
+        let classes = [];
+        let matches = this.matchCodes(s, '🅢');
+        if (matches === null) return;
+        matches.forEach(i => {
+            let submatches = i.split(' .');
+            submatches.forEach(r => {
+                if (r.includes('#')) return;
+                if (r.includes('🅢')) return;
+                r = r.split('{')[0];
+                r = r.split('`')[0];
+                classes.push(r);
+            });
+        });
+        return classes;
+    }
+
+    // returns string of inline css styles
+    // parse codes such as `🅢 {left:220px;}`
+    getSectionStyles(s) {
+        let styles = '';
+        let matches = this.matchCodes(s, '🅢');
+        if (matches === null) return;
+        matches.forEach(i => {
+            let c = i.split('{');
+            if (c === null) return;
+            c = c[1].split('}');
+            if (c === null) return;
+            styles += c[0];
+        });
+        return styles;
+    }
+
+    getSectionMarkup(s, processMd) {
+        // todo
+        // use 1-dimensional array for this.sections.sections
+        // then whenever we need to access header content:
+        // s.split('\n\')[0]
+
+        // extract css classes from contents
+        let classes = this.getSectionClasses(s);
+        let styles = this.getSectionStyles(s);
+
+        // now remove special code tags
+        let replaced = this.removeCodes(s, 'ⓘ');
+        replaced = this.removeCodes(replaced, '🅢');
+        replaced = this.removeCodes(replaced, 'ⓢ');
+        let h = replaced[0];
+        let c = replaced[1];
+        let hlevel = Helpers.getHlevel(s);
+        if (processMd) {
+            if (c !== undefined || c !== '') c = this.processMd(c);
+        }
+        // remove ## symbols from heading and process it for markdown
+        if (h.includes('#')) h = h.split('# ')[1];
+        if (processMd) {
+            if (h !== undefined && h !== '') h = this.processMd(h);
+        }
+        return this.sectionHtml(h, c, hlevel, classes, styles);
+    }
+
+    sectionHtml(h, c, hlevel, classes, styles) {
+        let s = '';
+        if (styles !== undefined) s = ' style="' + styles + '"';
+        if (classes === undefined) classes = '';
+        else classes = classes.join(' ');
+        let id = h;
+        if (h.length > 0) id = Helpers.cssId(h);
+        else id = '🅖0';
+
+        let html = `<section class="section ${classes}" id="${id}"${s}>\n`;
+
+        if (hlevel !== undefined) {
+            html += `<h${hlevel} class="handle-heading">\n`;
+            html += `<a class="handle ${id}" name="${id}">${h}</a>\n`;
+            html += `</h${hlevel}>\n`;
+        }
+
+        html += '<div class="content">\n';
+        html += `${c}\n`;
+        html += '</div></section>\n';
+        return html;
+    }
+
+    getPanelMarkup(s) {
+        let h = s[0];
+        let c = s[1];
+        let result = '';
+        let id = Helpers.cssId(h);
+
+        // COLLAPSIBLE FIELDS
+        if (h.includes('`🅖-collapsible')) {
+
+            let div = `<div class="field collapsible ${id} collapsed" data-name="${id}">\n`;
+            div += `<div class="header" name="${id}">${id}\n`;
+            div += `<div class="contents">\n`;
+            div += `${this.getPanelContentMarkup(c)}\n`;
+            div += `</div>\n`
+            div += `</div>\n`
+            div += `</div>\n`;
+            h = div;
+        }
+
+        if (h.includes('`🅖-group`')) {
+            h = this.getPanelContentMarkup(c);
+        }
+
+        if (h.includes('`🅖-nav`')) {
+            h = h.replace('`🅖-nav`', '');
+            h = this.processMd(h);
+            h += this.getPanelContentMarkup(c);
+        }
+
+        // remove code blocks starting with ⓘ symbol
+        h = h.replace(/`ⓘ(.*?)`/g, '');
+
+        result += h + '\n';
+
+        //return result;
+        return result;
+    }
+
+    getPanelContentMarkup(c) {
+        let result = '';
+        c = c.replace(/`ⓘ(.*?)`/g, ''); // remove code blocks beginning with ⓘ
+
+        if (c === '') return c;
+
+        c = c.replace('`🅖-hide`', '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>');
+        c = c.replace('`🅖-toc`', '<div class="toc"></div>');
+        c = c.replace('`🅖-theme-variables`', '<div class="theme-vars"></div>');
+
+        if (c.includes('`🅖-help')) {
+            const line = this.extractLine(c, '`🅖-help');
+            let url = "https://github.com/ugotsta/gitdown/#GitDown";
+            let a = Helpers.getVariableAssignment(c.split('`🅖-help')[1]);
+            // remove any leftover quotes just in case
+            if (a.length > 1) url = a.split('"')[0];
+            const div = `<a class="help-ribbon" href="${url}">?</a>`;
+            c = c.replace(line, div);
+        }
+
+        // SELECT FIELDS
+        if (c.includes('`🅖-slider')) {
+            let line = this.extractLine(c, '`🅖-slider');
+            let items = this.extractSlider(line);
+            if (items === null) items = [0, 0, 100, 1, ''];
+            let value = items[0];
+            let min = items[1];
+            let max = items[2];
+            let step = items[3];
+            let suffix = items[4];
+            if (suffix !== '') value = value.split(suffix)[0];
+            let id = Helpers.cssId(line);
+            let div = `<div class="field slider ${id}" data-name="${id}" data-value="${value}" data-suffix="${suffix}">\n`;
+            div += `<input name="${id}" type="range" value="${value}" min="${min}" max="${max}" step="${step}" data-suffix="${suffix}">\n`;
+            div += `</div>\n`;
+            c = c.replace(line, div);
+        }
+        // for any further occurrences, recurse
+        if (c.includes('`🅖-slider')) return this.getPanelContentMarkup(c);
+
+        // DATALIST FIELDS
+        if (c.includes('`🅖-datalist')) {
+            let items = this.extractList(c, '`🅖-datalist');
+            let cName = items[0];
+            let cBefore = items[1];
+            let cItems = this.listMarkup(items[2], '`🅖-datalist');
+            let cAfter = items[3];
+            let id = Helpers.cssId(cName);
+            let div = `<div class="field datalist ${id}" data-name="${id}" data-value="default">\n`;
+            div += `<input type="text" name="${id}" list="${id}" value="Default" placeholder="${id}" data-value="default" />\n`;
+            div += `<datalist id="${id}">\n`;
+            div += `<option value="Default" data-href="README.md">README.md</option>\n`;
+            div += `${cItems}`;
+            div += `</datalist></div>\n`;
+            c = cBefore + div + cAfter;
+        }
+        // for any further occurrences, recurse
+        if (c.includes('`🅖-datalist')) return this.getPanelContentMarkup(c);
+
+        // SELECT FIELDS
+        if (c.includes('`🅖-select')) {
+            let items = this.extractList(c, '`🅖-select');
+            let cName = items[0];
+            let cBefore = items[1];
+            let cItems = this.listMarkup(items[2], '`🅖-select');
+            let cAfter = items[3];
+            let id = Helpers.cssId(cName);
+            let div = `<div class="field select ${id}" data-name="${id}" data-value="default">\n`;
+            div += `<select name="${id}">\n`;
+            div += `${cItems}`;
+            div += `</select></div>\n`;
+            c = cBefore + div + cAfter;
+        }
+        // for any further occurrences, recurse
+        if (c.includes('`🅖-select')) return this.getPanelContentMarkup(c);
+
+        // INPUT FIELDS
+        if (c.includes('`🅖-input')) {
+            let line = this.extractLine(c, '`🅖-input');
+            let value = this.extractValue(line);
+            let id = Helpers.cssId(line);
+            let div = `<div class="field textinput input ${id}" data-name="${id}" data-value="${value}">\n`;
+            div += `<input name="${id}" type="text" value="${value}">\n`;
+            div += `</div>\n`;
+            c = c.replace(line, div);
+        }
+        // for any further occurrences, recurse
+        if (c.includes('`🅖-input')) return this.getPanelContentMarkup(c);
+
+        if (c === '') return c;
+        return this.processMd(c);
+    }
+
+    extractValue(c) {
+        let i = c.match(/".*?"/);
+        if (i === null) return '';
+        // remove first and last chars
+        i = i[0].substr(1);
+        i = i.substr(0, i.length - 1);
+        return i;
+    }
+
+    // for use with raw rendering option,
+    // wraps raw content in section and pre code tags
+    wrapRaw(c) {
+        let h = '';
+        c = '<pre><code>' + c + '</pre></code>';
+        return this.sectionHtml(h, c);
+    }
+
+    // returns markdown rendering of content c
+    processMd(c) {
+        let md = new Markdown();
+        return md.render(c);
+    }
+
+}
+
+/**
+ * Provides all methods for rendering Markdown content
+ * @param {string} content content to break into sections
+ */
+class Markdown {
+
+    constructor() {
+        this.references = [];
+    }
+
+    extractReferences(c) {
+        this.references = [];
+        let block = false;
+        c.split('\n').forEach((l, i) => {
+
+            // ignore if we're within a code block
+            if (l.startsWith('```')) block = !block;
+            if (block) return;
+
+            // also ignore references in headings
+            const h = Helpers.findFirstCharNot('#', l);
+            if (h > 0 && l.charAt(h) === ' ') return;
+
+            // not in block, so check for match
+            let r = l.match(/\[(.*?)\]\: (.*)/g);
+            if (r !== null) {
+                this.references.push([i, r[0]]);
+            }
+        });
+        return this.references;
+    }
+
+    // returns a specific reference from input references array
+    getReference(match) {
+        let s = match.split('][');
+        let title = s[0].substr(1);
+        let id = s[1].substr(0, s[1].length - 1);
+        let found = this.references.find(i => {
+            let c = i[1];
+            let name = c.substr(1).split(']: ')[0];
+            return id === name;
+        });
+        if (found === null || found === undefined) {
+            return `<a href="/">${title}</a>`;
+        }
+        let parts = found[1].split(' ');
+        let href = parts[1];
+        let alt = '';
+        if (parts.length > 2) alt = ' alt=' + parts[2];
+        let result = `<a href="${href} ${alt}">${title}</a>`;
+        return result;
+    }
+
+    // handler for inline markdown such as emphases and links
+    inlineHandler(l) {
+
+        // IMAGES
+        // ![title](href "alt")
+        l = l.replace(/!\[(.*?)\]\((.*) "(.*)"\)/g, `<img src="$2" title="$1" alt="$3">`);
+        // ![title](href)
+        l = l.replace(/!\[(.*?)\]\((.*)\)/g, `<img src="$2" title="$1">`);
+
+        // LINKS
+        // Non-reference links [title](href)
+        l = l.replace(/\[(.*?)\]\((.*)\)/g, `<a href="$2">$1</a>`);
+        // Reference links [title][id]
+        l = l.replace(/\[(.*?)\]\[(.[^\[\]]*)\]/g, (match) => {
+            return this.getReference(match);
+        });
+        // <href>
+        l = l.replace(/\<(http.*)\>/g, `<a href="$2">$1</a>`);
+        // Reference links [title][]
+
+        // bold
+        l = l.replace(/\*\*(?! )(.*?)(?! )\*\*/g, `<strong>$1</strong>`);
+        l = l.replace(/__(?! )(.*?)(?! )__/g, `<strong>$1</strong>`);
+
+        // emphases
+        l = l.replace(/(!")_(?! )(.*?)(?! )_(!")/g, `<em>$1</em>`);
+        l = l.replace(/\*(?! )(.*?)(?! )\*/g, `<em>$1</em>`);
+
+        // strikethrough
+        l = l.replace(/~~(?! )(.*?)(?! )~~/g, `<s>$1</s>`);
+
+        return l;
+    }
+
+    tableHandler(table) {
+        let t = '';
+        let lines = table.split('\n');
+        let definition = lines[1];
+        let columns = definition.split('|');
+        columns.shift();
+        columns.pop();
+        let align = [];
+        columns.forEach(c => {
+            let a = '';
+            c = c.trim();
+            if (c.startsWith(':') && c.endsWith(':')) a = 'center';
+            else if (c.endsWith(':')) a = 'right';
+            else if (c.startsWith(':')) a = 'left';
+            align.push(a);
+        });
+        columns = columns.length;
+        t += '<table>\n';
+        t += '<tbody>\n';
+        lines.forEach((l, i) => {
+            if (i === 1 || i === lines.length - 1) return;
+            let td = '<td>\n';
+            if (i === 0) {
+                t += t += '<thead>\n';
+                td = '<th>\n';
+            }
+            t += '<tr>\n';
+            for (let c = 0; c <= columns; c++) {
+                if (align[c - 1] !== '') {
+                    t += td.replace('>', ` align="${align[c - 1]}">`);
+                } else t += td;
+                t += l.split('|')[c] + '\n';
+                t += td.replace('<', '</');
+            }
+            t += '</tr>\n';
+            if (i === 0) t += '</thead>\n';
+        });
+        t += '</tbody>\n';
+        t += '</table>\n';
+        return t;
+    }
+
+    // returns character found at start of line if character is a list symbol
+    listChr(l) {
+        l = l.trim();
+        let listChr = '';
+        // handle unordered list <UL>
+        if (l.startsWith('- ')) listChr = '-';
+        else if (l.startsWith('* ')) listChr = '*';
+        if (listChr !== '') return listChr;
+
+        // handle orderered list <OL>
+        listChr = l.match(/^(\d+). /);
+        if (listChr === null) return '';
+        return l.split(' ')[0];
+    }
+
+    render(c) {
+
+        // send content through first pass to get any reference links
+        this.extractReferences(c);
+
+        let result = '';
+        // markup within code blocks should be treated differently
+        // block designates what type of block we're in: code, inline-code
+        let block = '';
+
+        let blockquote = false;
+
+        // similarly, list holds the list type: ol, ul
+        let list = '';
+        let listLevel = -1;
+        let listSpaces = 2;
+
+        let table = '';
+
+        const lines = c.split('\n');
+        lines.forEach((l, i) => {
+
+            let paragraph = true;
+
+            // Close UL if first character is not a list character and listLevel is 0 or greater
+            let chr = this.listChr(l);
+            if (chr === '' && listLevel > -1) {
+                let tag = `</${list}>`;
+                result += tag + tag.repeat(listLevel);
+                list = '';
+                listLevel = -1;
+            }
+
+            // Close BLOCKQUOTE
+            if (blockquote && !l.trim().startsWith('> ')) {
+                result += '<p>\n</blockquote>\n';
+                blockquote = false;
+            }
+
+            // HEADINGS
+            const x = Helpers.findFirstCharNot('#', l);
+            if (block === '' && x > 0 && l.charAt(x) === ' ') {
+                // assign appropriate heading level and truncated heading text
+                l = `<h${x}>${l.substr(x)}</h${x}>`;
+                paragraph = false;
+            }
+            if (block === '' && i < lines.length - 1) {
+                if (lines[i + 1].startsWith('---')) {
+                    l = `<h2>${l}</h2>`;
+                    paragraph = false;
+                } else if (lines[i + 1].startsWith('===')) {
+                    l = `<h1>${l}</h1>`;
+                    paragraph = false;
+                }
+            }
+
+            // <HR>
+
+            if (block === '') {
+                if (l.startsWith('---') || l.startsWith('***')
+                    || l.startsWith('___') || l.startsWith('===')
+                    || l.startsWith('- - -') || l.startsWith('* * *')) {
+                    paragraph = false;
+                    l = '<hr />';
+                }
+            }
+
+            // CODE
+            if (l.startsWith('```')) {
+                paragraph = false;
+                // get any extra text after ```
+                let classes = l.split('```')[1];
+                if (classes.trim().length < 1) classes = '';
+                else classes = ` class="${classes}" `;
+                if (block === '') {
+                    block = 'code';
+                    l = `<pre ${classes}><code>`;
+                }
+                else if (block === 'code') {
+                    block = '';
+                    l = '</pre></code>';
+                }
+            }
+            if (block === 'code') paragraph = false;
+
+            // PRE tag
+            if (l.trim().startsWith('<pre')) {
+                paragraph = false;
+                if (block === '') block = 'pre';
+            }
+            if (l.trim().startsWith('</pre')) block = '';
+            if (block === 'pre') paragraph = false;
+
+            // special consideration for html comments
+            if (block !== '' && l.startsWith('<!--')) {
+                l = l.replace('<!--', '&lt;!--');
+            }
+
+            // inline-code
+            l = l.replace(/\`/g, f => {
+                if (block === '') {
+                    block = 'inline-code';
+                    return '<code>';
+                }
+                else if (block === 'inline-code') {
+                    block = '';
+                    return '</code>';
+                }
+                else return '`';
+            });
+
+            // BLOCKQUOTE
+            if (l.trim().startsWith('> ') && block === '') {
+                if (!blockquote) {
+                    l = '<blockquote>\n<p>' + l.substr(2);
+                    blockquote = true;
+                } else l = l.substr(2);
+            }
+            if (blockquote) paragraph = false;
+
+            // TABLES
+
+            // Close TABLE
+            if (!l.startsWith('|') && table !== '') {
+                // table has content but this line doesn't have table code
+                // so lets close the table up and add entire contents as new line
+                l += '\n' + this.tableHandler(table) + '\n';
+                table = '';
+                paragraph = false;
+                block = '';
+            }
+            else if (l.startsWith('|')) {
+                if (block === '') block = 'table';
+                table += l + '\n';
+                l = '';
+            }
+            if (table !== '') paragraph = false;
+
+            // ======================== INLINE ELEMENTS =========================
+            // Inline elements such as emphases and links
+            if (block === '') l = this.inlineHandler(l);
+
+            // LISTS <UL> and <OL>
+            chr = this.listChr(l);
+            if (chr !== '' && block === '') {
+                let type = 'ul';
+                if (!isNaN(chr)) type = 'ol';
+                let spaces = l.split(chr + ' ')[0].length;
+                let oldLevel = listLevel;
+                let newLevel = Math.floor(spaces / listSpaces);
+
+                if (list === '') {
+                    listLevel = 0;
+                    list = type;
+                    l = `<${type}>\n<li>${l.trim().substr(2)}</li>`;
+                }
+                else if (newLevel > listLevel) {
+                    listLevel += 1;
+                    list = type;
+                    l = `<${type}>\n<li>${l.trim().substr(2)}</li>`;
+                }
+                else if (newLevel === listLevel) {
+                    l = `<li>${l.trim().substr(2)}</li>`;
+                }
+                else if (newLevel < listLevel) {
+                    listLevel = newLevel;
+                    let tag = `</${list}>\n`;
+                    tag = tag.repeat(oldLevel - listLevel);
+                    l = tag + `<li>${l.trim().substr(2)}</li>`;
+                }
+            }
+            if (list !== '') paragraph = false;
+
+            if (block === '') {
+                // don't add paragraph if line begins with html open symbol
+                if (l.startsWith('<')) paragraph = false;
+                // allow some tags at start of line to designate paragraph
+                if (l.startsWith('<s>')) paragraph = true;
+                if (l.startsWith('<em>')) paragraph = true;
+                if (l.startsWith('<strong>')) paragraph = true;
+            }
+
+            if (paragraph && l.length > 0) l = '<p>' + l + '</p>';
+            if (l.includes('<pre')) result += l;
+            else if (l.length < 1) result += l;
+            else result += l + '\n';
+        });
+        return result;
+    }
+
+}
+
+/**
+ * Separates content into sections and provides methods to access contents
+ * @param {string} content content to break into sections
+ */
+
+// imports Markup
+// imports Helpers
+class Sections {
+
+    constructor() {
+        this.clear();
+    }
+
+    // reset section content to default (empty)
+    clear() {
+        // when filled, section content will include raw markdown
+        // ['# The Red Door', 'Nothing here but a large, Red_ door.']
+        this.sections = [];
+        // this.current holds the id of the current section
+        this.current = undefined;
+        // this.past holds the id of the last section the user clicked/visited
+        this.past = undefined;
+        this.raw = false;
+    }
+
+    setRaw(raw) {
+        if (raw) this.raw = true;
+        else if (this.getCurrent().length < 1) this.raw = true;
+        return this.raw;
+    }
+
+    isRaw() {
+        return this.raw;
+    }
+
+    // set this.current section by id
+    setCurrent(id) {
+        if (this.raw) return this.current = '🅖0';
+        if (id.length < 1) id = this.getFirst();
+        let i = this.getSectionById(id);
+        if (i !== undefined) {
+            // update this.past only if this.current had a previous value
+            if (this.current !== undefined) this.past = this.current;
+            return this.current = Helpers.cssId(id);
+        }
+    }
+
+    // returns array of css classes for specified section
+    getClasses(id) {
+        let s = this.getSectionById(id);
+        if (s === undefined) return undefined;
+        const i = this.getId(s);
+        let classes = [];
+        let current = this.getSectionIndex(this.current);
+        let past = this.getSectionIndex(this.past);
+        if (this.current === i) {
+            classes.push('current');
+            if (current > past) classes.push('hi');
+            else if (current < past) classes.push('lo');
+        }
+        else if (this.past === i) {
+            classes.push('past');
+            if (past > current) classes.push('hi');
+            else if (past < current) classes.push('lo');
+        }
+        return classes;
+    }
+
+    // set current section by id
+    setPast(id) {
+        let i = this.getSectionById(id);
+        if (i !== undefined) return this.past = id;
+    }
+
+    getCurrent() {
+        if (this.raw) return this.current = '🅖0';
+        if (this.current === undefined) {
+            return this.current = this.getFirst();
+        }
+        else return this.current;
+    }
+
+    getPast() {
+        return this.past;
+    }
+
+    // returns the id of the first section in this.sections array
+    getFirst() {
+        return this.getId(this.sections[0]);
+    }
+
+    // returns the id of the last section in this.sections array
+    getLast() {
+        return this.getId(this.sections[this.sections.length - 1]);
+    }
+
+    // returns the id of the next section after current
+    getNext() {
+        let next = this.sections.length - 1;
+        const current = this.getSectionIndex(this.current);
+        if (current + 1 < next) next = current + 1;
+        return this.getId(this.sections[next]);
+    }
+
+    // returns the id of the previous section before current
+    getPrev() {
+        let prev = 0;
+        const current = this.getSectionIndex(this.current);
+        if (current - 1 > prev) prev = current - 1;
+        return this.getId(this.sections[prev]);
+    }
+
+    // returns id from heading for specified section @s
+    getId(s) {
+        return Helpers.cssId(s[0]);
+    }
+
+    // returns the index of specified section in this.sections array by @id
+    getSectionIndex(id) {
+        for (let i = 0; i < this.sections.length - 1; i++) {
+            if (this.getId(this.sections[i]) === id) return i;
+        }
+    }
+
+    // returns the section at index @n
+    getSectionByIndex(n) {
+        if (this.sections.length >= n) return this.sections[n];
+    }
+
+    getSectionById(id) {
+        if (id.startsWith('#')) id = id.substr(1);
+        // strip ## from start of id string
+        return this.sections.find(s => {
+            return this.getId(s) === id;
+        });
+    }
+
+    // 
+    getSectionHtml(raw, id) {
+        if (raw) this.raw = true;
+        let result = '';
+        let markup = new Markup();
+        // check if id is provided
+        if (id === undefined) {
+            this.sections.forEach(s => {
+                // get all section content without processing the markdown
+                if (raw) result += `${s[0]}\n${s[1]}\n`;
+                else result += markup.getSectionMarkup(s, false);
+            });
+            if (!raw) result += '<br />';
+        }
+        // get html for specified section @id
+        else {
+            let s = this.getSectionById(id);
+            if (raw) result += `${s[0]}\n${s[1]}\n`;
+            else result += markup.getSectionMarkup(s, false);
+        }
+        // now process the markdown content
+        if (raw) {
+            this.setCurrent('🅖0');
+            return markup.wrapRaw(result);
+        }
+        return markup.processMd(result) + '<br />';
+    }
+
+    // returns an array of all section ids
+    getIds() {
+        let result = [];
+        this.sections.forEach(s => {
+            result.push(Helpers.cssId(s[0]));
+        });
+        return result;
+    }
+
+    setSections(sections) {
+        this.sections = sections;
+    }
+
+    getSections() {
+        return this.sections;
+    }
+
+    getSectionName(id) {
+        if (id.startsWith('#')) id = id.substr(1);
+        let section = this.sections.find(s => {
+            return id === this.getId(s);
+        });
+        return Helpers.realName(section[0]);
+    }
+
+}
+
+/**
+ * Keep all browser methods contained in a class
+ * for portability purposes
+ */
+class Url {
+
+    constructor() {
+    }
+
+    static getPath() {
+        return window.location.hostname.split('.')[0] + window.location.pathname;
+    }
+
+    static getSearchParams() {
+        return (new URL(location)).searchParams;
+    }
+
+    static getHash() {
+        return window.location.hash;
+    }
+}
+
+/**
+ * Event handler to simplify AddEventListener calls
+ */
+class Events {
+
+    constructor() {
+        //this.events = [];
+    }
+
+    // this.events.add('.nav .collapsible.Dimensions .field.slider input', 'input', centerView);
+    // this.events.add('.nav .field.slider input', 'input', vignette);
+    add(el, method, callback) {
+
+        let elements = document.querySelectorAll(el);
+        if (elements.length < 1) return;
+        elements.forEach(e => {
+            e.removeEventListener(method, callback);
+            e.addEventListener(method, callback);
+        });
+
+        //this.events.push( [el, method, callback] );
+
+    }
+
+    remove() {
+    }
+}
+
+/**
+ * HTML class for handling everything DOM related
+ */
+
+// todo: move all DOM handling to this class so we can port to other platforms
+// using a class that handles drawing natively
+
+class Dom {
+
+    constructor() {
+    }
+
+    configureWrapper(el, inner) {
+        if (typeof el === 'string') el = document.querySelector(el);
+        // ensure element has an id, then store it in eid
+        let eid = '#' + el.getAttribute('id');
+        if (eid === '#') {
+            let newId = document.querySelector('#wrapper');
+            // ensure another id doesn't already exist in page
+            if (newId === null) {
+                eid = newId;
+                el.setAttribute('id', eid.substr(1));
+            }
+        }
+        // add container div and inner content
+        let content = '<div class="' + inner + '">';
+        content += '</div>';
+        el.innerHTML += content;
+        return eid;
+    }
+
+}
+
+/**
+ * Helper class for Google Fonts
+ */
+class GFonts {
+
+    constructor() {
+    }
+
+    // takes a font name including - chars and returns offical name from gfonts()
+    // returns false if name doesn't exist in gfonts()
+    getName(font) {
+        let name = '';
+        // we'll lazily convert name to css id compatible name first
+        const n = Helpers.cssId(font);
+        // now check if name deviates from basic rules and return deviation if so
+        let deviation = this.deviations(n);
+        if ( deviation !== undefined ) return deviation;
+
+        // now split by - and assemble string using title case
+        n.split('-').forEach( (w, i) => {
+            let word = '';
+            if ( w.length < 3 ) word = w.toUpperCase();
+            else word = w[0].toUpperCase() + w.slice(1);
+            name += word + ' ';
+        });
+        // remove trailing space and return
+        return name.trim();
+    }
+
+    deviations(name) {
+        const devations = [
+            'McLaren',
+            'UnifrakturMaguntia',
+            'UnifrakturCook',
+            'Mountains of Christmas',
+            'MedievalSharp',
+            'VT232',
+        ];
+        return devations.find( (w) => {
+            let word = Helpers.cssId(w);
+            return word === name;
+        });
+    }
+
+    update(font) {
+        // first find font in gfonts list
+        const found = this.getName(font);
+        if (!found) return false;
+        // replace space chars with + as needed by API
+        let name = found.split(' ').join('+');
+        let fonts = name;
+        var link = document.createElement('link');
+        // link.setAttribute('id', 'gd-gfont');
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('type', 'text/css');
+        link.setAttribute('href', `https://fonts.googleapis.com/css?family=${fonts}`);
+        document.head.appendChild(link);
+
+        return found;
     }
 
     // returns an object of Google font names to be used by select field
-    gfonts() {
+    getList() {
         const added = {
             "Fira Code iScript": {
                 "category": "monospace",
@@ -1149,7 +3045,7 @@ class GitDown {
                 "category": "monospace",
             }
         };
-        const gfonts = 
+        const gfonts =
         {
             "ABeeZee": {
                 "category": "sans-serif",
@@ -1300,1305 +3196,155 @@ class GitDown {
         return full;
     }
 
-    // returns an array of color names to be used in select fields
-    color_names(lowercase) {
-        let l = ["AliceBlue","AntiqueWhite","Aqua","Aquamarine","Azure","Beige","Bisque","Black","BlanchedAlmond","Blue","BlueViolet","Brown","BurlyWood","CadetBlue","Chartreuse","Chocolate","Coral","CornflowerBlue","Cornsilk","Crimson","Cyan","DarkBlue","DarkCyan","DarkGoldenRod","DarkGray","DarkGrey","DarkGreen","DarkKhaki","DarkMagenta","DarkOliveGreen","Darkorange","DarkOrchid","DarkRed","DarkSalmon","DarkSeaGreen","DarkSlateBlue","DarkSlateGray","DarkSlateGrey","DarkTurquoise","DarkViolet","DeepPink","DeepSkyBlue","DimGray","DimGrey","DodgerBlue","FireBrick","FloralWhite","ForestGreen","Fuchsia","Gainsboro","GhostWhite","Gold","GoldenRod","Gray","Grey","Green","GreenYellow","HoneyDew","HotPink","IndianRed","Indigo","Ivory","Khaki","Lavender","LavenderBlush","LawnGreen","LemonChiffon","LightBlue","LightCoral","LightCyan","LightGoldenRodYellow","LightGray","LightGrey","LightGreen","LightPink","LightSalmon","LightSeaGreen","LightSkyBlue","LightSlateGray","LightSlateGrey","LightSteelBlue","LightYellow","Lime","LimeGreen","Linen","Magenta","Maroon","MediumAquaMarine","MediumBlue","MediumOrchid","MediumPurple","MediumSeaGreen","MediumSlateBlue","MediumSpringGreen","MediumTurquoise","MediumVioletRed","MidnightBlue","MintCream","MistyRose","Moccasin","NavajoWhite","Navy","OldLace","Olive","OliveDrab","Orange","OrangeRed","Orchid","PaleGoldenRod","PaleGreen","PaleTurquoise","PaleVioletRed","PapayaWhip","PeachPuff","Peru","Pink","Plum","PowderBlue","Purple","Red","RosyBrown","RoyalBlue","SaddleBrown","Salmon","SandyBrown","SeaGreen","SeaShell","Sienna","Silver","SkyBlue","SlateBlue","SlateGray","SlateGrey","Snow","SpringGreen","SteelBlue","Tan","Teal","Thistle","Tomato","Turquoise","Violet","Wheat","White","WhiteSmoke","Yellow","YellowGreen"];
-        if ( lowercase ) {
-            l = l.map( function(x){ return x.toLowerCase() } );
-        }
-        return l;
+    getSearchParams() {
+        return (new URL(location)).searchParams;
     }
-
-    // extra info panel contents if they exist
-    // does nothing if no info content is found
-    // this allows users to create a custom info panel for their files
-    // useful for apps like Entwine so users can create a panel that fits their story
-    //
-    // returns array with content and info panel content separated
-    extract_info_content(content) {
-        const n = '\n';
-        let info_found = false, c = content, c_info = '';
-        // check content for $gd_info
-        if ( c.indexOf('<!-- {$gd_info} -->') != -1 ) {
-            c = '';
-            // get all content starting with occurrence of $gd_info
-            var lines = content.split('\n');
-            lines.forEach((val) => {
-                if ( val.indexOf('<!-- {$gd_info} -->') != -1 ) {
-                    info_found = true;
-                }
-                if ( info_found ) {
-                    c_info += val + n;
-                } else {
-                    // add line to content for return later
-                    c += val + n;
-                }
-            });
-        }
-        return [c, c_info];
-    };
-
-    sectionize() {
-
-        // header section
-        var header = gd.settings.get_value('header');
-        var heading = gd.settings.get_value('heading');
-        if ( heading === 'lyrics' ) heading = 'p';
-
-        // Header
-        const headers = document.querySelector(`${gd.eid_inner} ${header}`);
-        if ( headers !== null ) {
-            var name = gd.clean( headers.textContent );
-            headers.classList.add('handle-heading');
-            $(headers).wrapInner('<a class="handle app-title ' + name + '" name="' + name + '"/>');
-            $(headers).nextUntil(heading).andSelf().wrapAll('<section class="section header" id="' + name + '"/>');
-            $(headers).nextUntil(heading).wrapAll('<div class="content"/>');
-        }
-
-        // Headings
-
-        // ensure a header exists by adding header class if headers array is null
-        let h_class = "heading";
-        if ( headers === null ) h_class = "header";
-        const headings = document.querySelectorAll(`${gd.eid_inner} ${heading}`);
-        if ( headings !== null ) {
-            headings.forEach( (val, i) => {
-                const $h2 = $(val);
-                var name =  gd.clean( $h2.text() );
-                // ensure section name/id is unique
-                if ( name !== '' ) {
-                    var $exists = $( gd.eid_inner + ' .section#' + name );
-                    if ( $exists.length > 0 ) {
-                        // name already exists so give it a new suffix
-                        name = gd.unique( name, '#' );
-                    }
-                } else {
-                    // name is empty so assign it blank with suffix
-                    name = gd.unique( 'blank', '#' );
-                }
-                $h2.addClass('handle-heading');
-                $h2.wrapInner('<a class="handle" name="' + name + '"/>');
-                // make first heading a header if header doesn't exist
-                if ( i > 0 ) h_class = "heading";
-                $h2.nextUntil(heading).andSelf().wrapAll(`<section class="section ${h_class}" id="${name}"/>`);
-                $h2.nextUntil(heading).wrapAll('<div class="content"/>');
-            });
-        }
-
-        // for lyrics mode, add heading content to .content div
-        if ( this.settings.get_value('heading') === 'lyrics' ) {
-            $( gd.eid_inner + ' .section.heading' ).each(function() {
-                var heading = $(this).find('a.handle').html();
-                var $c = $(this).find('.handle-heading');
-                heading = `<div class="content">${heading}</div>`;
-                $c.after(heading);
-            });
-        }
-
-        // add section names to sections array for use with toc
-        $( gd.eid_inner + ' .section a.handle' ).each(function(){
-            var t = $(this).text();
-            if ( t.indexOf( 'gd_info' ) === -1 ) {
-                var id = $(this).closest('.section').attr('id');
-                gd.sections.push( id );
-            }
-        });
-
-        // if section's parent is not eid_inner, then move it there
-        $( gd.eid_inner + ' .section' ).each(function() {
-            var $parent = $(this).parent();
-            if ( !$parent.is( $(gd.eid_inner) ) ) {
-                $(this).appendTo( gd.eid_inner );
-            }
-        });
-    };
-
-    // to help with incorrectly formatted Markdown (which is very common)
-    preprocess(data) {
-        let processed = '';
-        const lines = data.split('\n');
-        lines.forEach((val) => {
-            // start by checking if # is the first character in the line
-            if ( val.charAt(0) === '#' ) {
-                const x =  this.find_first_char_not('#', val);
-                if ( x > 0 ) {
-                    const c = val.charAt(x);
-                    // check if character is a space
-                    if (c != ' ') {
-                        val = [val.slice(0, x), ' ', val.slice(x)].join('');
-                    }
-                }
-            } else if ( val.charAt(0) === '-' ) {
-                // add space after - where needed
-                if ( val.charAt(1) != '-' && val.charAt(1) != ' ' ) {
-                    val = [val.slice(0, 1), ' ', val.slice(1)].join('');
-                }
-            }
-            processed += val + '\n';
-        });
-        return processed;
-    };
-
-    // navigate to section based on url hash or specific section argument
-    go_to_section(section) {
-        if ( section === null ) section = this.get_current_section_id();
-
-        // first remove .current classes from wrapper
-        var wrapper = document.querySelector(gd.eid);
-        if ( wrapper != null ) this.remove_class_by_prefix(wrapper, 'current-');
-
-        // remove prior .old classes from old section
-        var old = document.querySelector(gd.eid_inner + ' .section.old');
-        if (old !== null) {
-            old.classList.remove('old', 'hi', 'lo');
-        }
-        
-        // remove .current class from current section
-        var current = document.querySelector(gd.eid_inner + ' .section.current');
-        if (current !== null) {
-            current.classList.add('old');
-            current.classList.remove('hi', 'lo', 'current');
-        }
-
-        // now remove 'current' class from previously selected section and toc
-        var current_toc = document.querySelector( gd.eid + ' .toc a.current' );
-        if (current_toc !== null) current_toc.classList.remove('current');
-        
-        // check if this is the first time handling url hash
-        var hash = location.hash;
-        var header = document.querySelector( gd.eid_inner + ' .section.header' );
-        if ( header === null ) {
-            header = '';
-        } else {
-            header = header.getAttribute('id');
-        }
-        var header_hash = '#' + header;
-        var section = document.querySelector( gd.eid_inner + ' .section' + hash );
-        if( hash && section !== null && hash != header_hash ) {
-            section.classList.remove('old');
-            section.classList.add('current');
-            section.scrollIntoView();
-        } else {
-            // make header the current section
-            var header = document.querySelector( gd.eid + ' .section.header' );
-            if ( header !== null ){
-                header.classList.remove('old');
-                header.classList.add('current');
-            }
-        }
-        // add .hi or .lo to .old class so user can style based on index
-        old = document.querySelector( gd.eid_inner + ' .section.old' );
-        current = document.querySelector( gd.eid_inner + ' .section.current' );
-        if ( old !== null && current !== null ) {
-            if (  this.find_index(old) >  this.find_index(current) ) {
-                current.classList.add('lo');
-                old.classList.add('hi');
-            } else {
-                current.classList.add('hi');
-                old.classList.add('lo');
-            }
-        }
-
-        // add new current id to wrapper
-        if ( current !== null ) {
-            var id = current.getAttribute('id');
-            wrapper.classList.add( 'current-' + id );
-            var c = document.querySelector( `${gd.eid} .toc a[href="#${id}"]` );
-            if ( c !== null ) {
-                c.classList.add('current');
-                 this.scroll_to(c);
-            }
-        }
-    };
-
-    // custom method to allow for certain tags like <i> and <kbd>
-    tag_replace( tag, container ) {
-        let str = document.querySelector(container).innerHTML;
-        // for html comments
-        if( tag === '<!--' ) {
-            // add content of comments as data-attributes attribute
-            // $().data( "comments", 52 );
-            var r = new RegExp('&lt;!--' + '(.*?)' + '--&gt;', 'gi');
-            str = str.replace( r , function(match, $1, offset, string){
-                var parser = new HtmlWhitelistedSanitizer(true);
-                $1 = parser.sanitizeString($1);
-                return '<!--' + $1 + '-->';
-            });
-            $( container ).html(str);
-            // replace back comments wrapped in code blocks
-            $( container + ' code' ).contents().each(function(i, val) {
-                if ( this.nodeType === 8 ) {
-                    var p = this.parentNode;
-                    var r = document.createTextNode('<!-- ' + this.nodeValue + ' -->');
-                    p.replaceChild( r, this );
-                }
-            });
-        } else {
-            var open = new RegExp('&lt;' + tag + '(.*?)&gt;', 'gi');
-            var close = new RegExp('&lt;\/' + tag + '&gt;', 'gi');
-            str = str.replace( open , function(match, $1, offset, string){
-                var parser = new HtmlWhitelistedSanitizer(true);
-                $1 = parser.sanitizeString($1);
-                return '<' + tag + $1 + '>';
-            });
-            str = str.replace(close, '</' + tag + '>');
-            $( container ).html( str );
-            // special handler for fontawesome icons
-            if ( tag === 'i' ){
-                $( container + ' i' ).attr('class', function(_, classes) {
-                    if( classes.indexOf('fa-') < 0 ){
-                        classes = gd.clean(classes);
-                        classes = classes.replace(/icon-(.*?)/, "fa-$1");
-                    }
-                    return classes;
-                });
-                $( container + ' i' ).addClass('fa');
-            }
-        }
-    };
-
-    render_theme_css(css) {
-        // first remove existing theme
-        let el = document.querySelector('#gd-theme-css');
-        if ( el !== null ) el.parentNode.removeChild(el);
-
-        if ( css === '' ) {
-            gd.settings.set_value( 'css_filename', 'style.css' );
-            gd.settings.set_value( 'css', 'default' );
-        } else {
-            // when using a local css file, get the theme name
-            let id = gd.settings.get_value('css');
-            for ( const key in gd.example_themes ) {
-                if ( gd.example_themes[key] === id ) {
-                    gd.settings.set_value('css_filename', key);
-                }
-            }
-
-            // create style tag with css content
-            gd.append_style( 'style', 'gd-theme-css', css );
-        }
-        // store cleaned css in browser
-        window.localStorage.setItem( 'gd_theme', css );
-        gd.status.add('css');
-    };
-
-    extract_list_items( next, is_gist ) {
-        const items = {};
-        if ( next === null || next.nodeName !== "UL" ) return null;
-        next.querySelectorAll('li').forEach( (el) => {
-            const name = el.textContent;
-            let id = '';
-            let a = el.querySelector('a');
-            if ( a === null ) {
-                id = name;
-            } else id = a.getAttribute('href');
-            if (is_gist) {
-                id = id.substr( id.lastIndexOf('/') + 1 );
-            }
-            items[name] = id;
-        });
-        return items;
-    }
-
-    proper_filename(f) {
-        // remove occurences of gitdown- in filename
-        if ( f.indexOf('gitdown-') != -1 ) f = f.split('gitdown-')[1];
-        //f = f.split('gitdown-')[1];
-        // remove extension
-        f = f.split('.')[0];
-        // replace dashes and underscores with space
-        f = f.replace(/-/g, ' ');
-        f = f.replace(/_/g, ' ');
-        // capitalize words
-        f = f.replace( /\b\w/g, l => l.toUpperCase() );
-        return f;
-    }
-
-    // we can later use this function to allow use apart from GitHub
-    gist_url( file, front_end ){
-        if (front_end) {
-            return `//github.com${gd.path}master/${file}"`;
-        } else {
-            return `//github.com${gd.path}blob/master/${file}`;
-        }
-    }
-
-    merge_arrays(a1, a2) {
-        for ( const key in a2 ) { a1[key] = a2[key]; }
-        return a1;
-    }
-
-    field_html( type, name, items ) {
-        let hid = '', collapsed = '';
-        // variables with hid- prefix will be hidden from view with .hid class
-        if ( name.includes('hid-') ) hid = 'hid';
-        if ( type === 'collapsible start') collapsed = 'collapsed';
-        let c = `<div class="field ${type}
-            ${name} ${hid} ${collapsed}"
-            data-name="${name}"`;
-        // ------------------------------------- SELECT FIELDS
-        if ( type === 'select') {
-            // get options in order to get initial selected value
-            let options = '';
-            let data_value = '';
-            for ( var i = 0; i < items.length; i++ ) {
-                var li = items[i].innerHTML;
-                if ( li === undefined ) li = items[i];
-                var s = '';
-                if ( li.charAt(0) === '*' ) {
-                    li = li.substr(1);
-                    s = 'selected';
-                    data_value = li;
-                }
-                options += `<option value="${gd.clean(li)}" ${s}>${li}</option>`;
-            }
-            c += ` data-value="${data_value}"`;
-            c += `>`;
-            c += `<select name="${name}">`;
-            c += options;
-            c += '</select>';
-        // ------------------------------------- TEXTINPUT FIELDS
-        } else if ( type === 'textinput' ) {
-            c += `>`;
-            c += `<input type="text" name="${name}"
-            value="${items}" placeholder="${items}" />`;
-        // ------------------------------------- DATALIST FIELDS
-        } else if ( type === 'datalist') {
-            c += `>`;
-            c += `<input type="text" name="${name}" list="${name}"`;
-            c += ` value="Default"`;
-            c += ` placeholder="${name.toUpperCase()}" />`;
-            c += `<datalist id="${name}">`;
-            for (let key in items) {
-                const href = items[key];
-                let value = gd.extract_id(items[key]);
-                let option_name = key;
-                // reverse value and key for default values
-                if ( key === 'Default' ) {
-                    value = key;
-                    option_name = items[key];
-                }
-                var d = ` data-href="${href}"`;
-                c += `<option value="${value}" ${d}>`;
-                c += `${option_name}</option>`;
-            }
-            c += '</datalist>';
-        // ------------------------------------- SLIDER FIELDS
-        } else if ( type === 'slider' ) {
-            let val = items[0];
-            let suffix = '';
-            if ( items.length > 4 ) suffix = items[4];
-            // extract number and suffix
-            if ( suffix !== '' && typeof val === 'string' ) {
-                val = Number( val.split(suffix)[0] );
-            }
-            c += ` data-value="${val}"`;
-            if ( items.length > 4 ) {
-                c += ` data-suffix="${suffix}" `;
-            }
-            c += `>`;
-            c += `<input name="${name}" type="range" `;
-            // get slider attributes
-            c += ` value="${val}"`;
-            c += ` min="${items[1]}"`;
-            c += ` max="${items[2]}"`;
-            c += ` step="${items[3]}"`;
-            // handle suffix
-            if ( items.length > 4 ) {
-                c += ` data-suffix="${items[4]}" `;
-            }
-            c += '>';
-        }
-        c += '</div>';
-        return c;
-    }
-
-    update_variables(container, vars) {
-        const v = document.querySelectorAll(container + ' .gd-var');
-        v.forEach( (el) => {
-            const name = el.getAttribute('name');
-            const next = el.parentNode.nextElementSibling;
-            let list = gd.extract_list_items( next, false );
-            list = gd.merge_examples( name, list );
-            // remove any lists that follow the variable
-            gd.replace_variable_span( el, list, vars );
-            if ( list !== null && Object.keys(list).length > 0 ) {
-                next.parentElement.removeChild(next);
-            }
-        });
-    }
-
-    merge_examples( name, list ) {
-        if ( name === 'gd_gist' ) {
-            gd.example_gists = gd.examples('gist', list);
-            return gd.example_gists;
-        } else if ( name === 'gd_css' ) {
-            gd.example_themes = gd.examples('css', list);
-            return gd.example_themes;
-        }
-        return list;
-    }
-
-    replace_variable_span(el, items, vars) {
-        let html = '';
-        const name = el.getAttribute('name');
-        let v_name = name.split('gd_')[1];
-        const value = el.getAttribute('data-value');
-
-        // for cases where variable type isn't provided,
-        // just create a span and add values as data-value
-
-        // special handler for adsense
-        if ( v_name === 'adsense' ) {
-            // add page script to head
-            const values = value.split(',');
-            // return if user didn't provide slot id
-            let adsense_id = values[0];
-            adsense_id = gd.settings.set_value('adsense', adsense_id);
-            const slot_id = values[1];
-            let content = `<span id="gd-adsense"
-                data-ad-client="${adsense_id}"
-                data-ad-slot="${slot_id}"
-                </span>`;
-            el.parentNode.innerHTML = content;
-            return;
-        }
-
-        // write default html from variable_defaults() to parent node
-        if ( vars.hasOwnProperty(name) ) el.parentNode.innerHTML = vars[name];
-        
-        // special handler for fields
-        let type = gd.get_field_type_from_name(v_name);
-        if ( v_name === 'gist' || v_name === 'css' ) type = 'datalist';
-        if ( type === '' ) return;
-
-        const s = v_name.split( type + '_' );
-        if ( s.length > 1 ) v_name = s[1];
-        
-        if ( type === 'datalist' ) {
-            let item1 = Object.values(items)[0];
-            if ( item1.includes('/') ) {
-                let i = item1.split('/');
-                item1 = i[i.length - 1];
-            }
-            // configure default item
-            let val = '';
-            if ( v_name === 'gist' ) val = gd.settings.get_value('initial');
-            else if ( v_name === 'css' ) val = 'css/style.css';
-            else val = item1;
-            items = Object.assign({'Default': val}, items);
-
-            html = gd.field_html( type, v_name, items );
-        } else if ( type === 'collapsible' ) {
-            let pos = 'start';
-            if ( v_name.startsWith('end_') ) {
-                pos = 'end';
-                v_name = v_name.split('end_')[1];
-            }
-            html = gd.field_html( 'collapsible ' + pos, v_name);
-        } else {
-            let list = [];
-            // special consideration for select fields which allow UL or values in quotes
-            if ( type === 'select' && value === null ) {
-                Object.keys(items).forEach( (val) => {
-                    list.push(val);
-                });
-            } else {
-                if ( value === null ) return;
-                list = value.split(',');
-            }
-            html = gd.field_html( type, v_name, list );
-        }
-        el.parentNode.innerHTML = html;
-    }
-
-    get_field_type_from_name(name) {
-        const type = name.split('_');
-        if ( type.length > 1 ) {
-            const types = ['slider', 'select', 'collapsible', 'datalist'];
-            if ( types.indexOf(type[0]) !== -1 ) {
-                return type[0];
-            }
-        }
-        return '';
-    }
-
-    variable_defaults() {
-        // these defaults will not reflect changes made after this function is called
-        return {
-            'gd_info': gd.settings.get_value('title'),
-            'gd_help_ribbon': `<a class="help-ribbon"
-                href="//github.com${gd.path}#${gd.settings.get_value('title')}">?</a>`,
-            'gd_theme_variables': '<div class="theme-vars"></div>',
-            'gd_toc': '<div class="toc"></div>',
-            'gd_hide': '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>',
-        }
-    }
-
-    render_variable_spans(container) {
-        const variables = gd.get_variables_from_comments(container);
-        variables.forEach((v) => {
-            const variable = v[0], el = v[1];
-            const result = gd.variable_span_html( variable, el );
-            if ( result.length < 1 ) return;
-            el.innerHTML = result;
-        });
-    }
-
-    get_variables_from_comments(container) {
-        let result = [];
-        const c = document.querySelectorAll(container);
-        c.forEach((el) => {
-            el.childNodes.forEach((node) => {
-                if ( node.nodeType === Node.COMMENT_NODE ) {
-                    let v = gd.extract_variable(node.nodeValue);
-                    v = gd.clean( v, 'value' );
-                    result.push( [v, el] );
-                }
-            });
-        });
-        return result;
-    };
-
-    get_variable_name(v) {
-        if ( !v.startsWith('gd_') ) return '';
-        const start = 0;
-        const index = v.substring(start).search(/[^A-Za-z_-]/);
-        if ( index < 0 ) return v;
-        return v.substring(0, index);
-    }
-
-    variable_span_html( v, t ) {
-        const v_name = gd.get_variable_name(v);
-        // ensure the variable isn't blank and that it is allowed
-        if ( v_name === '' || !gd.is_param_allowed(v_name) ) return [];
-        const value = gd.get_variable_assignment(v);
-        let data_value = '';
-        if ( value !== '' ) data_value = `data-value="${value}"`;
-        let html = `<span class="gd-var" name="${v_name}" ${data_value}></span>`;
-        return html;
-    };
-
-    // simple function to get variable assignment values (ie. x="hello")
-    get_variable_assignment(v) {
-        let result = '';
-        const assignment = v.split('=');
-        if ( assignment.length > 1 ) result = assignment[1].substring(1);
-        return result.substring( 0, result.length - 1 );
-    }
-
-    // simple functin to get variable content between open and close symbols
-    //
-    // content: content to parse for variable
-    // open: characters preceding the variable
-    // close: characters closing the variable
-    extract_variable( content, open = '{$', close = '}' ) {
-        let v = content.split(open);
-        if ( v.length < 2 ) return '';
-        v = v[1].split(close);
-        if ( v.length < 2) return '';
-        return v[0];
-    };
-
-    // simple helper to reduce repitition for getting datalist class
-    get_datalist_class(c) {
-        return c.closest('.field.datalist').getAttribute('data-name');
-    }
-
-    render_info(app_title) {
-
-        // first create .unhide div used to unhide the panel on mobile
-        var fullscreen = document.querySelector( gd.eid + ' .fullscreen' );
-        if ( fullscreen === null ) {
-            $( gd.eid ).append('<div class="unhide"></div>');
-            $( gd.eid ).append('<div class="fullscreen"></div>');
-        }
-
-        // arrange content within collapsible fields
-        $( gd.eid + ' .info .field.collapsible').unwrap();
-        var $c = $( gd.eid + ' .info .field.collapsible.start');
-        $( gd.eid + ' .info .field.collapsible.start' ).each(function(){
-            var $c = $(this);
-            var data_name = $c.attr('data-name');
-            // get all content between the start and end divs
-            var start = gd.eid + ` .info .field.collapsible.${data_name}.start`;
-            var end =`.field.collapsible.${data_name}.end`;
-            var $content = $(start).nextUntil(end);
-            $(end).remove();
-            $content.appendTo($c);
-            var html = `<div class="header" name="${data_name}">${data_name}</div>`;
-            $content.wrapAll(html);
-            $content.wrapAll('<div class="contents">');
-        });
-
-        // update TOC
-        this.update_toc( this.get_sections() );
-    };
-
-    datalist_changed(type, id) {
-        gd.settings.set_value(type, id);
-        gd.update_query_string();
-        gd.status.add('var-updated');
-        if ( type === 'css' ) {
-            gd.status.remove('css,done,changed');
-            gd.status.add('theme-changed');
-            gd.settings.delete('cssvar');
-            gd.loop();
-        } else if ( type === 'gist' ) {
-            gd.status.remove('content,done,changed');
-            gd.status.add('content-changed');
-            gd.loop();
-        } else {
-            gd.status.remove('changed');
-            gd.status.add(type + '-changed');
-            gd.execute_callback();
-        }
-    }
-
-    update_from_css_vars() {
-        let css_vars = gd.settings.get('cssvar');
-        const doc = document.documentElement.style;
-        css_vars.forEach( e => {
-            let value = e.value;
-            // when loading a new user provided theme, we'll want to set value as default
-            if ( e.type === 'cssvar-user' ) value = e.default;
-            // special consideration for font names
-            if ( e.name.endsWith('font') ) {
-                value = gd.get_gfont_name(value);
-            }
-            doc.setProperty( `--${e.name}`, value + e.suffix );
-        });
-    }
-
-    update_css_var(name, suffix) {
-        let css_vars = gd.settings.get_settings('cssvar');
-        const doc = document.documentElement.style;
-        if ( name in css_vars ) {
-            // update field with specified name if it exists in css_vars
-            let value = gd.settings.get_value( name, css_vars[name] );
-            // special consideration for font names
-            if ( name.endsWith('font') ) value = gd.get_gfont_name(value);
-            doc.setProperty( `--${name}`, value + suffix );
-        }
-    }
-
-    // helper to remove or toggle visible class for specified elements
-    hide( elements, remove ) {
-        if ( remove === null ) remove = false;
-        [].map.call(document.querySelectorAll(elements), (el) => {
-            if ( remove ) {
-                el.classList.remove('visible');
-            } else el.classList.toggle('visible');
-        });
-    }
-
-    // helper function to avoid replication of example content
-    list_html( items, is_gist_id ) {
-        let content = '';
-        let data_id = '';
-        if ( items.length < 1 ) return content;
-        for ( const key in items) {
-            let url = '';
-            if (is_gist_id) {
-                url = items[key];
-                data_id = gd.get_gist_id( items[key] );
-            } else {
-                url = items[key];
-                data_id = items[key];
-            }
-            content += `<a href="${url}" target="_blank">${gd.chr_link}</a>`;
-            content += `<a class="id" data-id="${data_id}">${key}</a><br/>`;
-        }
-        return content;
-    };
-
-    get_gist_id(gist_url) {
-        let s = gist_url.split('/');
-        if ( s.length < 1 ) return gist_url;
-        return s[s.length - 1];
-    }
-
-    // s: wrapper selector within which to register newly created fields
-    register_field_events(s) {
-
-        // SLIDER FIELDS
-        $( s + ' .field.slider input' ).unbind().on('input change', function(e) {
-            // get field details
-            const name = $(this).attr('name');
-            let suffix = $(this).attr('data-suffix');
-            if ( suffix === undefined ) suffix = '';
-            const value = $(this).val();
-            $(this).attr( 'value', value );
-            $(this).parent().attr( 'data-value', value );
-            gd.settings.set_value( name, value );
-            gd.update_query_string();
-            gd.status.add('var-updated');
-            gd.update_css_var(name, suffix);
-        });
-
-        // double click resets to default value
-        $( s + ' .field.slider input' ).on('dblclick', function(e) {
-            // get field details
-            const name = $(this).attr('name');
-            const default_value = gd.settings.get_default(name);
-            gd.update_field(this, parseFloat(default_value));
-        });
-
-        $( s + ' .field.textinput input' ).unbind().on('input change', function(e) {
-            // get field details
-            gd.update_field(this);
-        });
-
-        // SELECT FIELDS
-        $( s + ' .field.select select' ).unbind().change(function() {
-            gd.update_field(this);
-        });
-
-        // COLLAPSIBLE FIELDS
-        $( s + ' .field.collapsible .header' ).unbind().click(function(e) {
-            if (e.target !== this) return;
-            this.parentNode.classList.toggle('collapsed');
-        });
-
-        // clear field when user clicks on datalist inputs
-        $( s + ' .field.datalist input' ).unbind().click(function(e) {
-            const v = e.target.getAttribute('data-value');
-            let url = '';
-            // open new tab based on selected item
-            if (e.ctrlKey) {
-                let o = `#${this.name} option[value="${v}"]`;
-                let option = document.querySelector(gd.eid + ' ' + o);
-                if ( option === null ) return;
-                url = option.getAttribute('data-href');
-                window.open( url, '_blank' ).focus();
-            }
-        });
-
-        $( s + ' .field.datalist input' ).on('mouseenter', function(e) {
-            // get selected option
-            const name = e.target.getAttribute('name');
-            const value = gd.settings.get_value(name);
-            e.target.setAttribute( 'data-value', value );
-            e.target.value = '';
-        });
-
-        $( s + ' .field.datalist input' ).on('mouseleave', function(e) {
-            e.target.value = e.target.getAttribute( 'data-value' );
-        });
-
-        $( s + ' .field.datalist input' ).on('change', function(e) {
-            // no change is even occurring because it's stuck as default value
-            // get field details
-            let value = e.target.value;
-            if ( value === '' ) value = 'Default';
-            gd.datalist_changed( e.target.name, value );
-        });
-    }
-
-    // takes a font name including - chars and returns offical name from gfonts()
-    // returns false if name doesn't exist in gfonts()
-    get_gfont_name(font) {
-        const gfonts = gd.gfonts();
-        const found = Object.keys(gfonts).find( function(e) {
-            if ( e.toLowerCase() === font.toLowerCase().split('-').join(' ') ) {
-                return e;
-            }
-            return false;
-        });
-        if ( !found ) return false;
-        return found;
-    }
-
-    update_gfont(font) {
-        // first find font in gfonts list
-        const found = gd.get_gfont_name(font);
-        if ( !found ) return false;
-        // replace space chars with + as needed by API
-        let name = found.split(' ').join('+');
-        let fonts = name;
-        var link = document.createElement('link');
-        // link.setAttribute('id', 'gd-gfont');
-        link.setAttribute('rel', 'stylesheet');
-        link.setAttribute('type', 'text/css');
-        link.setAttribute('href', `https://fonts.googleapis.com/css?family=${fonts}`);
-        document.head.appendChild(link);
-
-        return found;
-    }
-
-    update_field(field, value) {
-        let name = field.parentElement.getAttribute('data-name');
-        if ( value === undefined ) {
-            // this indicates user initiated action so we'll update status
-            gd.status.add('var-updated');
-            value = field.value;
-        }
-        field.value = value;
-        // handle suffix values
-        let suffix = gd.settings.get_suffix(name);
-        if ( suffix === undefined || suffix === '' ) {
-            suffix = field.getAttribute('data-suffix');
-        }
-        if ( suffix === null ) suffix = '';
-        // update value and suffix
-        gd.settings.set_value( name, value );
-        gd.settings.set_suffix( name, suffix );
-        // load user provided highlight style
-        if ( name === 'highlight' ) gd.render_highlight();
-        gd.update_css_var(name, suffix);
-        // special consideration for font names
-        if ( name.endsWith('font') ) value = gd.update_gfont(value);
-        // update slider:after content
-        field.parentElement.setAttribute( 'data-value', value);
-        // update query string when changes are made after app is loaded
-        if ( gd.status.has('callback') ) gd.update_query_string();
-    }
-
-    register_events() {
-
-        gd.register_field_events(gd.eid + ' .info');
-
-        // handle history
-        window.addEventListener('popstate', function(e) {
-            gd.go_to_section();
-        });
-
-        // send Ready message to whatever window opened this app
-        if ( !this.status.has('done') && window.opener != null ) {
-            window.opener.postMessage( 'Ready.',  this.settings.get_value('origin ') );
-        }
-        
-        // listen for return messages from parent window
-        window.addEventListener( 'message', function(event) {
-            var o =  this.settings.get_value('origin');
-            if ( o === '*' || event.origin === o ) {
-                if ( event.data === 'Ready.') {
-                    //
-                } else {
-                    // we've received content so render it
-                    var data = JSON.parse(event.data);
-                    gd.log('Received data from GitHub.');
-                    sections = [];
-                    // clear content from .info and .inner
-                    var e = document.querySelector( eid + ' .info' );
-                    if ( e !== null ) e.innerHTML = '';
-                    e = document.querySelector( eid_inner );
-                    if ( e !== null ) e.innerHTML = '';
-                    var content = data.content + '\n' + this.info_content;
-                    //content = this.extract_info_content(content);
-                    window.localStorage.setItem( 'gd_content', content );
-                    this.render_content(content);
-                }
-            }
-        }, false);
-
-        // fullscreen request
-        $( this.eid + ' .fullscreen').unbind().click(function(){
-            var e = document.documentElement;
-            gd.toggleFullscreen(e);
-        });
-
-        // event handler to toggle info panel
-        $( gd.eid + ' .info .hide' ).unbind().click(function() {
-            $( gd.eid ).toggleClass('panels-hidden');
-        });
-
-        // hide/unhide panel
-        $( gd.eid + ' .unhide' ).unbind().on('click', function (e) {
-            $( gd.eid ).removeClass('panels-hidden');
-        });
-
-        const body = document.querySelector('body');
-        // check for focus and apply keystrokes to appropriate wrapper div
-        // to allow for more than one .gd wrapper per page
-        body.onkeydown = function (e) {
-            if ( !e.metaKey && e.which > 111 && e.which < 114 ) {
-                e.preventDefault();
-            }
-            if( e.which === 112 ) {
-                // F1 key to hide/unhide info panel
-                const wrapper = document.querySelector(gd.eid);
-                wrapper.classList.toggle('panels-hidden');
-            } else if( e.which === 113 ) {
-                // F2 key to dock/undock
-                const wrapper = document.querySelector(gd.eid);
-                wrapper.classList.toggle('panels-docked');
-            }
-        };
-
-    };
-
 }
 
 /**
- * Simple way to track loading process 
- * @param {string} flags initial flags to set
+ * Sanitizer which filters a set of whitelisted tags, attributes and css.
+ * For now, the whitelist is small but can be easily extended.
+ *
+ * @param bool whether to escape or strip undesirable content.
+ * @param map of allowed tag-attribute-attribute-parsers.
+ * @param array of allowed css elements.
+ * @param array of allowed url scheme
  * 
- * this.flags = [
- *   'initial',         initial readme content loaded
- *   'css',             css loaded (either user-provided or base theme)
- *   'content',         user-specified content loaded (applicable only if user provides url)
- *   'done',            all content and css fully loaded
- *   'callback'         call to user-provided callback made, added AFTER callback completed
- *   'content-changed'  app loaded and user selected different content
- *   'theme-changed'    app loaded and user selected different theme
- *   'var-updated'      app loaded and user has made an update to a css variable field
- * ];
+ * Credits: Alok Menghrajani
+ * https://quaxio.com/htmlWhiteListedSanitizer/
+ * 
  */
-class Status {
-    
-    constructor( f = [] ) {
-        this.flags = f;
+
+function HtmlWhitelistedSanitizer(escape, tags, css, urls) {
+    this.escape = escape;
+    this.allowedTags = tags;
+    this.allowedCss = css;
+
+    if (urls == null) {
+        urls = ['http://', 'https://'];
     }
 
-    log() {
-        gd.log(this.flags);
-        return this;
+    if (this.allowedTags == null) {
+        // Configure small set of default tags
+        var unconstrainted = function (x) { return x; };
+        var globalAttributes = {
+            'dir': unconstrainted,
+            'lang': unconstrainted,
+            'title': unconstrainted
+        };
+        var urlSanitizer = HtmlWhitelistedSanitizer.makeUrlSanitizer(urls);
+        this.allowedTags = {
+            'a': HtmlWhitelistedSanitizer.mergeMap(globalAttributes, {
+                'download': unconstrainted,
+                'href': urlSanitizer,
+                'hreflang': unconstrainted,
+                'ping': urlSanitizer,
+                'rel': unconstrainted,
+                'target': unconstrainted,
+                'type': unconstrainted
+            }),
+            'img': HtmlWhitelistedSanitizer.mergeMap(globalAttributes, {
+                'alt': unconstrainted,
+                'height': unconstrainted,
+                'src': urlSanitizer,
+                'width': unconstrainted
+            }),
+            'p': globalAttributes,
+            'div': globalAttributes,
+            'span': globalAttributes,
+            'br': globalAttributes,
+            'b': globalAttributes,
+            'i': globalAttributes,
+            'u': globalAttributes,
+            'pre': globalAttributes,
+            'sub': globalAttributes,
+            'sup': globalAttributes,
+            'kbd': globalAttributes,
+        };
     }
-
-    add(flag) {
-        flag.split(',').forEach((e) => {
-            if ( this.flags.indexOf(e) === -1 ) this.flags.push(e);
-        });
-        return this;
+    if (this.allowedCss == null) {
+        // Small set of default css properties
+        this.allowedCss = ['border', 'margin', 'padding'];
     }
-
-    remove(flag) {
-        flag.split(',').forEach((e) => {
-            if ( e === 'changed' ) {
-                // iterate over this.flags and remove occurences of -changed
-                this.flags.forEach((val, i) => {
-                    if ( val.indexOf('-changed') !== -1 ) {
-                        this.flags.splice(i, 1);
-                    }
-                });
-            } else {
-                let i = this.flags.indexOf(e);
-                if ( i !== -1 ) this.flags.splice(i,1);
-            }
-        });
-        return this;
-    }
-
-    has(flag) {
-        if ( flag === 'changed' ) {
-            // return true if any flags have text '-changed'
-            const f = this.flags.find(function(e) {
-                return e.includes('-changed');
-            });
-            if (!f) return false;
-            return true;
-        // iterate over user provided flag and return true if they're all in status.flags
-        } else {
-            let result = false;
-            flag.split(',').forEach(e => {
-                let i = this.flags.indexOf(e);
-                if ( i !== -1 ) {
-                    result = true;
-                } else return result = false;
-            });
-            return result;
-        }
-    }
-
 }
 
-/**
- * Centralized handler for app settings and default values
- * @param {object} options user provided initial settings
- */
-class Settings {
-    
-    constructor( options = [], parameters_protected ) {
-        this.initial_options = options;
-        this.settings = this.initial_settings();
-        this.parameters_protected = parameters_protected;
-    }
-
-    reset() {
-        this.settings = this.initial_settings();
-    }
-
-    get_param_value(name) {
-        const setting = this.settings.find(i => i.name === name);
-        if ( setting === undefined ) return undefined;
-        // maybe first check url param to see if it's different from stored value
-        // then update the stored value
-        return setting.param_value;
-    }
-
-    set_param_value(name, value) {
-        const setting = this.settings.find(i => i.name === name);
-        // if setting doesn't exist, we'll want to add it along with param_value
-        if ( setting === undefined ) {
-            const setting = {
-                name: name,
-                param_value: value
+HtmlWhitelistedSanitizer.makeUrlSanitizer = function (allowedUrls) {
+    return function (str) {
+        if (!str) { return ''; }
+        for (var i in allowedUrls) {
+            console.log(allowedUrls[i]);
+            if (str.startsWith(allowedUrls[i])) {
+                return str;
             }
-            this.settings.push(setting);
-            return setting;
-        }
-        return setting.param_value = value;
-    }
-
-    // returns true when a setting should be included in newly constructed url query params
-    is_in_querystring(name) {
-        const setting = this.settings.find(i => i.name === name);
-        if ( setting === undefined ) return false;
-        return this.should_include(setting);
-    }
-
-    // helper function to determine if a setting should be included in query string
-    should_include(setting) {
-        const name = setting.name;
-        const value = String(setting.value);
-        const default_value = String(setting.default);
-        const suffix = setting.suffix;
-
-        if ( value === '' ) return;
-
-        // exclude names with hid- prefix
-        // this allows app devs access to settings that are hidden from user
-        if ( name.includes('hid-') ) return false;
-
-        // exclude any settings with _filename for now
-        if ( name.includes('_filename') ) return false;
-        
-        // exclude setting if its value = default_value
-        if ( value + suffix == default_value ) return false;
-        if ( this.equals(value, default_value) ) return false;
-
-        // exclude protected params
-        if ( this.is_not_allowed(name) ) return;
-
-        return true;
-    }
-
-    equals(v1, v2) {
-        if ( v1 === v2 ) return true;
-        if ( typeof v1 === 'string' ) {
-            if ( typeof v2 === 'string' ) {
-                if ( v1.toLowerCase() === v2.toLowerCase() ) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    is_not_allowed(name) {
-       // exclude protected params
-       let p = this.parameters_protected.split(',');
-       if ( p.includes(name) ) return true;
-        // exclude params
-        p = this.get_value('parameters_disallowed').split(',');
-        if ( p.includes(name) ) return true;
-        
-        return false;
-    }
-
-    // returns a string of settings in url parameter format
-    to_string() {
-        let count = 0;
-        let result = '';
-        for ( const i in this.settings ) {
-            if ( this.should_include( this.settings[i] ) ) {
-                const s = this.settings[i];
-                if ( count > 0 ) result += '&';
-                // get value while ensuring suffix is stripped
-                let v = this.get_value(s.name);
-                result += `${s.name}=${v}`;
-                count += 1;
-            }
-        }
-        return result;
-    }
-
-    // delete settings of specified type
-    delete(type) {
-        let result = [];
-        for ( const i in this.settings ) {
-            const s = this.settings[i];
-            if ( type !== undefined && !s.type.startsWith(type) ) {
-                result.push(s);
-            }
-        }
-        this.settings = result;
-    }
-
-    // return a key/value array of settings of specified type without defaults
-    get_settings(type) {
-        let result = [];
-        for ( const i in this.settings ) {
-            const s = this.settings[i];
-            if ( type === undefined ) {
-                result[s.name] = s.value;
-            } else if ( s.type.startsWith(type) ) {
-                result[s.name] = s.value;
-            }
-        }
-        return result;
-    }
-    
-    get(type) {
-        return this.settings.filter(i => i.type.startsWith(type) );
-    }
-
-    // return a setting's value by specified setting name
-    get_value(name) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return undefined;
-        let v = key.value;
-        // ensure returned values are always stripped of any suffix
-        if ( typeof v !== 'string' ) return v;
-        if ( key.suffix === undefined ) return v;
-        if ( key.suffix === '' ) return v;
-        if ( v.includes(key.suffix) ) v = v.split(key.suffix)[0];
-        return v;
-    }
-
-    // returns the default value for a specific setting by name
-    get_default(name) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return undefined;
-        return key.default;
-    }
-
-    // set a value by specified setting name
-    set_default(name, value) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return false;
-        let suffix = this.extract_suffix(value);
-        if ( suffix !== '' && typeof value === 'string' ) {
-            value = Number( value.split(suffix)[0] );
-        }
-        key.suffix = suffix;
-        return key.default = value;
-    }
-
-    // attempts to extract a suffix from provided string s
-    extract_suffix(s){
-        if ( s === null ) return '';
-        // if it's not a string, it has no suffix so just return
-        if ( typeof s !== 'string' ) return '';
-        // we'll set a feasible limit here,
-        // numbers larger than 8 digits should be very rare
-        if ( s.length > 8 ) return '';
-        if ( s.match(/[+-]?\d+(?:\.\d+)?/) ) {
-            return s.replace(/[+-]?\d+(?:\.\d+)?/g, '');
         }
         return '';
-    }
+    };
+}
 
-    get_suffix(name) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return undefined;
-        return key.suffix;
-    }
-
-    set_suffix(name, suffix) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return undefined;
-        return key.suffix = suffix;
-    }
-    
-    get_type(name) {
-        const key = this.settings.find(i => i.name === name);
-        if ( key === undefined ) return false;
-        return key.type;
-    }
-
-    add_setting(name, value, type) {
-        let suffix = this.extract_suffix(value);
-        if ( suffix !== '' && typeof value === 'string' )
-            value = Number( value.split(suffix)[0] );
-        const setting = {
-            name: name,
-            value: value,
-            default: undefined,
-            param_value: undefined,
-            type: type,
-            suffix: suffix
+HtmlWhitelistedSanitizer.mergeMap = function (/*...*/) {
+    var r = {};
+    for (var arg in arguments) {
+        for (var i in arguments[arg]) {
+            r[i] = arguments[arg][i];
         }
-        this.settings.push(setting);
-        return setting;
     }
+    return r;
+}
 
-    // set a value by specified setting name
-    set_value(name, value, type) {
-        if ( type === undefined ) type = 'var';
-        // find setting
-        const key = this.settings.find(i => i.name === name);
-        // push new setting to array if it doesn't already exist
-        if ( key === undefined ) return this.add_setting(name, value, type);
-        // revert type when user provides gd-var with same name as a cssvar
-        if ( type.startsWith('cssvar') ) key.type = type;
-        // return value already stored in settings if param is disallowed or protected
-        if ( this.is_not_allowed(name) ) return key.value;
-        // set suffix and value, then return the entire setting as key
-        // key.suffix = suffix;
-        key.value = value;
-        // otherwise if key already exists, just update the value
-        return key;
+HtmlWhitelistedSanitizer.prototype.sanitizeString = function (input) {
+    // Use the browser to parse the input. This won't evaluate any potentially
+    // dangerous scripts since the element isn't attached to the window's document.
+    // To be extra cautious, we could dynamically create an iframe, pass the
+    // input to the iframe and get back the sanitized string.
+    var doc = document.implementation.createHTMLDocument('title');
+    var div = doc.createElement('div');
+    div.innerHTML = input;
+
+    // Return the sanitized version of the node.
+    return this.sanitizeNode(div).innerHTML;
+}
+
+HtmlWhitelistedSanitizer.prototype.sanitizeNode = function (node) {
+    // Note: <form> can have it's nodeName overriden by a child node. It's
+    // not a big deal here, so we can punt on this.
+    var nodeName = node.nodeName.toLowerCase();
+    if (nodeName == '#text') {
+        // text nodes are always safe
+        return node;
     }
-
-    initial_settings() {
-        let result = [];
-        const defaults = {
-            initial: 'README.md',    // initial content, either a local filename or 'HTML'
-            header: 'h1',            // element to use for header
-            heading: 'h2',           // element to use for sections
-            inner: 'inner',          // inner container for styling
-            content: 'default',
-            content_filename: '',
-            gist: 'default',
-            gist_filename: '',
-            css: 'default',
-            css_filename: '',
-            highlight: 'default',
-            preprocess: false,
-            nav: 'show',
-            adsense: 'ca-pub-8824145169772526',
-
-            // set false to not render markdown
-            markdownit: true,
-
-            // defaults unavailable as url parameters
-            title: 'GitDown',
-            hide_info: false,
-            hide_help_ribbon: false,
-            hide_gist_details: false,
-            hide_css_details: false,
-            hide_toc: false,
-            disable_hide: false,
-            parameters_disallowed: 'initial,title,disable_hide,hide_any,adsense',
-
-            // GitDown stores a bunch of examples by default
-            // set these to false to not merge them into your app
-            merge_themes: true,
-            merge_gists: true,
-
-            origin: '//ugotsta.github.io',
-        };
-
-        // merge user pvovided options, these options will become new defaults
-        for ( const key in this.initial_options ) {
-            defaults[key] = this.initial_options[key];
+    if (nodeName == '#comment') {
+        // always strip comments
+        return node;
+    }
+    if (!this.allowedTags.hasOwnProperty(nodeName)) {
+        // this node isn't allowed
+        console.log("forbidden node: " + nodeName);
+        if (this.escape) {
+            return document.createTextNode(node.outerHTML);
         }
-
-        // now we'll create an object, assign defaults and return it
-        for ( const key in defaults ) {
-            const setting = {
-                name: key,                  // variable name
-                value: defaults[key],       // current value
-                default: defaults[key],     // default value provided by cssvars
-                type: 'core',               // type = ['core', 'var', cssvar', 'cssvar-user']
-                suffix: '',                 // for numeric vars: px, em, &
-                param_value: undefined      // has a value only if user provides it through url query param
-            }
-            result.push(setting);
-        }
-        return result;
+        return document.createTextNode('');
     }
 
+    // create a new node
+    var copy = document.createElement(nodeName);
+
+    // copy the whitelist of attributes using the per-attribute sanitizer
+    for (var nAttr = 0; nAttr < node.attributes.length; nAttr++) {
+        var attr = node.attributes.item(nAttr).name;
+        if (this.allowedTags[nodeName].hasOwnProperty(attr)) {
+            var sanitizer = this.allowedTags[nodeName][attr];
+            copy.setAttribute(attr, sanitizer(node.getAttribute(attr)));
+        }
+    }
+    // copy the whitelist of css properties
+    for (var css in this.allowedCss) {
+        copy.style[this.allowedCss[css]] = node.style[this.allowedCss[css]];
+    }
+
+    // recursively sanitize child nodes
+    while (node.childNodes.length > 0) {
+        var child = node.removeChild(node.childNodes[0]);
+        copy.appendChild(this.sanitizeNode(child));
+    }
+    return copy;
 }
