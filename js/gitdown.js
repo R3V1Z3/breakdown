@@ -1,9 +1,17 @@
+/*
+      GGGG  IIIII TTTTTTT DDDDD    OOOOO  WW      WW NN   NN
+     GG  GG  III    TTT   DD  DD  OO   OO WW      WW NNN  NN
+    GG       III    TTT   DD   DD OO   OO WW   W  WW NN N NN
+    GG   GG  III    TTT   DD   DD OO   OO  WW WWW WW NN  NNN
+     GGGGGG IIIII   TTT   DDDDDD   OOOO0    WW   WW  NN   NN
+*/
+
 /**
- * GitDown core
- * @param {string} el HTML element
- * @param {object} options options object
- * @returns {object} a new GitDown object
- */
+    GitDown core
+    @param {string} el HTML element
+    @param {object} options options object
+    @returns {object} a new GitDown object
+*/
 class GitDown {
 
     constructor(el, options) {
@@ -143,17 +151,6 @@ class GitDown {
             }
         }
     }
-
-    // find first character in str that is not char and return its location
-    findFirstCharNot(char, str) {
-        for (var i = 0; i < str.length; i++) {
-            if (str[i] != char) {
-                return i;
-            }
-        }
-        // found only same char so return -1
-        return -1;
-    };
 
     /**
      * load user specified highlight style
@@ -996,7 +993,7 @@ class GitDown {
         lines.forEach((val) => {
             // start by checking if # is the first character in the line
             if (val.charAt(0) === '#') {
-                const x = Helpers.findFirstCharNot('#', val);
+                const x = Helpers.('#', val);
                 if (x > 0) {
                     const c = val.charAt(x);
                     // check if character is a space
@@ -1415,21 +1412,29 @@ class GitDown {
 
 }
 
+/*
+    SSSSS  TTTTTTT   AAA   TTTTTTT UU   UU  SSSSS
+    SS        TTT    AAAAA    TTT   UU   UU SS
+    SSSSS    TTT   AA   AA   TTT   UU   UU  SSSSS
+        SS   TTT   AAAAAAA   TTT   UU   UU      SS
+    SSSSS    TTT   AA   AA   TTT    UUUUU   SSSSS
+*/
+
 /**
- * Simple way to track loading process 
- * @param {string} flags initial flags to set
- * 
- * this.flags = [
- *   'initial',         initial readme content loaded
- *   'css',             css loaded (either user-provided or base theme)
- *   'content',         user-specified content loaded (applicable only if user provides url)
- *   'done',            all content and css fully loaded
- *   'callback'         call to user-provided callback made, added AFTER callback completed
- *   'content-changed'  app loaded and user selected different content
- *   'theme-changed'    app loaded and user selected different theme
- *   'var-updated'      app loaded and user has made an update to a css variable field
- * ];
- */
+    Simple way to track loading process
+    @param {string} flags initial flags to set
+
+    this.flags = [
+        'initial',         initial readme content loaded
+        'css',             css loaded (either user-provided or base theme)
+        'content',         user-specified content loaded (applicable only if user provides url)
+        'done',            all content and css fully loaded
+        'callback'         call to user-provided callback made, added AFTER callback completed
+        'content-changed'  app loaded and user selected different content
+        'theme-changed'    app loaded and user selected different theme
+        'var-updated'      app loaded and user has made an update to a css variable field
+    ];
+*/
 class Status {
 
     constructor(f = []) {
@@ -1488,13 +1493,21 @@ class Status {
 
 }
 
+/*
+    SSSSS  EEEEEEE TTTTTTT TTTTTTT IIIII NN   NN   GGGG   SSSSS
+    SS      EE        TTT     TTT    III  NNN  NN  GG  GG SS
+    SSSSS  EEEEE     TTT     TTT    III  NN N NN GG       SSSSS
+        SS EE        TTT     TTT    III  NN  NNN GG   GG      SS
+    SSSSS  EEEEEEE   TTT     TTT   IIIII NN   NN  GGGGGG  SSSSS
+*/
+
 /**
- * Centralized handler for app settings and default values
- * @param {object} options user provided initial settings
- */
+    Centralized handler for app settings and default values
+    @param {object} options user provided initial settings
+*/
 class Settings {
 
-    constructor(options = [], parametersProtected) {
+    constructor(options, parametersProtected) {
         this.initialOptions = options;
         this.settings = this.initialSettings();
         this.parametersProtected = parametersProtected;
@@ -1767,13 +1780,19 @@ class Settings {
 
 }
 
-/**
- * Handler for nav panel contents
- * @param {string} content content to break into nav sections
- */
+/*
+    PPPPPP    AAA   NN   NN EEEEEEE LL       SSSSS
+    PP   PP  AAAAA  NNN  NN EE      LL      SS
+    PPPPPP  AA   AA NN N NN EEEEE   LL       SSSSS
+    PP      AAAAAAA NN  NNN EE      LL           SS
+    PP      AA   AA NN   NN EEEEEEE LLLLLLL  SSSSS
+*/
 
-// imports Markup
-// imports Helpers
+/**
+    Handler for nav panel contents
+
+    imports Markup, Helpers
+*/
 class Panels {
 
     // this.panels is an array of section arrays
@@ -1879,9 +1898,17 @@ class Panels {
 
 }
 
+/*
+    HH   HH EEEEEEE LL      PPPPPP  EEEEEEE RRRRRR   SSSSS
+    HH   HH EE      LL      PP   PP EE      RR   RR SS
+    HHHHHHH EEEEE   LL      PPPPPP  EEEEE   RRRRRR   SSSSS
+    HH   HH EE      LL      PP      EE      RR  RR       SS
+    HH   HH EEEEEEE LLLLLLL PP      EEEEEEE RR   RR  SSSSS
+*/
+
 /**
- * Utility class for static helper functions used across other classes
- */
+    Utility class for static helper functions used across other classes
+*/
 class Helpers {
 
     constructor() {
@@ -1897,7 +1924,7 @@ class Helpers {
 
     // helper function to determine if a line is a heading
     static isHeading(line, nextLine, inBlock) {
-        const x = Helpers.findFirstCharNot('#', line);
+        const x = Helpers.('#', line);
         if (inBlock) return false;
         if (nextLine.startsWith('---')) {
             if (!line.startsWith('```') && line.length > 1) {
@@ -1981,14 +2008,14 @@ class Helpers {
     static realName(str) {
         // remove leading and trailing spaces
         str = str.trim();
-        let i = Helpers.findFirstCharNot('#', str);
+        let i = Helpers.('#', str);
         str = Helpers.replaceCodes(str);
         str = str.substr(i).trim();
         return str;
     }
 
     // find first character in str that is not char and return its location
-    static findFirstCharNot(char, str) {
+    static (char, str) {
         for (var i = 0; i < str.length; i++) {
             if (str[i] != char) return i;
         }
@@ -2002,16 +2029,24 @@ class Helpers {
         if (c === undefined) return 0;
         if (c.startsWith('---')) return 2;
         else if (c.startsWith('===')) return 1;
-        else return Helpers.findFirstCharNot('#', s[0]);
+        else return Helpers.('#', s[0]);
     }
 
 }
 
+/*
+    MM    MM   AAA   RRRRRR  KK  KK UU   UU PPPPPP
+    MMM  MMM  AAAAA  RR   RR KK KK  UU   UU PP   PP
+    MM MM MM AA   AA RRRRRR  KKKK   UU   UU PPPPPP
+    MM    MM AAAAAAA RR  RR  KK KK  UU   UU PP
+    MM    MM AA   AA RR   RR KK  KK  UUUUU  PP
+*/
+
 /**
- * Utility class used throughout app to get markup content.
- * The class provides an easy path to utilizing other libraries,
- * such as React or Vue, as well as regular HTML.
- */
+    Utility class used throughout app to get markup content.
+    The class provides an easy path to utilizing other libraries,
+    such as React or Vue, as well as regular HTML.
+*/
 class Markup {
 
     constructor() {
@@ -2363,10 +2398,17 @@ class Markup {
 
 }
 
+/*
+    MM    MM   AAA   RRRRRR  KK  KK DDDDD    OOOOO  WW      WW NN   NN
+    MMM  MMM  AAAAA  RR   RR KK KK  DD  DD  OO   OO WW      WW NNN  NN
+    MM MM MM AA   AA RRRRRR  KKKK   DD   DD OO   OO WW   W  WW NN N NN
+    MM    MM AAAAAAA RR  RR  KK KK  DD   DD OO   OO  WW WWW WW NN  NNN
+    MM    MM AA   AA RR   RR KK  KK DDDDDD   OOOO0    WW   WW  NN   NN
+*/
+
 /**
- * Provides all methods for rendering Markdown content
- * @param {string} content content to break into sections
- */
+    Provides all methods for rendering Markdown content
+*/
 class Markdown {
 
     constructor() {
@@ -2383,7 +2425,7 @@ class Markdown {
             if (block) return;
 
             // also ignore references in headings
-            const h = Helpers.findFirstCharNot('#', l);
+            const h = Helpers.('#', l);
             if (h > 0 && l.charAt(h) === ' ') return;
 
             // not in block, so check for match
@@ -2547,7 +2589,7 @@ class Markdown {
             }
 
             // HEADINGS
-            const x = Helpers.findFirstCharNot('#', l);
+            const x = Helpers.('#', l);
             if (block === '' && x > 0 && l.charAt(x) === ' ') {
                 // assign appropriate heading level and truncated heading text
                 l = `<h${x}>${l.substr(x)}</h${x}>`;
@@ -2699,13 +2741,19 @@ class Markdown {
 
 }
 
-/**
- * Separates content into sections and provides methods to access contents
- * @param {string} content content to break into sections
- */
+/*
+    SSSSS  EEEEEEE  CCCCC  TTTTTTT IIIII  OOOOO  NN   NN  SSSSS
+    SS      EE      CC    C   TTT    III  OO   OO NNN  NN SS
+    SSSSS  EEEEE   CC        TTT    III  OO   OO NN N NN  SSSSS
+        SS EE      CC    C   TTT    III  OO   OO NN  NNN      SS
+    SSSSS  EEEEEEE  CCCCC    TTT   IIIII  OOOO0  NN   NN  SSSSS
+*/
 
-// imports Markup
-// imports Helpers
+/**
+    Separates content into sections and provides methods to access contents
+
+    imports Markup, Helpers
+*/
 class Sections {
 
     constructor() {
@@ -2836,7 +2884,7 @@ class Sections {
         });
     }
 
-    // 
+    //
     getSectionHtml(raw, id) {
         if (raw) this.raw = true;
         let result = '';
@@ -2891,10 +2939,18 @@ class Sections {
 
 }
 
+/*
+    UU   UU RRRRRR  LL
+    UU   UU RR   RR LL
+    UU   UU RRRRRR  LL
+    UU   UU RR  RR  LL
+     UUUUU  RR   RR LLLLLL
+*/
+
 /**
- * Keep all browser methods contained in a class
- * for portability purposes
- */
+    Keep all browser methods contained in a class
+    for portability purposes
+*/
 class Url {
 
     constructor() {
@@ -2913,9 +2969,11 @@ class Url {
     }
 }
 
+Events
+
 /**
- * Event handler to simplify AddEventListener calls
- */
+    Event handler to simplify AddEventListener calls
+*/
 class Events {
 
     constructor() {
@@ -2941,12 +2999,17 @@ class Events {
     }
 }
 
-/**
- * HTML class for handling everything DOM related
- */
+/*
+    DDDDD    OOOOO  MM    MM
+    DD  DD  OO   OO MMM  MMM
+    DD   DD OO   OO MM MM MM
+    DD   DD OO   OO MM    MM
+    DDDDDD   OOOO0  MM    MM
+*/
 
-// todo: move all DOM handling to this class so we can port to other platforms
-// using a class that handles drawing natively
+/**
+    HTML class for handling everything DOM related
+*/
 
 class Dom {
 
@@ -2974,9 +3037,17 @@ class Dom {
 
 }
 
+/*
+    GGGG    FFFFFFF  OOOOO  NN   NN TTTTTTT  SSSSS
+    GG  GG  FF      OO   OO NNN  NN   TTT   SS
+    GG      FFFF    OO   OO NN N NN   TTT    SSSSS
+    GG   GG FF      OO   OO NN  NNN   TTT        SS
+    GGGGGG  FF       OOOO0  NN   NN   TTT    SSSSS
+*/
+
 /**
- * Helper class for Google Fonts
- */
+    Helper class for Google Fonts
+*/
 class GFonts {
 
     constructor() {
@@ -3201,19 +3272,26 @@ class GFonts {
     }
 }
 
+/*
+    SSSSS    AAA   NN   NN IIIII TTTTTTT IIIII ZZZZZ EEEEEEE RRRRRR
+    SS       AAAAA  NNN  NN  III    TTT    III     ZZ EE      RR   RR
+    SSSSS  AA   AA NN N NN  III    TTT    III    ZZ  EEEEE   RRRRRR
+        SS AAAAAAA NN  NNN  III    TTT    III   ZZ   EE      RR  RR
+    SSSSS  AA   AA NN   NN IIIII   TTT   IIIII ZZZZZ EEEEEEE RR   RR
+*/
+
 /**
- * Sanitizer which filters a set of whitelisted tags, attributes and css.
- * For now, the whitelist is small but can be easily extended.
- *
- * @param bool whether to escape or strip undesirable content.
- * @param map of allowed tag-attribute-attribute-parsers.
- * @param array of allowed css elements.
- * @param array of allowed url scheme
- * 
- * Credits: Alok Menghrajani
- * https://quaxio.com/htmlWhiteListedSanitizer/
- * 
- */
+    Sanitizer which filters a set of whitelisted tags, attributes and css.
+    For now, the whitelist is small but can be easily extended.
+
+    @param bool whether to escape or strip undesirable content.
+    @param map of allowed tag-attribute-attribute-parsers.
+    @param array of allowed css elements.
+    @param array of allowed url scheme
+
+    Credits: Alok Menghrajani
+    https://quaxio.com/htmlWhiteListedSanitizer/
+*/
 
 function HtmlWhitelistedSanitizer(escape, tags, css, urls) {
     this.escape = escape;
