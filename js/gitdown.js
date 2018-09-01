@@ -993,7 +993,7 @@ class GitDown {
         lines.forEach((val) => {
             // start by checking if # is the first character in the line
             if (val.charAt(0) === '#') {
-                const x = Helpers.('#', val);
+                const x = Helpers.find_first_char_not('#', val);
                 if (x > 0) {
                     const c = val.charAt(x);
                     // check if character is a space
@@ -1924,7 +1924,7 @@ class Helpers {
 
     // helper function to determine if a line is a heading
     static isHeading(line, nextLine, inBlock) {
-        const x = Helpers.('#', line);
+        const x = Helpers.find_first_char_not('#', line);
         if (inBlock) return false;
         if (nextLine.startsWith('---')) {
             if (!line.startsWith('```') && line.length > 1) {
@@ -2008,14 +2008,14 @@ class Helpers {
     static realName(str) {
         // remove leading and trailing spaces
         str = str.trim();
-        let i = Helpers.('#', str);
+        let i = Helpers.find_first_char_not('#', str);
         str = Helpers.replaceCodes(str);
         str = str.substr(i).trim();
         return str;
     }
 
     // find first character in str that is not char and return its location
-    static (char, str) {
+    static find_first_char_not(char, str) {
         for (var i = 0; i < str.length; i++) {
             if (str[i] != char) return i;
         }
@@ -2029,7 +2029,7 @@ class Helpers {
         if (c === undefined) return 0;
         if (c.startsWith('---')) return 2;
         else if (c.startsWith('===')) return 1;
-        else return Helpers.('#', s[0]);
+        else return Helpers.find_first_char_not('#', s[0]);
     }
 
 }
@@ -2425,7 +2425,7 @@ class Markdown {
             if (block) return;
 
             // also ignore references in headings
-            const h = Helpers.('#', l);
+            const h = Helpers.find_first_char_not('#', l);
             if (h > 0 && l.charAt(h) === ' ') return;
 
             // not in block, so check for match
@@ -2589,7 +2589,7 @@ class Markdown {
             }
 
             // HEADINGS
-            const x = Helpers.('#', l);
+            const x = Helpers.find_first_char_not('#', l);
             if (block === '' && x > 0 && l.charAt(x) === ' ') {
                 // assign appropriate heading level and truncated heading text
                 l = `<h${x}>${l.substr(x)}</h${x}>`;
