@@ -2,9 +2,5 @@
   "name": "gitdown",
   "version": "1.0.0",
   "description": "Framework for building apps on GitHub Pages using Markdown",
-  "main": "index.html",
-  "dependencies": {
-    "jquery": "3.3.1",
-    "markdown-it": "8.4.1"
-  }
+  "main": "index.html"
 }

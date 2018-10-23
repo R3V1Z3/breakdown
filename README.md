@@ -4,8 +4,8 @@ GitDown is an experimental framework for quickly building very specific types of
 ## What does it do?
 The framework provides:
 - a base project that can easily be forked on GitHub.
-- Markdown rendering function using MarkdownIt
-- configuration through URL parameter
+- custom Markdown rendering function
+- easy configuration through URL parameters
 
 ## What uses it?
 Several projects now use the framework:
@@ -24,7 +24,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 
 `ⓘ The code below designates a list of content sources the user will be able to select from in the app.`
 
-content `🅖-datalist`
+Content `🅖-datalist`
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 - [Screen Cheatsheet](https://gist.github.com/af918e1618682638aa82)
 - [Regular Expression Cheatsheet](https://gist.github.com/3893f6ac9447f7ee27fe)

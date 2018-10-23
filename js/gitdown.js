@@ -50,7 +50,7 @@ class GitDown {
     };
 
     // setup basic examples
-    // returns defaults if merged is not provided
+    // returns defaults if userExamples is not provided
     // otherwise returns examples with merged added
     examples(userExamples) {
         let ex = [
@@ -715,33 +715,25 @@ class GitDown {
         // ONLY RUN WHEN THEME CHANGES
         if (this.status.has('theme-changed')) {
             this.extractCssVars();
-            // update theme vars and render fields
+            this.updateUi();
             this.updateWrapperClasses();
-            // render cssvars with extracted defaults
             this.renderThemeVars();
-            // update fields from newly rendered theme vars
             this.updateFromCssVars();
             this.updateFromParams();
         }
         // ONLY RUN WHEN CONTENT CHANGES
         else if (this.status.has('content-changed')) {
-            // complete initialization once everything is loaded
             this.status.add('done');
-            // update theme vars and render fields
             this.renderThemeVars();
         }
         // ONLY RUN AT STARTUP
         else {
             this.extractCssVars();
-            // complete initialization once everything is loaded
             this.status.add('done');
             this.updateUi();
             this.updateWrapperClasses();
-            // update theme vars and render fields
             this.renderThemeVars();
             this.updateFromParams();
-            // finally register events
-
         }
         this.registerEvents();
         this.executeCallback();
@@ -1414,7 +1406,7 @@ class GitDown {
 
 /*
     SSSSS  TTTTTTT   AAA   TTTTTTT UU   UU  SSSSS
-    SS        TTT    AAAAA    TTT   UU   UU SS
+    SS       TTT    AAAAA    TTT   UU   UU SS
     SSSSS    TTT   AA   AA   TTT   UU   UU  SSSSS
         SS   TTT   AAAAAAA   TTT   UU   UU      SS
     SSSSS    TTT   AA   AA   TTT    UUUUU   SSSSS
@@ -1495,7 +1487,7 @@ class Status {
 
 /*
     SSSSS  EEEEEEE TTTTTTT TTTTTTT IIIII NN   NN   GGGG   SSSSS
-    SS      EE        TTT     TTT    III  NNN  NN  GG  GG SS
+    SS     EE        TTT     TTT    III  NNN  NN  GG  GG SS
     SSSSS  EEEEE     TTT     TTT    III  NN N NN GG       SSSSS
         SS EE        TTT     TTT    III  NN  NNN GG   GG      SS
     SSSSS  EEEEEEE   TTT     TTT   IIIII NN   NN  GGGGGG  SSSSS
@@ -3280,7 +3272,7 @@ class GFonts {
 
 /*
     SSSSS    AAA   NN   NN IIIII TTTTTTT IIIII ZZZZZ EEEEEEE RRRRRR
-    SS       AAAAA  NNN  NN  III    TTT    III     ZZ EE      RR   RR
+    SS      AAAAA  NNN  NN  III    TTT    III     ZZ EE      RR   RR
     SSSSS  AA   AA NN N NN  III    TTT    III    ZZ  EEEEE   RRRRRR
         SS AAAAAAA NN  NNN  III    TTT    III   ZZ   EE      RR  RR
     SSSSS  AA   AA NN   NN IIIII   TTT   IIIII ZZZZZ EEEEEEE RR   RR
