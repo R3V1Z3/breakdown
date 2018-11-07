@@ -60,7 +60,7 @@ html {
   mix-blend-mode: multiply;
 }
 
-#gd-beatdown #custom .inner::before {
+#bd-beatdown #custom .inner::before {
   background: linear-gradient(to bottom, rgba(81,81,81,1) 0%,rgba(122,122,122,1) 17%,rgba(155,155,155,1) 47%,rgba(0,0,0,1) 53%,rgba(0,0,0,1) 100%);
 }
 
@@ -150,10 +150,10 @@ html {
   background: #000;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.5);  
+  box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.5);
 }
 
-#gd-beatdown .section .content {
+#bd-beatdown .section .content {
   box-shadow: none;
   background: none;
 }
@@ -228,15 +228,15 @@ kbd {
 
 /* App-specific styles */
 
-.gd-slides .section ul {
+.bd-slides .section ul {
   padding: 0;
 }
 
-.gd-slides .section li {
+.bd-slides .section li {
   border-left: none;
 }
 
-.gd-slides .section li a:before {
+.bd-slides .section li a:before {
   content: "--[------- ";
   color: $primary-color;
   font-size: 0.3em;
@@ -244,21 +244,21 @@ kbd {
   text-shadow: 0 0 2px $primary-color;
 }
 
-.gd-fullscreen .section .content,
-.gd-slides .section .content {
+.bd-fullscreen .section .content,
+.bd-slides .section .content {
   animation: glow 3s linear infinite;
 }
 
-#gd-beatdown .section .content {
+#bd-beatdown .section .content {
   animation: none;
 }
 
-.gd-slides .section a.handle {
+.bd-slides .section a.handle {
     bottom: -18px;
     left: 8px;
 }
 
-.gd-slides .inner:after {
+.bd-slides .inner:after {
     z-index: 1;
     pointer-events: none;
     animation: bigshakes 0.1s linear infinite;
@@ -328,7 +328,7 @@ kbd {
   background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
 }
 
-#gd-beatdown #custom .section {
+#bd-beatdown #custom .section {
     position: fixed;
     max-width: unset;
     min-width: unset;
@@ -347,7 +347,7 @@ kbd {
     box-shadow: none;
 }
 
-#gd-beatdown .handle-heading {
+#bd-beatdown .handle-heading {
     display: none;
 }
 

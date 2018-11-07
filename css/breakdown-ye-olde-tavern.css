@@ -25,13 +25,13 @@
 }
   
 /* BeatDown styling */
-.gd-slides .inner {
+.bd-slides .inner {
     position: fixed;
     padding: 10%;
 }
 
 /* Lyric mode styling */
-#custom .gd-lyrics .section {
+#custom .bd-lyrics .section {
     background: none;
     border: none;
     box-shadow: none;
@@ -65,7 +65,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url(https://ugotsta.github.io/gitdown/assets/more-rough-wood-planks.jpg);
+    background: url(https://ugotsta.github.io/breakdown/assets/more-rough-wood-planks.jpg);
     box-shadow: inset 0 0 100px black, inset 0 0 50px black;
     background-size: 700px;
 }
@@ -87,16 +87,16 @@
     padding: 0.5em;
 }
 
-.gd-columns #custom .section {
+.bd-columns #custom .section {
     padding: 0.25em;
     margin: 40px 20px;
 }
 
-.gd-slides #custom .container {
+.bd-slides #custom .container {
   overflow: hidden;
 }
 
-.gd-modular #custom a.n-reference {
+.bd-modular #custom a.n-reference {
     border: none;
     box-shadow: inset 0 0 12px black;
     background: whitesmoke;
@@ -203,7 +203,7 @@ connection {
 #custom .info {
     box-shadow: -2px 2px 8px rgba(0,0,0,0.45), inset 0 0 20px black;
     mix-blend-mode: normal;
-    background-image: url(https://ugotsta.github.io/gitdown/assets/more-rough-wood-planks.jpg);
+    background-image: url(https://ugotsta.github.io/breakdown/assets/more-rough-wood-planks.jpg);
     background-size: 800px;
 }
 
@@ -254,7 +254,7 @@ connection {
     box-shadow: inset 0 0 2px 2px rgba(0,0,0,0.75), inset 2px 2px 2px 2px white, 0 0 2px 9px rgba(0,0,0,0.65), 0 0 1px 11px white, 0 0 2px 13px rgba(0,0,0,0.9);
 }
 
-#gd-beatdown #custom .section {
+#bd-beatdown #custom .section {
     position: absolute;
     max-width: unset;
     min-width: unset;
@@ -274,6 +274,6 @@ connection {
     border: none;
 }
 
-#gd-beatdown .handle-heading {
+#bd-beatdown .handle-heading {
     display: none;
 }

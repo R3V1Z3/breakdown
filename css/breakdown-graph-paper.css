@@ -26,7 +26,7 @@ text-shadow: none;
   background: none;
 }
 
-.gd-slides #custom .section {
+.bd-slides #custom .section {
     background: none;
     border: none;
 }
@@ -40,7 +40,7 @@ text-shadow: none;
 .inner {
     position: unset;
     background-color: aliceblue;
-    background-image: url(https://ugotsta.github.io/gitdown/assets/paper-set.jpg);
+    background-image: url(https://ugotsta.github.io/breakdown/assets/paper-set.jpg);
     font-size: 130%;
     background-blend-mode: luminosity;
 }
@@ -54,7 +54,7 @@ text-shadow: none;
     font-family: 'Cabin Sketch', sans-serif;
 }
 
-.gd-slides #custom .inner {
+.bd-slides #custom .inner {
     transform: scale(1) translateX(-700px) translateY(-380px) perspective(400px) rotateX(0deg) rotateY(5deg) scaleZ(1) rotateZ(350deg) translateZ(80px);
     padding: 800px;
 }
@@ -102,14 +102,14 @@ connection {
     border: 1px solid rgba(0,0,0,0.2);
 }
 
-.gd-modular .inner .section:hover,
-#gd-emphasis .inner .section:hover {
+.bd-modular .inner .section:hover,
+#bd-emphasis .inner .section:hover {
     box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
 }
 
-#gd-cheats .inner .section {
+#bd-cheats .inner .section {
     border: 1px solid rgba(0,0,0,0.3);
-    background-image: url(https://ugotsta.github.io/gitdown/assets/paper-set.jpg);
+    background-image: url(https://ugotsta.github.io/breakdown/assets/paper-set.jpg);
     background-color: cornflowerblue;
     background-blend-mode: luminosity;
 }

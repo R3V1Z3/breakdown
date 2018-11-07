@@ -9,7 +9,7 @@
   --bg: slategrey;
 }
 
-#gd-beatdown .section .handle-heading {
+#bd-beatdown .section .handle-heading {
   display: none;
 }
 
@@ -29,7 +29,7 @@
   padding: 0;
 }
 
-#gd-gitdown .section {
+#bd-breakdown .section {
   padding: 0 20px;
 }
 
@@ -78,12 +78,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Sections */
-.gd-slides #custom .section {
+.bd-slides #custom .section {
   margin: auto;
   transform: rotateX(0deg) translateZ(0px) scale(1) translateX(120px) translateY(-42px) perspective(587px) rotateY(26deg) scaleZ(1) rotateZ(344deg);
 }
 
-#gd-beatdown .eq {
+#bd-beatdown .eq {
   transform: rotateX(-35deg) translateZ(0px) scale(1.5) translateX(443px) translateY(-52px) perspective(587px) rotateY(42deg) scaleZ(1) rotateZ(347deg);
   position: absolute;
   max-width: 960px;
@@ -101,7 +101,7 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 1;
 }
 
-#gd-beatdown .eq .band {
+#bd-beatdown .eq .band {
   background: none;
   box-shadow: inset 0 0 20px white;
   border: 2px solid white;
@@ -177,7 +177,7 @@ h1, h2, h3, h4, h5, h6 {
   content: "\003e  ";
 }
 
-.gd-slides #custom .info {
+.bd-slides #custom .info {
   mix-blend-mode: exclusion;
 }
 
@@ -207,7 +207,7 @@ h1, h2, h3, h4, h5, h6 {
   background: none;
 }
 
-.gd-slides #custom .inner {
+.bd-slides #custom .inner {
   position: fixed;
 }
 
@@ -261,25 +261,25 @@ connection {
 
 /* Animations */
 
-.gd-slides .section.old,
-.gd-slides .section.old.lo {
+.bd-slides .section.old,
+.bd-slides .section.old.lo {
   opacity: 0;
   animation: out 0.5s ease-in-out;
 }
 
-.gd-slides .section.old.hi {
+.bd-slides .section.old.hi {
   animation: out 0.5s ease;
   animation-direction: normal;
 }
 
-.gd-slides .section.current,
-.gd-slides .section.current.hi {
+.bd-slides .section.current,
+.bd-slides .section.current.hi {
   opacity: 1;
   z-index: 1;
   animation: in 0.5s ease;
 }
 
-.gd-slides .section.current.lo {
+.bd-slides .section.current.lo {
   animation: in 0.5s ease-in-out;
   animation-direction: normal;
 }

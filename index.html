@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id="gd-gitdown">
+<html lang="en" id="bd-breakdown">
 
 <head>
     <meta charset="utf-8">
@@ -7,11 +7,11 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
-    
-    <script src="js/gitdown.js"></script>
+
+    <script src="js/breakdown.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
-    <title>GitDown</title>
+    <title>BreakDown</title>
 </head>
 
 <body id="custom">
@@ -22,15 +22,15 @@
 
     <script>
 
-        const gd = new GitDown('#wrapper', {
-            title: 'GitDown Madly',
+        const bd = new BreakDown('#wrapper', {
+            title: 'BreakDown Madly',
             content: 'README.md',
             raw: false,
             callback: ready
         });
 
         function ready() {
-            // gd.status.log();
+            // bd.status.log();
             console.log('Callback executed.');
         }
 

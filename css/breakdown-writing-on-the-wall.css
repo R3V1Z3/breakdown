@@ -5,17 +5,17 @@
 
 @import url('https://fonts.googleapis.com/css?family=Homemade+Apple|Waiting+for+the+Sunrise');
 
-#custom .gd-lyrics .section {
+#custom .bd-lyrics .section {
     background: none;
     border: none;
     box-shadow: none;
 }
 
-#gd-code-glorify $custom .section {
+#bd-code-glorify $custom .section {
     mix-blend-mode: multiply;
 }
 
-#gd-code-glorify #custom .inner * {
+#bd-code-glorify #custom .inner * {
     color: unset;
     text-shadow: 0 0 2px currentColor;
 }
@@ -24,11 +24,11 @@
     mix-blend-mode: luminosity;
 }
 
-.gd-slides #custom .container {
+.bd-slides #custom .container {
   overflow: hidden;
 }
 
-.gd-modular #custom a.n-reference {
+.bd-modular #custom a.n-reference {
     border: none;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.85);
     background: burlywood;
@@ -64,18 +64,18 @@
     background: bisque;
 }
 
-#gd-code-glorify .section {
+#bd-code-glorify .section {
     box-shadow: none;
     background: none;
 }
 
-.gd-slides #custom .section {
+.bd-slides #custom .section {
     mix-blend-mode: multiply;
     background: none;
     box-shadow: none;
 }
 
-.gd-modular #custom .section.reference {
+.bd-modular #custom .section.reference {
     mix-blend-mode: multiply;
 }
 
@@ -104,15 +104,15 @@
     right: 0;
     bottom: 0;
     position: fixed;
-    background: url(https://ugotsta.github.io/gitdown/assets/wet-stone-night.jpg);
+    background: url(https://ugotsta.github.io/breakdown/assets/wet-stone-night.jpg);
     background-size: 800px;
-    background: linear-gradient(45deg, rgb(79, 20, 2) 0%,rgb(101, 95, 139) 30%,rgb(158, 145, 145) 72%,rgb(121, 98, 65) 100%), url(https://ugotsta.github.io/gitdown/assets/wet-stone-night.jpg);
+    background: linear-gradient(45deg, rgb(79, 20, 2) 0%,rgb(101, 95, 139) 30%,rgb(158, 145, 145) 72%,rgb(121, 98, 65) 100%), url(https://ugotsta.github.io/breakdown/assets/wet-stone-night.jpg);
     background-blend-mode: color-dodge;
     box-shadow: inset 0 0 50px black, inset 0 0 100px black;
     filter: contrast(75%) brightness(75%);
 }
 
-.gd-animated #custom .inner::before {
+.bd-animated #custom .inner::before {
     animation: lighting 5s infinite;
 }
 
@@ -168,8 +168,8 @@ kbd {
 }
 
 /* Animations */
-.gd-slides #custom .section.old,
-.gd-slides #custom .section.current {
+.bd-slides #custom .section.old,
+.bd-slides #custom .section.current {
   animation-duration: 1.5s;
 }
 

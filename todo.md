@@ -11,7 +11,7 @@ also add a unique id
 
 - iterate over all links
 - check path, return if not to /templates/ folder
-- create urls array to send to gd.get_files()
+- create urls array to send to bd.get_files()
 - on success, get markdown contents and render to unique id
 
 [I'm a relative reference to a repository file](../blob/master/LICENSE)
@@ -22,7 +22,7 @@ TODO
 - add function to handle dependencies internally so user doesn't need to add `<script>` and `<style>` references on their own.
 - for ease with compiling into local apps, first try and access dependencies in a local folder. Or maybe just add a flag that uses the local folder rather than CDN, etc.
 - when parsing gist or README, get preferred theme to allow user to specify a theme. This can be overriden if needed by the host project (ie. someone forks the project and doesn't want to allow users access to custom themes).
-- allow $gd_info to be hidden with html comments
+- allow $bd_info to be hidden with html comments
 
 REWRITE
 Follow object oriented practices since the app focuses on sections which are probably best represented as objects.

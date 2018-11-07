@@ -131,13 +131,13 @@ kbd:hover {
   filter: invert(90%);
 }
 
-/* Helper styles for gitdown core */
+/* Helper styles for breakdown core */
 
-#gd-gitdown .handle-heading {
+#bd-breakdown .handle-heading {
   margin: 0;
 }
 
-#gd-gitdown .section {
+#bd-breakdown .section {
   width: 60% !important;
   position: static !important;
   top: unset !important;
@@ -146,7 +146,7 @@ kbd:hover {
   margin-top: 50px;
 }
 
-.gd-markdown {
+.bd-markdown {
     display: none;
 }
 
@@ -206,7 +206,7 @@ kbd:hover {
   z-index: 100;
 }
 
-#gd-gitdown .nav h1 {
+#bd-breakdown .nav h1 {
   letter-spacing: -0.25em;
   font-size: 1.5em;
   margin-bottom: 0.5em;
@@ -406,7 +406,7 @@ kbd:hover {
 }
 
 /* Lyric mode styling */
-#custom .gd-lyrics .inner .section.heading .handle-heading {
+#custom .bd-lyrics .inner .section.heading .handle-heading {
   display: none;
 }
 

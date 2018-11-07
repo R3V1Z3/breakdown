@@ -59,7 +59,7 @@ code {
   left: 0;
   bottom: 0;
   right: 0;
-  background: url(https://ugotsta.github.io/gitdown/assets/paper-onion-skin.jpg);
+  background: url(https://ugotsta.github.io/breakdown/assets/paper-onion-skin.jpg);
   pointer-events: none;
   background-blend-mode: luminosity;
   mix-blend-mode: overlay;
@@ -145,7 +145,7 @@ a.handle::before {
   color: inherit;
 }
 
-#gd-cheats .section {
+#bd-cheats .section {
   padding: 2px 6px;
 }
 

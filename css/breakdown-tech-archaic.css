@@ -59,7 +59,7 @@
     mix-blend-mode: normal;
 }
 
-.gd-glory #custom .section {
+.bd-glory #custom .section {
     position: relative;
 }
 
@@ -84,7 +84,7 @@
     opacity: 0.25;
 }
 
-.gd-animated #custom .section::before {
+.bd-animated #custom .section::before {
     animation: scan 12s linear infinite;
 }
 
@@ -103,7 +103,7 @@
     opacity: 0.7;
 }
 
-.gd-animated #custom .section::after {
+.bd-animated #custom .section::after {
     animation: scan 8s linear infinite;
     animation-direction: reverse;
 }
@@ -120,7 +120,7 @@
     right: 0;
     left: 0;
     pointer-events: none;
-    background-image: url(https://ugotsta.github.io/gitdown/assets/wood-surface.jpg), linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+    background-image: url(https://ugotsta.github.io/breakdown/assets/wood-surface.jpg), linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
     box-shadow: inset 0 0 200px black;
 }
 
@@ -136,11 +136,11 @@
     box-shadow: inset 0 0 200px black;
 }
 
-#gd-emphases a.handle {
+#bd-emphases a.handle {
     color: white;
 }
 
-.gd-animated .inner::after {
+.bd-animated .inner::after {
     mix-blend-mode: color-burn;
 }
 
@@ -280,7 +280,7 @@ connection {
     box-shadow: none;
 }
 
-.gd-glory .inner pre.hljs {
+.bd-glory .inner pre.hljs {
     background: none;
 }
 

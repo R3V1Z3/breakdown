@@ -1,5 +1,5 @@
-# GitDown
-GitDown is an experimental framework for quickly building very specific types of web apps on GitHub Pages; apps that use Markdown and have a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
+# BreakDown
+BreakDown is an experimental framework for quickly building very specific types of web apps on GitHub Pages; apps that use Markdown and have a heavy emphasis on extending and experimenting using GitHub Gist for code hosting.
 
 ## What does it do?
 The framework provides:
@@ -20,11 +20,11 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 
 `ⓘ This code block will not be rendered in the app. The code below marks the start of the nav panel.`
 
-# 🅖ⓘ🅣🅓🅞🅦🅝 `🅖-nav`
+# 🅑ⓡⓔⓐⓚ🅓🅞🅦🅝 `🅑-nav`
 
 `ⓘ The code below designates a list of content sources the user will be able to select from in the app.`
 
-Content `🅖-datalist`
+Content `🅑-datalist`
 - [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)
 - [Screen Cheatsheet](https://gist.github.com/af918e1618682638aa82)
 - [Regular Expression Cheatsheet](https://gist.github.com/3893f6ac9447f7ee27fe)
@@ -34,18 +34,18 @@ Content `🅖-datalist`
 - [Best Practices for Python](https://gist.github.com/7001839)
 - [README.md Template](https://gist.github.com/109311bb0361f32d87a2)
 
-## Appearance `🅖-collapsible` `🅢 {width: 240px;}`
+## Appearance `🅑-collapsible` `🅢 {width: 240px;}`
 
-css `🅖-datalist`
+css `🅑-datalist`
 - [Dark Glow](https://gist.github.com/c6d0a4d16b627d72563b43b60a164c31)
 
-`🅖-theme-variables`
+`🅑-theme-variables`
 
-## Contents `🅖-collapsible`
+## Contents `🅑-collapsible`
 
-`🅖-toc`
+`🅑-toc`
 
-## Help `🅖-group`
+## Help `🅑-group`
 
-`🅖-help="https://github.com/ugotsta/gitdown-madly/#gitdown-madly"`
-`🅖-hide`
+`🅑-help="https://github.com/ugotsta/breakdown-madly/#breakdown-madly"`
+`🅑-hide`

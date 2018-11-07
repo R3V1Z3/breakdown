@@ -83,9 +83,9 @@ pre code, pre, .hljs, pre.hljs {
     mix-blend-mode: overlay;
 }
 
-#gd-entwine .inner::before,
-#gd-downslide .inner::before,
-.gd-animated .inner::before {
+#bd-entwine .inner::before,
+#bd-downslide .inner::before,
+.bd-animated .inner::before {
 /*     animation: line 3s linear infinite; */
 }
 
@@ -122,19 +122,19 @@ pre code, pre, .hljs, pre.hljs {
     background-blend-mode: hard-light;
 }
 
-#gd-entwine .inner::after,
-#gd-downslide .inner::after,
-.gd-animated .inner::after {
+#bd-entwine .inner::after,
+#bd-downslide .inner::after,
+.bd-animated .inner::after {
     mix-blend-mode: color-burn;
 }
 
-#gd-entwine .inner::after,
-#gd-downslide .inner::after,
-.gd-animated .inner::after {
+#bd-entwine .inner::after,
+#bd-downslide .inner::after,
+.bd-animated .inner::after {
     animation: scan 1s linear infinite;
 }
 
-#gd-gitdown #custom .section {
+#bd-breakdown #custom .section {
     margin-top: 0;
     padding-top: 50px;
 }
@@ -232,9 +232,9 @@ ul li {
     }
 }
 
-/* Modular .gd-modular styles */
+/* Modular .bd-modular styles */
 
-.gd-modular a.handle {
+.bd-modular a.handle {
     color: black;
 }
 
@@ -253,7 +253,7 @@ connection {
 
 /* EQ styles for BeatDown */
 
-#gd-beatdown .eq {
+#bd-beatdown .eq {
     mix-blend-mode: soft-light;
     z-index: 1;
 }
@@ -264,10 +264,10 @@ connection {
 
 /* Mode-based styles */
 
-#custom .gd-lyrics .section {
+#custom .bd-lyrics .section {
     filter: blur(6px);
 }
 
-#custom .gd-lyrics .section.current {
+#custom .bd-lyrics .section.current {
     filter: blur(0px);
 }

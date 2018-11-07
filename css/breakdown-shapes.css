@@ -51,8 +51,8 @@
   overflow: hidden;
 }
 
-#gd-entwined .section:hover,
-.gd-modular .section:hover {
+#bd-entwined .section:hover,
+.bd-modular .section:hover {
     box-shadow: 0 0 30px rgba(0,0,0,0.5), 0 0 0 40px #CCC, 0 0 30px 40px rgba(0,0,0,0.5);
 }
 
@@ -133,6 +133,6 @@ kbd {
   mix-blend-mode: normal;
 }
 
-#gd-code-glory .hljs {
+#bd-code-glory .hljs {
   background: none;
 }

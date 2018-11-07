@@ -1,18 +1,18 @@
 /*
-      GGGG  IIIII TTTTTTT DDDDD    OOOOO  WW      WW NN   NN
-     GG  GG  III    TTT   DD  DD  OO   OO WW      WW NNN  NN
-    GG       III    TTT   DD   DD OO   OO WW   W  WW NN N NN
-    GG   GG  III    TTT   DD   DD OO   OO  WW WWW WW NN  NNN
-     GGGGGG IIIII   TTT   DDDDDD   OOOO0    WW   WW  NN   NN
+  BBBBB   RRRRRR  EEEEEEE   AAA   KK  KK DDDDD    OOOOO  WW      WW NN   NN
+  BB   B  RR   RR EE       AAAAA  KK KK  DD  DD  OO   OO WW      WW NNN  NN
+  BBBBBB  RRRRRR  EEEEE   AA   AA KKKK   DD   DD OO   OO WW   W  WW NN N NN
+  BB   BB RR  RR  EE      AAAAAAA KK KK  DD   DD OO   OO  WW WWW WW NN  NNN
+  BBBBBB  RR   RR EEEEEEE AA   AA KK  KK DDDDDD   OOOO0    WW   WW  NN   NN
 */
 
 /**
-    GitDown core
+    BreakDown core
     @param {string} el HTML element
     @param {object} options options object
-    @returns {object} a new GitDown object
+    @returns {object} a new BreakDown object
 */
-class GitDown {
+class BreakDown {
 
     constructor(el, options) {
         this.init(el, options);
@@ -157,7 +157,7 @@ class GitDown {
      */
     renderHighlight() {
         var h = this.settings.getValue('highlight');
-        var hlight = document.querySelector('#gd-highlight');
+        var hlight = document.querySelector('#bd-highlight');
         if (h === undefined || h === null) h = 'default';
         if (h.toLowerCase() === 'none') {
             if (hlight !== null) hlight.parentNode.removeChild(hlight);
@@ -168,7 +168,7 @@ class GitDown {
             // check for existence of highlight link
             if (hlight === null) {
                 // add style reference to head
-                this.appendStyle('link', 'gd-highlight', href);
+                this.appendStyle('link', 'bd-highlight', href);
             } else {
                 // modify existing href
                 hlight.setAttribute('href', href);
@@ -204,11 +204,11 @@ class GitDown {
 
     getSetting(s) {
         if (s === 'theme') {
-            return window.localStorage.getItem('gdTheme');
+            return window.localStorage.getItem('bdTheme');
         } else if (s === 'content') {
-            return window.localStorage.getItem('gdContent');
+            return window.localStorage.getItem('bdContent');
         } else if (s === 'settings') {
-            var s = window.localStorage.getItem('gdSettings');
+            var s = window.localStorage.getItem('bdSettings');
             return JSON.parse(s);
         }
     }
@@ -255,8 +255,8 @@ class GitDown {
     getVarsFromSheet(sheet) {
         // setup extension variable to add to 'cssvar' type
         let ext = '';
-        // get owner node id, which will be 'gd-theme-css' for user provided css
-        if (sheet.ownerNode.id === 'gd-theme-css') ext = '-user';
+        // get owner node id, which will be 'bd-theme-css' for user provided css
+        if (sheet.ownerNode.id === 'bd-theme-css') ext = '-user';
         const classes = sheet.rules || sheet.cssRules;
         const classesLength = classes.length;
         // iterate over class rules
@@ -444,14 +444,14 @@ class GitDown {
             for (const key in this.exampleThemes) {
                 const exampleId = this.extractId(this.exampleThemes[key]);
                 if (exampleId.trim() === id.trim()) {
-                    const f = 'gitdown-' + Helpers.cssId(key) + ext;
+                    const f = 'breakdown-' + Helpers.cssId(key) + ext;
                     urls.push([type, id, filePath + f]);
-                    urls.push([type, id, '//ugotsta.github.io/gitdown/' + filePath + f]);
+                    urls.push([type, id, '//ugotsta.github.io/breakdown/' + filePath + f]);
                 }
             }
         }
         urls.push([type, id, filePath + id + ext]);
-        urls.push([type, id, '//ugotsta.github.io/gitdown/' + filePath + id + ext]);
+        urls.push([type, id, '//ugotsta.github.io/breakdown/' + filePath + id + ext]);
         urls.push([type, id, `//api.github.com/gists/${id}`]);
         return urls;
     }
@@ -625,7 +625,7 @@ class GitDown {
             if (Helpers.isHeading(line, nextLine, inBlock)) {
                 // handle cases where content exists prior to any headings as Intro
                 if (h === '' && c !== '') h = '🅸 Intro';
-                if (h.includes('`🅖-panel') || h.includes('`🅖-nav')) {
+                if (h.includes('`🅑-panel') || h.includes('`🅑-nav')) {
                     panelFound = true;
                     // push currently extracted content to sections
                     // only if it has't been done yet
@@ -645,7 +645,7 @@ class GitDown {
             } else {
                 c += line + '\n';
                 // add themes if mergeThemes set true
-                if (line.includes('css `🅖-datalist`')) {
+                if (line.includes('css `🅑-datalist`')) {
                     if (this.settings.getValue('mergeThemes') === false) return;
                     this.exampleThemes.forEach(example => {
                         c += '- ' + example + '\n';
@@ -685,7 +685,7 @@ class GitDown {
 
         // render nav panel
         let c = document.querySelector(this.eid);
-        let html = this.panels.getPanelHtml('🅖-nav');
+        let html = this.panels.getPanelHtml('🅑-nav');
         if (c !== null) c.innerHTML += html;
 
         // render section content
@@ -751,14 +751,14 @@ class GitDown {
     // add or remove various section and mode related classes to wrapper
     updateWrapperClasses() {
         let wrapper = document.querySelector(this.eid);
-        // add .gd-default class to wrapper if using default theme
+        // add .bd-default class to wrapper if using default theme
         if (this.settings.getValue('css') === 'default') {
-            wrapper.classList.add('gd-default');
-        } else wrapper.classList.remove('gd-default');
+            wrapper.classList.add('bd-default');
+        } else wrapper.classList.remove('bd-default');
 
-        // add .gd-lyrics class to wrapper when using lyrics mode: heading=lyrics
+        // add .bd-lyrics class to wrapper when using lyrics mode: heading=lyrics
         if (this.settings.getValue('heading') === 'lyrics') {
-            wrapper.classList.add('gd-lyrics');
+            wrapper.classList.add('bd-lyrics');
         }
     }
 
@@ -811,7 +811,7 @@ class GitDown {
         if (Object.keys(cssVars).length > 0) {
             for (const key in cssVars) {
                 const value = cssVars[key];
-                // check for existence of field provided through gdVar in user provided content
+                // check for existence of field provided through bdVar in user provided content
                 let field = document.querySelector(`${this.eid} .nav .field.${key}`);
                 // continue to next themeVar if field exists
                 if (field !== null) continue;
@@ -839,7 +839,7 @@ class GitDown {
         // handle field as Select if its name contains keyword 'color'
         // or if its value is in list of color names
         if (key.includes('color') || this.colorNames(true).includes(value)) {
-            let m = key + ' `🅖-select`\n';
+            let m = key + ' `🅑-select`\n';
             m += '- initial\n';
             m += '- inherit\n';
             m += '- unset\n';
@@ -853,7 +853,7 @@ class GitDown {
         }
         // HIGHLIGHT field
         else if (key === 'highlight') {
-            let m = 'highlight `🅖-select`\n';
+            let m = 'highlight `🅑-select`\n';
             this.highlightStyles().forEach((item, i) => {
                 if (i === 0) m += `- *${item}\n`;
                 else m += `- ${item}\n`;
@@ -862,7 +862,7 @@ class GitDown {
         }
         // FONT field
         else if (key.endsWith('font')) {
-            let m = key + ' `🅖-select`\n';
+            let m = key + ' `🅑-select`\n';
             let list = '- initial\n';
             list += '- inherit\n';
             list += '- unset\n';
@@ -895,7 +895,7 @@ class GitDown {
         }
         // BLEND mode
         else if (key.includes('-blend')) {
-            let m = key + ' `🅖-select`\n';
+            let m = key + ' `🅑-select`\n';
             m += '- normal\n';
             m += '- multiply\n';
             m += '- screen\n';
@@ -920,45 +920,45 @@ class GitDown {
 
         // FILTER EFFECTS
         else if (key.includes('blur')) {
-            let m = `${key} \`🅖-slider="${parseInt(value)},0,20,0.5,px"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},0,20,0.5,px"\`\n`;
             return m + '\n';
         }
         else if (key.includes('brightness')) {
-            let m = `${key} \`🅖-slider="${parseInt(value)},1,3,0.05"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},1,3,0.05"\`\n`;
             return m + '\n';
         }
 
         // TRANSFORMS
         else if (key.includes('translate')) {
-            let m = `${key} \`🅖-slider="${parseInt(value)},-2000,2000,1,px"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},-2000,2000,1,px"\`\n`;
             return m + '\n';
         }
         else if (key.includes('scale')) {
-            let m = `${key} \`🅖-slider="${parseFloat(value)},0.15,30,0.1"\`\n`;
+            let m = `${key} \`🅑-slider="${parseFloat(value)},0.15,30,0.1"\`\n`;
             return m + '\n';
         }
         else if (key.includes('perspective')) {
-            let m = `${key} \`🅖-slider="${parseInt(value)},100,2000,1,px"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},100,2000,1,px"\`\n`;
             return m + '\n';
         }
         // PERCENTAGE-based values like fontsize
         else if (suffix === '%') {
-            let m = `${key} \`🅖-slider="${parseInt(value)},0,300,1,%"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},0,300,1,%"\`\n`;
             return m + '\n';
         }
 
         // PX and EM based values
         else if (suffix.toLowerCase() === 'px') {
-            let m = `${key} \`🅖-slider="${parseInt(value)},0,2000,1,px"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},0,2000,1,px"\`\n`;
             return m + '\n';
         }
         else if (suffix.toLowerCase() === 'em') {
-            let m = `${key} \`🅖-slider="${parseInt(value)},0,400,1,em"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},0,400,1,em"\`\n`;
             return m + '\n';
         }
         // DEGREE-based values (rotation-based params like rotateX)
         else if (suffix.toLowerCase() === 'deg') {
-            let m = `${key} \`🅖-slider="${parseInt(value)},0,360,1,deg"\`\n`;
+            let m = `${key} \`🅑-slider="${parseInt(value)},0,360,1,deg"\`\n`;
             return m + '\n';
         }
 
@@ -1040,7 +1040,7 @@ class GitDown {
         if (isCurrent) id = this.sections.getCurrent();
         else id = this.sections.getPast();
         if (id === undefined) return;
-        if (id === '🅖0') return;
+        if (id === '🅑0') return;
         const classes = this.sections.getClasses(id);
         let $s = this.wrapper.querySelector('section#' + id);
         if (classes.length > 0) $s.classList.add(...classes);
@@ -1048,7 +1048,7 @@ class GitDown {
 
     renderThemeCss(css) {
         // first remove existing theme
-        let el = document.querySelector('#gd-theme-css');
+        let el = document.querySelector('#bd-theme-css');
         if (el !== null) el.parentNode.removeChild(el);
 
         if (css === '') {
@@ -1064,10 +1064,10 @@ class GitDown {
             }
 
             // create style tag with css content
-            this.appendStyle('style', 'gd-theme-css', css);
+            this.appendStyle('style', 'bd-theme-css', css);
         }
         // store cleaned css in browser
-        window.localStorage.setItem('gdTheme', css);
+        window.localStorage.setItem('bdTheme', css);
         this.status.add('css');
     };
 
@@ -1116,7 +1116,7 @@ class GitDown {
     };
 
     getVariableName(v) {
-        if (!v.startsWith('gd_')) return '';
+        if (!v.startsWith('bd_')) return '';
         const start = 0;
         const index = v.substring(start).search(/[^A-Za-z_-]/);
         if (index < 0) return v;
@@ -1130,7 +1130,7 @@ class GitDown {
         const value = Helpers.getVariableAssignment(v);
         let dataValue = '';
         if (value !== '') dataValue = `data-value="${value}"`;
-        let html = `<span class="gd-var" name="${vName}" ${dataValue}></span>`;
+        let html = `<span class="bd-var" name="${vName}" ${dataValue}></span>`;
         return html;
     };
 
@@ -1355,7 +1355,7 @@ class GitDown {
         });
 
         // check for focus and apply keystrokes to appropriate wrapper div
-        // to allow for more than one .gd wrapper per page
+        // to allow for more than one .bd wrapper per page
         const body = document.querySelector('body');
         body.onkeydown = e => {
             if (!e.metaKey && e.which > 111 && e.which < 114) {
@@ -1394,7 +1394,7 @@ class GitDown {
                     e = document.querySelector(eidInner);
                     if (e !== null) e.innerHTML = '';
                     var content = data.content + '\n';// + this.navContent;
-                    window.localStorage.setItem('gdContent', content);
+                    window.localStorage.setItem('bdContent', content);
                     this.renderContent(content);
                 }
             }
@@ -1705,7 +1705,7 @@ class Settings {
         const key = this.settings.find(i => i.name === name);
         // push new setting to array if it doesn't already exist
         if (key === undefined) return this.addSetting(name, value, type);
-        // revert type when user provides gd-var with same name as a cssvar
+        // revert type when user provides bd-var with same name as a cssvar
         if (type.startsWith('cssvar')) key.type = type;
         // return value already stored in settings if param is disallowed or protected
         if (this.isNotAllowed(name)) return key.value;
@@ -1736,14 +1736,14 @@ class Settings {
             raw: false,
 
             // defaults unavailable as url parameters
-            title: 'GitDown',
+            title: 'BreakDown',
             hide_nav: false,
             hide_help: false,
             hideToc: false,
             disable_hide: false,
             parameters_disallowed: 'initial,title,disable_hide,hide_any,adsense',
 
-            // GitDown stores a bunch of examples by default
+            // BreakDown stores a bunch of examples by default
             // set these to false to not merge them into sub-app
             mergeThemes: true,
 
@@ -1807,7 +1807,7 @@ class Panels {
         content.forEach(s => {
             let h = s[0];
             let c = s[1];
-            if (h.includes('`🅖-panel') || h.includes('`🅖-nav')) {
+            if (h.includes('`🅑-panel') || h.includes('`🅑-nav')) {
                 // push stored panel content to this.panels if it's not empty
                 if (p.length > 0) this.panels.push(p);
                 // reset panel array
@@ -1863,26 +1863,26 @@ class Panels {
     navDefault() {
         let nav = [];
         let c = '';
-        h += '# ' + this.settings.setting['title'] + ' `🅖-nav`';
+        h += '# ' + this.settings.setting['title'] + ' `🅑-nav`';
         c += 'Experimental web app framework\n\n';
-        c += 'Content `🅖-content`\n';
+        c += 'Content `🅑-content`\n';
         c += '- [Alexa Cheats](https://gist.github.com/2a06603706fd7c2eb5c93f34ed316354)\n';
         c += '- [Vim Cheats](https://gist.github.com/c002acb756d5cf09b1ad98494a81baa3)\n';
         nav.push(h, c);
 
-        h += '## Theme `🅖-collapsible-group`';
-        c += 'Themes `🅖-css`\n';
+        h += '## Theme `🅑-collapsible-group`';
+        c += 'Themes `🅑-css`\n';
         c += '- [Dark Glow](https://gist.github.com/c6d0a4d16b627d72563b43b60a164c31)\n\n';
-        c += '`🅖-theme-variables`\n';
+        c += '`🅑-theme-variables`\n';
         nav.push(h, c);
 
-        h += '## Contents `🅖-collapsible-group`';
-        c += 'TOC `🅖-toc`\n';
+        h += '## Contents `🅑-collapsible-group`';
+        c += 'TOC `🅑-toc`\n';
         nav.push(h, c);
 
-        h += '## Help `🅖-group`';
-        c += '`🅖-help`';
-        c += '`🅖-hide`';
+        h += '## Help `🅑-group`';
+        c += '`🅑-help`';
+        c += '`🅑-hide`';
         nav.push(h, c);
 
         return nav;
@@ -2052,7 +2052,7 @@ class Markup {
         });
     }
 
-    // extract slider values from content `🅖-slider="100%,0,300,1,%"`
+    // extract slider values from content `🅑-slider="100%,0,300,1,%"`
     extractSlider(c) {
         let i = c.match(/".*?"/);
         if (i === null) return null;
@@ -2069,7 +2069,7 @@ class Markup {
     listMarkup(list, type) {
         let items = '';
         list.forEach(l => {
-            if (type === '`🅖-datalist') {
+            if (type === '`🅑-datalist') {
                 let n = Helpers.between('[', l, ']');
                 let id = Helpers.cssId(n);
                 let href = Helpers.between('(', l, ')');
@@ -2081,7 +2081,7 @@ class Markup {
                     id = href;
                 }
                 items += `<option value="${id}" data-href="${href}">${n}</option>\n`;
-            } else if (type === '`🅖-select') {
+            } else if (type === '`🅑-select') {
                 let selected = '';
                 if (l.startsWith('*')) {
                     selected = ' selected';
@@ -2218,7 +2218,7 @@ class Markup {
         else classes = classes.join(' ');
         let id = h;
         if (h.length > 0) id = Helpers.cssId(h);
-        else id = '🅖0';
+        else id = '🅑0';
 
         let html = `<section class="section ${classes}" id="${id}"${s}>\n`;
 
@@ -2241,7 +2241,7 @@ class Markup {
         let id = Helpers.cssId(h);
 
         // COLLAPSIBLE FIELDS
-        if (h.includes('`🅖-collapsible')) {
+        if (h.includes('`🅑-collapsible')) {
 
             let div = `<div class="field collapsible ${id} collapsed" data-name="${id}">\n`;
             div += `<div class="header" name="${id}">${id}\n`;
@@ -2253,12 +2253,12 @@ class Markup {
             h = div;
         }
 
-        if (h.includes('`🅖-group`')) {
+        if (h.includes('`🅑-group`')) {
             h = this.getPanelContentMarkup(c);
         }
 
-        if (h.includes('`🅖-nav`')) {
-            h = h.replace('`🅖-nav`', '');
+        if (h.includes('`🅑-nav`')) {
+            h = h.replace('`🅑-nav`', '');
             h = this.processMd(h);
             h += this.getPanelContentMarkup(c);
         }
@@ -2278,14 +2278,14 @@ class Markup {
 
         if (c === '') return c;
 
-        c = c.replace('`🅖-hide`', '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>');
-        c = c.replace('`🅖-toc`', '<div class="toc"></div>');
-        c = c.replace('`🅖-theme-variables`', '<div class="theme-vars"></div>');
+        c = c.replace('`🅑-hide`', '<a class="hide"><kbd>F1</kbd> - show/hide this panel.</a>');
+        c = c.replace('`🅑-toc`', '<div class="toc"></div>');
+        c = c.replace('`🅑-theme-variables`', '<div class="theme-vars"></div>');
 
-        if (c.includes('`🅖-help')) {
-            const line = this.extractLine(c, '`🅖-help');
-            let url = "https://github.com/ugotsta/gitdown/#GitDown";
-            let a = Helpers.getVariableAssignment(c.split('`🅖-help')[1]);
+        if (c.includes('`🅑-help')) {
+            const line = this.extractLine(c, '`🅑-help');
+            let url = "https://github.com/ugotsta/breakdown/#BreakDown";
+            let a = Helpers.getVariableAssignment(c.split('`🅑-help')[1]);
             // remove any leftover quotes just in case
             if (a.length > 1) url = a.split('"')[0];
             const div = `<a class="help-ribbon" href="${url}">?</a>`;
@@ -2293,8 +2293,8 @@ class Markup {
         }
 
         // SELECT FIELDS
-        if (c.includes('`🅖-slider')) {
-            let line = this.extractLine(c, '`🅖-slider');
+        if (c.includes('`🅑-slider')) {
+            let line = this.extractLine(c, '`🅑-slider');
             let items = this.extractSlider(line);
             if (items === null) items = [0, 0, 100, 1, ''];
             let value = items[0];
@@ -2310,14 +2310,14 @@ class Markup {
             c = c.replace(line, div);
         }
         // for any further occurrences, recurse
-        if (c.includes('`🅖-slider')) return this.getPanelContentMarkup(c);
+        if (c.includes('`🅑-slider')) return this.getPanelContentMarkup(c);
 
         // DATALIST FIELDS
-        if (c.includes('`🅖-datalist')) {
-            let items = this.extractList(c, '`🅖-datalist');
+        if (c.includes('`🅑-datalist')) {
+            let items = this.extractList(c, '`🅑-datalist');
             let cName = items[0];
             let cBefore = items[1];
-            let cItems = this.listMarkup(items[2], '`🅖-datalist');
+            let cItems = this.listMarkup(items[2], '`🅑-datalist');
             let cAfter = items[3];
             let id = Helpers.cssId(cName);
             let div = `<div class="field datalist ${id}" data-name="${id}" data-value="default">\n`;
@@ -2329,14 +2329,14 @@ class Markup {
             c = cBefore + div + cAfter;
         }
         // for any further occurrences, recurse
-        if (c.includes('`🅖-datalist')) return this.getPanelContentMarkup(c);
+        if (c.includes('`🅑-datalist')) return this.getPanelContentMarkup(c);
 
         // SELECT FIELDS
-        if (c.includes('`🅖-select')) {
-            let items = this.extractList(c, '`🅖-select');
+        if (c.includes('`🅑-select')) {
+            let items = this.extractList(c, '`🅑-select');
             let cName = items[0];
             let cBefore = items[1];
-            let cItems = this.listMarkup(items[2], '`🅖-select');
+            let cItems = this.listMarkup(items[2], '`🅑-select');
             let cAfter = items[3];
             let id = Helpers.cssId(cName);
             let div = `<div class="field select ${id}" data-name="${id}" data-value="default">\n`;
@@ -2346,11 +2346,11 @@ class Markup {
             c = cBefore + div + cAfter;
         }
         // for any further occurrences, recurse
-        if (c.includes('`🅖-select')) return this.getPanelContentMarkup(c);
+        if (c.includes('`🅑-select')) return this.getPanelContentMarkup(c);
 
         // INPUT FIELDS
-        if (c.includes('`🅖-input')) {
-            let line = this.extractLine(c, '`🅖-input');
+        if (c.includes('`🅑-input')) {
+            let line = this.extractLine(c, '`🅑-input');
             let value = this.extractValue(line);
             let id = Helpers.cssId(line);
             let div = `<div class="field textinput input ${id}" data-name="${id}" data-value="${value}">\n`;
@@ -2359,7 +2359,7 @@ class Markup {
             c = c.replace(line, div);
         }
         // for any further occurrences, recurse
-        if (c.includes('`🅖-input')) return this.getPanelContentMarkup(c);
+        if (c.includes('`🅑-input')) return this.getPanelContentMarkup(c);
 
         if (c === '') return c;
         return this.processMd(c);
@@ -2776,7 +2776,7 @@ class Sections {
 
     // set this.current section by id
     setCurrent(id) {
-        if (this.raw) return this.current = '🅖0';
+        if (this.raw) return this.current = '🅑0';
         if (id.length < 1) id = this.getFirst();
         let i = this.getSectionById(id);
         if (i !== undefined) {
@@ -2814,7 +2814,7 @@ class Sections {
     }
 
     getCurrent() {
-        if (this.raw) return this.current = '🅖0';
+        if (this.raw) return this.current = '🅑0';
         if (this.current === undefined) {
             return this.current = this.getFirst();
         }
@@ -2898,7 +2898,7 @@ class Sections {
         }
         // now process the markdown content
         if (raw) {
-            this.setCurrent('🅖0');
+            this.setCurrent('🅑0');
             return markup.wrapRaw(result);
         }
         return markup.processMd(result) + '<br />';
@@ -3095,7 +3095,7 @@ class GFonts {
         let name = found.split(' ').join('+');
         let fonts = name;
         var link = document.createElement('link');
-        // link.setAttribute('id', 'gd-gfont');
+        // link.setAttribute('id', 'bd-gfont');
         link.setAttribute('rel', 'stylesheet');
         link.setAttribute('type', 'text/css');
         link.setAttribute('href', `https://fonts.googleapis.com/css?family=${fonts}`);

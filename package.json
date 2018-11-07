@@ -1,5 +1,5 @@
 {
-  "name": "gitdown",
+  "name": "breakdown",
   "version": "1.0.0",
   "description": "Framework for building apps on GitHub Pages using Markdown",
   "main": "index.html"
