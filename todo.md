@@ -1,3 +1,8 @@
+# Current Issues
+
+Themes are loaded first from gist.github rather than locally. Should be reverse.
+prepareUrls() is where urls are configured before trying
+
 # Project Tasks
 
 gist files can contain new nav panel contents.
@@ -18,7 +23,6 @@ also add a unique id
 
 TODO
 - ensure theme changes don't break layout in EntwinED and Emphases.
-- in sectionize() add logic to keep track of heading type (h1, h2, h3) then add padding to toc representing level in hierarchy
 - add function to handle dependencies internally so user doesn't need to add `<script>` and `<style>` references on their own.
 - for ease with compiling into local apps, first try and access dependencies in a local folder. Or maybe just add a flag that uses the local folder rather than CDN, etc.
 - when parsing gist or README, get preferred theme to allow user to specify a theme. This can be overriden if needed by the host project (ie. someone forks the project and doesn't want to allow users access to custom themes).

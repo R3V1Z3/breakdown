@@ -35,7 +35,6 @@ class BreakDown {
 
         // configure examples
         this.exampleThemes = this.examples();
-
         this.initialContent = '';
 
         // configure dom
@@ -1378,6 +1377,8 @@ class BreakDown {
         }
 
         // listen for return messages from parent window
+        // to be used for sending content from other apps
+        // for example, loading user-provided content from Entwined
         window.addEventListener('message', function (event) {
             var o = this.settings.getValue('origin');
             if (o === '*' || event.origin === o) {
