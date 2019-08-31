@@ -452,6 +452,7 @@ class BreakDown {
         urls.push([type, id, filePath + id + ext]);
         urls.push([type, id, '//ugotsta.github.io/breakdown/' + filePath + id + ext]);
         urls.push([type, id, `//api.github.com/gists/${id}`]);
+        console.log(urls);
         return urls;
     }
 
