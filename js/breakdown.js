@@ -6,6 +6,10 @@
   BBBBBB  RR   RR EEEEEEE AA   AA KK  KK DDDDDD   OOOO0    WW   WW  NN   NN
 */
 
+// when user CTRL-click theme name
+// we should open gist url
+// instead, it tries to send them to local url
+
 /**
     BreakDown core
     @param {string} el HTML element
@@ -1294,6 +1298,7 @@ class BreakDown {
                 let option = this.wrapper.querySelector(' ' + o);
                 if (option === null) return;
                 url = option.getAttribute('data-href');
+                if ( !url.startsWith('http') ) url = 'https://gist.github.com/' + url;
                 window.open(url, 'Blank').focus();
             }
         });
