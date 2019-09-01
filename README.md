@@ -20,7 +20,7 @@ While this framework is built to work on GitHub Pages, it isn't required. This i
 
 `ⓘ This code block will not be rendered in the app. The code below marks the start of the nav panel.`
 
-# 🅑ⓡⓔⓐⓚ🅓🅞🅦🅝 `🅑-nav`
+# 🅑🅁🄴🄰🄺|🄳🄾🅆Ⓝ `🅑-nav`
 
 `ⓘ The code below designates a list of content sources the user will be able to select from in the app.`
 
@@ -47,5 +47,5 @@ css `🅑-datalist`
 
 ## Help `🅑-group`
 
-`🅑-help="https://github.com/ugotsta/breakdown-madly/#breakdown-madly"`
+`🅑-help="https://github.com/ugotsta/breakdown/#breakdown"`
 `🅑-hide`
