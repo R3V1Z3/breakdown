@@ -392,7 +392,7 @@ kbd:hover {
 
 .nav .field.collapsible .header {
   width: 100%;
-  height: 1.5em;
+  /* height: 1.5em; */
   display: inline-block;
   color: white;
   text-transform: capitalize;
