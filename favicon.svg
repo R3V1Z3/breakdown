@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="icon-breakdown.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="-598.85718"
+     inkscape:cy="813.93012"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:1;fill:#5f0000;fill-opacity:0.19369369;stroke:none;stroke-width:0.81656772;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect842"
+       width="154.73308"
+       height="154.73308"
+       x="-274.93845"
+       y="3.2393086"
+       inkscape:export-xdpi="84.050003"
+       inkscape:export-ydpi="84.050003" />
+    <g
+       id="g868"
+       transform="translate(-1.8809586,0.32305758)">
+      <path
+         inkscape:connector-curvature="0"
+         id="path819"
+         d="m -128.90376,84.799474 a 66.863943,66.863943 0 0 1 -66.78713,65.327286 66.863943,66.863943 0 0 1 -66.78714,-64.693733 66.863943,66.863943 0 0 0 -0.077,1.533757 66.863943,66.863943 0 0 0 66.86414,66.864136 66.863943,66.863943 0 0 0 66.86413,-66.864136 66.863943,66.863943 0 0 0 -0.077,-2.16731 z"
+         style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <circle
+         r="53.721176"
+         cy="74.266975"
+         cx="-195.69095"
+         id="path862"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3.2594595;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         id="text817"
+         y="129.33624"
+         x="-268.15051"
+         style="font-style:normal;font-weight:normal;font-size:144.91912842px;line-height:1.25;font-family:sans-serif;letter-spacing:26.70134926px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.62297797"
+         xml:space="preserve"><tspan
+           style="stroke-width:3.62297797"
+           y="129.33624"
+           x="-268.15051"
+           id="tspan815"
+           sodipodi:role="line">🅑</tspan></text>
+    </g>
+  </g>
+</svg>
