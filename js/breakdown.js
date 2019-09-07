@@ -1531,9 +1531,8 @@ class Settings {
         // if setting doesn't exist, we'll want to add it along with paramValue
         if (setting === undefined) return false;
         let suffix = Helpers.extractSuffix(value);
-        const s = suffix.toLowerCase();
         // special handler for values starting with '3d'
-        if (s.startsWith('d')) {
+        if (suffix.toLowerCase().startsWith('d')) {
             return setting.paramValue = value;
         }
         if (suffix !== '' && typeof value === 'string') {
