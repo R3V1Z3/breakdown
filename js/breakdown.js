@@ -1534,7 +1534,7 @@ class Settings {
         const s = suffix.toLowerCase();
         // special handler for values starting with '3d'
         if (s.startsWith('d')) {
-            return setting.paramValue = value + suffix;
+            return setting.paramValue = value;
         }
         if (suffix !== '' && typeof value === 'string') {
             value = Number(value.split(suffix)[0]);
