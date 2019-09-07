@@ -1531,6 +1531,10 @@ class Settings {
         // if setting doesn't exist, we'll want to add it along with paramValue
         if (setting === undefined) return false;
         let suffix = Helpers.extractSuffix(value);
+        const s = suffix.toLowerCase();
+        if (s === 'd' || s.startsWith('d-')) {
+            return setting.paramValue = value + suffix;
+        }
         if (suffix !== '' && typeof value === 'string') {
             value = Number(value.split(suffix)[0]);
         }
@@ -1663,7 +1667,7 @@ class Settings {
         let suffix = Helpers.extractSuffix(value);
         const s = suffix.toLowerCase();
         if (s === 'd' || s.startsWith('d-')) {
-            suffix = '';
+            return key.default = value + suffix;
         }
         if (suffix !== '' && typeof value === 'string') {
             value = Number(value.split(suffix)[0]);
