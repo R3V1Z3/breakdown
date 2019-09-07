@@ -378,6 +378,8 @@ class BreakDown {
         }
 
         var html = '';
+        // the 'raw' setting provides raw text from specified Gist
+        // it doesn't have sections to parse so we'll return here
         if (this.sections.isRaw()) return;
         sections.forEach(s => {
             let c = '';
@@ -1023,7 +1025,7 @@ class BreakDown {
             s.classList.remove('current', 'past', 'hi', 'lo');
         });
 
-        // return if section is raw code (rather than markdown content)
+        // return if section is raw code rather than markdown content
         if (this.sections.isRaw()) return;
 
         // update past section classes
@@ -2390,6 +2392,8 @@ class Markup {
     // wraps raw content in section and pre code tags
     wrapRaw(c) {
         let h = '';
+        // replace html tags
+        c = c.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         c = '<pre><code>' + c + '</pre></code>';
         return this.sectionHtml(h, c);
     }

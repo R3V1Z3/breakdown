@@ -9,14 +9,13 @@ The framework provides:
 
 ## What uses it?
 Several projects now use the framework:
-- [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
+- [Code Glory](https://ugotsta.github.io/code-glory/) - glorify your code with CSS effects
 - [DownSlide](https://ugotsta.github.io/downslide/) - automatic presentations from Markdown documents
 - [Entwine](https://ugotsta.github.io/entwine/) - interactive fiction ala Markdown
-- [EntwinED](https://ugotsta.github.io/entwined/) - modular text processor and editor for Entwine
-- [Emphases](https://ugotsta.github.io/emphases/) - annotation and highlighting app, mainly for Bible references
+- [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
 
 ## GitHub not required
-While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project that can run on any HTML/JavaScript capable server.
+While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project so any web server can serve the app.
 
 `ⓘ This code block will not be rendered in the app. The code below marks the start of the nav panel.`
 
