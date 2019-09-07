@@ -1532,7 +1532,8 @@ class Settings {
         if (setting === undefined) return false;
         let suffix = Helpers.extractSuffix(value);
         const s = suffix.toLowerCase();
-        if (s === 'd' || s.startsWith('d-')) {
+        // special handler for values starting with '3d'
+        if (s.startsWith('d')) {
             return setting.paramValue = value + suffix;
         }
         if (suffix !== '' && typeof value === 'string') {
@@ -1665,10 +1666,6 @@ class Settings {
         if (key === undefined) return false;
         // extra suffix if it exists and use numeric value as key.value
         let suffix = Helpers.extractSuffix(value);
-        const s = suffix.toLowerCase();
-        if (s === 'd' || s.startsWith('d-')) {
-            return key.default = value + suffix;
-        }
         if (suffix !== '' && typeof value === 'string') {
             value = Number(value.split(suffix)[0]);
         }
