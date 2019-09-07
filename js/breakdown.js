@@ -1659,7 +1659,12 @@ class Settings {
         name = name.toLowerCase();
         const key = this.settings.find(i => i.name === name);
         if (key === undefined) return false;
+        // extra suffix if it exists and use numeric value as key.value
         let suffix = Helpers.extractSuffix(value);
+        const s = suffix.toLowerCase();
+        if (s === 'd' || s.startsWith('d-')) {
+            suffix = '';
+        }
         if (suffix !== '' && typeof value === 'string') {
             value = Number(value.split(suffix)[0]);
         }
