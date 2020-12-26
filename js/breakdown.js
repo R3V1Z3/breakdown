@@ -2312,7 +2312,7 @@ class Markup {
               let user = path.replace(github, "").split("/")[0];
               const title = this.settings.setting['title'];
               url = `${github}${user}/${title}#${title}`;
-            } else {
+            }
             const div = `<a class="help-ribbon" href="${url}">?</a>`;
             c = c.replace(line, div);
           }
