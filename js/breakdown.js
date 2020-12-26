@@ -2297,14 +2297,25 @@ class Markup {
         c = c.replace('`🅑-theme-variables`', '<div class="theme-vars"></div>');
 
         if (c.includes('`🅑-help')) {
+            const github = "https://github.com/";
+            const path = Url.getPath();
+            // use "/help" as a base path for help url
+            let url = path + "help";
             const line = this.extractLine(c, '`🅑-help');
-            let url = "https://github.com/ugotsta/breakdown/#BreakDown";
-            let a = Helpers.getVariableAssignment(c.split('`🅑-help')[1]);
+            // use the user specific help url if it exists
+            const a = Helpers.getVariableAssignment(c.split('`🅑-help')[1]);
             // remove any leftover quotes just in case
-            if (a.length > 1) url = a.split('"')[0];
+            if (a.length > 1) {
+              url = a.split('"')[0];
+            } else if (path.startsWith() === github) {
+              // if url is a github page, build help url from user id and app title
+              let user = path.replace(github, "").split("/")[0];
+              const title = this.settings.setting['title'];
+              url = `${github}${user}/${title}#${title}`;
+            } else {
             const div = `<a class="help-ribbon" href="${url}">?</a>`;
             c = c.replace(line, div);
-        }
+          }
 
         // SELECT FIELDS
         if (c.includes('`🅑-slider')) {
@@ -3279,10 +3290,6 @@ class GFonts {
         };
         const full = Object.assign(added, gfonts);
         return full;
-    }
-
-    getSearchParams() {
-        return (new URL(location)).searchParams;
     }
 }
 
