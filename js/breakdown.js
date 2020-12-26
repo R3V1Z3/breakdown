@@ -2298,21 +2298,21 @@ class Markup {
         c = c.replace('`🅑-theme-variables`', '<div class="theme-vars"></div>');
 
         if (c.includes('`🅑-help')) {
-            const github = "https://github.com/";
             const path = Url.getPath();
             // use "/help" as a base path for help url
-            let url = path + "help";
+            let url = path + "/help";
             const line = this.extractLine(c, '`🅑-help');
             // use the user specific help url if it exists
             const a = Helpers.getVariableAssignment(c.split('`🅑-help')[1]);
             // remove any leftover quotes just in case
             if (a.length > 1) {
               url = a.split('"')[1];
-            } else if (path.startsWith() === github) {
+            } else if ( path.includes('gituhb.io') ) {
               // if url is a github page, build help url from user id and app title
-              let user = path.replace(github, "").split("/")[0];
-              const title = this.settings.setting['title'];
-              url = `${github}${user}/${title}#${title}`;
+              let user = path.replace("https://", "").split(".")[0];
+              let title = path.split("/")[1];
+              //const title = this.settings.setting['title'];
+              url = `https://github.com/${user}/${title}#${title}`;
             }
             const div = `<a class="help-ribbon" href="${url}">?</a>`;
             c = c.replace(line, div);
