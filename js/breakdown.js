@@ -1922,10 +1922,11 @@ class Helpers {
 
     // simple function to get variable assignment values (ie. x="hello")
     static getVariableAssignment(v) {
-        let result = '';
-        const assignment = v.split('=');
-        if (assignment.length > 1) result = assignment[1].substring(1);
-        return result.substring(0, result.length - 1);
+        // get index of first non-whitespace character
+        let i = len(v) - len(v.lstrip());
+        // return if equal sign is not first character
+        if ( v.charAt(i) !== '=' ) return "";
+        return v.substring( i + 1, v.length - 1 );
     }
 
     // helper function to determine if a line is a heading
