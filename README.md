@@ -46,5 +46,5 @@ css `🅑-datalist`
 
 ## Help `🅑-group`
 
-- `🅑-help="https://github.com/ugotsta/breakdown/#breakdown"`
-- `🅑-hide`
+`🅑-help="https://github.com/ugotsta/breakdown/#breakdown"`
+`🅑-hide`

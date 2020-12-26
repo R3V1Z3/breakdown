@@ -1923,7 +1923,7 @@ class Helpers {
     // simple function to get variable assignment values (ie. x="hello")
     static getVariableAssignment(v) {
         // get index of first non-whitespace character
-        let i = len(v) - len(v.lstrip());
+        const i = v.length - v.trimStart().length;
         // return if equal sign is not first character
         if ( v.charAt(i) !== '=' ) return "";
         return v.substring( i + 1, v.length - 1 );
@@ -2307,7 +2307,7 @@ class Markup {
             const a = Helpers.getVariableAssignment(c.split('`🅑-help')[1]);
             // remove any leftover quotes just in case
             if (a.length > 1) {
-              url = a.split('"')[0];
+              url = a.split('"')[1];
             } else if (path.startsWith() === github) {
               // if url is a github page, build help url from user id and app title
               let user = path.replace(github, "").split("/")[0];
