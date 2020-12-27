@@ -2306,7 +2306,7 @@ class Markup {
             // remove any leftover quotes just in case
             if (a.length > 1) {
               url = a.split('"')[1];
-            } else if ( window.location.hostname.includes('gituhb.io') ) {
+            } else if ( window.location.hostname.includes('github.io') ) {
               // if url is a github page, build help url from user/title path
               const path = Url.getPath();
               const title = path.split("/")[1];
