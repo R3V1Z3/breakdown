@@ -2488,7 +2488,7 @@ class Markdown {
 
         // LINKS
         // Non-reference links [title](href)
-        l = l.replace(/\[(.*?)\]\((.*)\)/g, `<a href="$2">$1</a>`);
+        l = l.replace(/\[(.*?)\]\((.*?)\)/g, `<a href="$2">$1</a>`);
         // Reference links [title][id]
         l = l.replace(/\[(.*?)\]\[(.[^\[\]]*)\]/g, (match) => {
             return this.getReference(match);
