@@ -2782,7 +2782,9 @@ class Sections {
     // reset section content to default (empty)
     clear() {
         // when filled, section content will include raw markdown
-        // ['# The Red Door', 'Nothing here but a large, Red_ door.']
+        // sections is an array of 2-dimensional arrays including:
+        // Heading s[0], Content s[1]
+        // ['# The Red Door', 'Nothing here but a large, _Red_ door.']
         this.sections = [];
         // this.current holds the id of the current section
         this.current = undefined;
@@ -2942,6 +2944,11 @@ class Sections {
 
     setSections(sections) {
         this.sections = sections;
+    }
+
+    // @section = 2-dimensional array containing [header, content]
+    setSection(index, section) {
+        this.sections[index] = section;
     }
 
     getSections() {
