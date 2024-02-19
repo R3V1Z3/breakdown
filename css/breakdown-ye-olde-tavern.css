@@ -1,6 +1,6 @@
 /*
   Theme name: Ye Olde Tavern
-  URL: https://gist.github.com/Ugotsta/e9dc237da3d9bda63302fe4b659c20b5
+  URL: https://gist.github.com/R3V1Z3/e9dc237da3d9bda63302fe4b659c20b5
 */
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|UnifrakturMaguntia');
@@ -65,7 +65,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url(https://ugotsta.github.io/breakdown/assets/more-rough-wood-planks.jpg);
+    background: url(https://R3V1Z3.github.io/breakdown/assets/more-rough-wood-planks.jpg);
     box-shadow: inset 0 0 100px black, inset 0 0 50px black;
     background-size: 700px;
 }
@@ -203,7 +203,7 @@ connection {
 #custom .info {
     box-shadow: -2px 2px 8px rgba(0,0,0,0.45), inset 0 0 20px black;
     mix-blend-mode: normal;
-    background-image: url(https://ugotsta.github.io/breakdown/assets/more-rough-wood-planks.jpg);
+    background-image: url(https://R3V1Z3.github.io/breakdown/assets/more-rough-wood-planks.jpg);
     background-size: 800px;
 }
 

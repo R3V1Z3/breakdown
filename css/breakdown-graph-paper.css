@@ -1,6 +1,6 @@
 /*
     Theme name: Graph Paper
-    URL: https://gist.github.com/Ugotsta/77b1f66ad5093c2db29c666ad15f334d
+    URL: https://gist.github.com/R3V1Z3/77b1f66ad5093c2db29c666ad15f334d
 */
 
 @import url('https://fonts.googleapis.com/css?family=Cabin+Sketch|Caveat');
@@ -40,7 +40,7 @@ text-shadow: none;
 .inner {
     position: unset;
     background-color: aliceblue;
-    background-image: url(https://ugotsta.github.io/breakdown/assets/paper-set.jpg);
+    background-image: url(https://R3V1Z3.github.io/breakdown/assets/paper-set.jpg);
     font-size: 130%;
     background-blend-mode: luminosity;
 }
@@ -109,7 +109,7 @@ connection {
 
 #bd-cheats .inner .section {
     border: 1px solid rgba(0,0,0,0.3);
-    background-image: url(https://ugotsta.github.io/breakdown/assets/paper-set.jpg);
+    background-image: url(https://R3V1Z3.github.io/breakdown/assets/paper-set.jpg);
     background-color: cornflowerblue;
     background-blend-mode: luminosity;
 }

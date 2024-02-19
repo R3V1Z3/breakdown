@@ -1,6 +1,6 @@
 /*
   Theme name: Tech Archaic
-  URL: https://gist.github.com/Ugotsta/e27b284231488b349f35786f6340096a
+  URL: https://gist.github.com/R3V1Z3/e27b284231488b349f35786f6340096a
 */
 
 @import url('https://fonts.googleapis.com/css?family=Orbitron');
@@ -120,7 +120,7 @@
     right: 0;
     left: 0;
     pointer-events: none;
-    background-image: url(https://ugotsta.github.io/breakdown/assets/wood-surface.jpg), linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
+    background-image: url(https://R3V1Z3.github.io/breakdown/assets/wood-surface.jpg), linear-gradient(45deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);
     box-shadow: inset 0 0 200px black;
 }
 

@@ -9,10 +9,10 @@ The framework provides:
 
 ## What uses it?
 Several projects now use the framework:
-- [Code Glory](https://ugotsta.github.io/code-glory/) - glorify your code with CSS effects
-- [DownSlide](https://ugotsta.github.io/downslide/) - automatic presentations from Markdown documents
-- [Entwine](https://ugotsta.github.io/entwine/) - interactive fiction ala Markdown
-- [CHEATScheat](https://ugotsta.github.io/cheats/) - cheatsheet viewer
+- [Code Glory](https://R3V1Z3.github.io/code-glory/) - glorify your code with CSS effects
+- [DownSlide](https://R3V1Z3.github.io/downslide/) - automatic presentations from Markdown documents
+- [Entwine](https://R3V1Z3.github.io/entwine/) - interactive fiction ala Markdown
+- [CHEATScheat](https://R3V1Z3.github.io/cheats/) - cheatsheet viewer
 
 ## GitHub not required
 While this framework is built to work on GitHub Pages, it isn't required. This is a client-side JavaScript project so any web server can serve the app.

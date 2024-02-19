@@ -1,6 +1,6 @@
 /*
   Theme name: Old Glory
-  URL: https://gist.github.com/Ugotsta/43bff1c9c6ae8a829f67bd707ee8f142/
+  URL: https://gist.github.com/R3V1Z3/43bff1c9c6ae8a829f67bd707ee8f142/
 */
 
 @import url('https://fonts.googleapis.com/css?family=Calligraffitti|IM+Fell+Double+Pica|Alex+Brush');
@@ -64,7 +64,7 @@ code {
   left: 0;
   bottom: 0;
   right: 0;
-  background: url(https://ugotsta.github.io/breakdown/assets/paper-onion-skin.jpg);
+  background: url(https://R3V1Z3.github.io/breakdown/assets/paper-onion-skin.jpg);
   pointer-events: none;
   background-blend-mode: luminosity;
   mix-blend-mode: overlay;

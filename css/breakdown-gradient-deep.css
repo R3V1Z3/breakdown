@@ -1,6 +1,6 @@
 /*
     Theme name: Gradient Deep
-    URL: https://gist.github.com/Ugotsta/51aa23d96f9bd81fe55c47b2d51855a5
+    URL: https://gist.github.com/R3V1Z3/51aa23d96f9bd81fe55c47b2d51855a5
 */
 
 @import url('https://fonts.googleapis.com/css?family=Poiret+One|Great+Vibes');
@@ -61,7 +61,7 @@ a.choice:hover {
     bottom: 0;
     border: none;
     border-width: 15px;
-    border-image: url(https://ugotsta.github.io/breakdown/assets/svg/Border49-A4--Arvin61r58.svg) 90;
+    border-image: url(https://R3V1Z3.github.io/breakdown/assets/svg/Border49-A4--Arvin61r58.svg) 90;
     border-style: outset;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
 }
@@ -74,7 +74,7 @@ a.choice:hover {
     left: 0;
     right: 0;
     pointer-events: none;
-    background-image: url(https://ugotsta.github.io/breakdown/assets/paper-set-textured.jpg);
+    background-image: url(https://R3V1Z3.github.io/breakdown/assets/paper-set-textured.jpg);
     background-color: var(--bg);
     background-blend-mode: multiply;
     box-shadow: inset 0 0 100px black;

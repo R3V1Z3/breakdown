@@ -1,6 +1,6 @@
 /*
   Theme name: Woodwork
-  URL: https://gist.github.com/Ugotsta/ece15baa3b80cd95bc0b7a0a2b5a24bd
+  URL: https://gist.github.com/R3V1Z3/ece15baa3b80cd95bc0b7a0a2b5a24bd
 */
 
 @import url('https://fonts.googleapis.com/css?family=Baloo|Lobster');
@@ -21,7 +21,7 @@
   bottom: 0;
   right: 0;
   left: 0;
-  background: radial-gradient(ellipse at center, rgba(109,84,70,0.2) 0%,rgba(91,40,1,1) 100%), url("https://ugotsta.github.io/breakdown/assets/rough-wood-vertical.jpg");
+  background: radial-gradient(ellipse at center, rgba(109,84,70,0.2) 0%,rgba(91,40,1,1) 100%), url("https://R3V1Z3.github.io/breakdown/assets/rough-wood-vertical.jpg");
   box-shadow: inset 0 0 150px black, inset 0 0 50px black;
   background-blend-mode: color-dodge;
   pointer-events: none;

@@ -451,12 +451,12 @@ class BreakDown {
                 if (exampleId.trim() === id.trim()) {
                     const f = 'breakdown-' + Helpers.cssId(key) + ext;
                     urls.push([type, id, filePath + f]);
-                    urls.push([type, id, '//ugotsta.github.io/breakdown/' + filePath + f]);
+                    urls.push([type, id, '//R3V1Z3.github.io/breakdown/' + filePath + f]);
                 }
             }
         }
         urls.push([type, id, filePath + id + ext]);
-        urls.push([type, id, '//ugotsta.github.io/breakdown/' + filePath + id + ext]);
+        urls.push([type, id, '//R3V1Z3.github.io/breakdown/' + filePath + id + ext]);
         urls.push([type, id, `//api.github.com/gists/${id}`]);
         console.log(urls);
         return urls;
@@ -1761,7 +1761,7 @@ class Settings {
             // set these to false to not merge them into sub-app
             mergeThemes: true,
 
-            origin: '//ugotsta.github.io',
+            origin: '//R3V1Z3.github.io',
         };
 
         // merge user pvovided options, these options will become new defaults

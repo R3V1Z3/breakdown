@@ -1,6 +1,6 @@
 /*
     Theme name: Writing on the Wall
-    URL: https://gist.github.com/Ugotsta/241b47680c730c7162cb5f82d6d788fa
+    URL: https://gist.github.com/R3V1Z3/241b47680c730c7162cb5f82d6d788fa
 */
 
 @import url('https://fonts.googleapis.com/css?family=Homemade+Apple|Waiting+for+the+Sunrise');
@@ -104,9 +104,9 @@
     right: 0;
     bottom: 0;
     position: fixed;
-    background: url(https://ugotsta.github.io/breakdown/assets/wet-stone-night.jpg);
+    background: url(https://R3V1Z3.github.io/breakdown/assets/wet-stone-night.jpg);
     background-size: 800px;
-    background: linear-gradient(45deg, rgb(79, 20, 2) 0%,rgb(101, 95, 139) 30%,rgb(158, 145, 145) 72%,rgb(121, 98, 65) 100%), url(https://ugotsta.github.io/breakdown/assets/wet-stone-night.jpg);
+    background: linear-gradient(45deg, rgb(79, 20, 2) 0%,rgb(101, 95, 139) 30%,rgb(158, 145, 145) 72%,rgb(121, 98, 65) 100%), url(https://R3V1Z3.github.io/breakdown/assets/wet-stone-night.jpg);
     background-blend-mode: color-dodge;
     box-shadow: inset 0 0 50px black, inset 0 0 100px black;
     filter: contrast(75%) brightness(75%);

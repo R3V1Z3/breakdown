@@ -1,6 +1,6 @@
 /*
   Theme name: Ghastly
-  URL: https://gist.github.com/Ugotsta/d1a6d5621b883bf6af886855d853d502
+  URL: https://gist.github.com/R3V1Z3/d1a6d5621b883bf6af886855d853d502
 */
 
 @import url('https://fonts.googleapis.com/css?family=Josefin+Slab|Mr+De+Haviland|Rozha+One');
@@ -21,7 +21,7 @@
 }
 
 #custom .inner .section {
-  background: url(https://ugotsta.github.io/breakdown/assets/paper-set-textured.jpg);
+  background: url(https://R3V1Z3.github.io/breakdown/assets/paper-set-textured.jpg);
   border: none;
   box-shadow: inset 0 0 200px black, inset 0 0 2px white, 0px 0px 40px slategrey;
   mix-blend-mode: difference;
@@ -102,7 +102,7 @@ a.handle::before {
   right: 0;
   left: 0;
   content: "";
-  background: url(https://ugotsta.github.io/breakdown/assets/paper-set-textured.jpg);
+  background: url(https://R3V1Z3.github.io/breakdown/assets/paper-set-textured.jpg);
   mix-blend-mode: difference;
   opacity: 1;
   box-shadow: inset 0 0 40px black;
